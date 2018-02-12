@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitattributes" />
+    <None Include="..\.gitignore" />
+    <None Include="..\.gitmodules" />
+    <None Include="..\LICENSE" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\CMakeLists.txt">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Alliance.cpp" />
+    <ClCompile Include="..\src\AllianceMgr.cpp" />
+    <ClCompile Include="..\src\amf3array.cpp" />
+    <ClCompile Include="..\src\amf3classdef.cpp" />
+    <ClCompile Include="..\src\amf3object.cpp" />
+    <ClCompile Include="..\src\amf3objectmap.cpp" />
+    <ClCompile Include="..\src\amf3parser.cpp" />
+    <ClCompile Include="..\src\amf3writer.cpp" />
+    <ClCompile Include="..\src\City.cpp" />
+    <ClCompile Include="..\src\Client.cpp" />
+    <ClCompile Include="..\src\connection.cpp" />
+    <ClCompile Include="..\src\Hero.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Map.cpp" />
+    <ClCompile Include="..\src\Market.cpp" />
+    <ClCompile Include="..\src\NpcCity.cpp" />
+    <ClCompile Include="..\src\packets\packet.cpp" />
+    <ClCompile Include="..\src\packets\palliance.cpp" />
+    <ClCompile Include="..\src\packets\parmy.cpp" />
+    <ClCompile Include="..\src\packets\pcastle.cpp" />
+    <ClCompile Include="..\src\packets\pcity.cpp" />
+    <ClCompile Include="..\src\packets\pcommon.cpp" />
+    <ClCompile Include="..\src\packets\pfield.cpp" />
+    <ClCompile Include="..\src\packets\pfortifications.cpp" />
+    <ClCompile Include="..\src\packets\pfriend.cpp" />
+    <ClCompile Include="..\src\packets\pfurlough.cpp" />
+    <ClCompile Include="..\src\packets\pgameclient.cpp" />
+    <ClCompile Include="..\src\packets\phero.cpp" />
+    <ClCompile Include="..\src\packets\pinterior.cpp" />
+    <ClCompile Include="..\src\packets\plogin.cpp" />
+    <ClCompile Include="..\src\packets\pmail.cpp" />
+    <ClCompile Include="..\src\packets\pquest.cpp" />
+    <ClCompile Include="..\src\packets\prank.cpp" />
+    <ClCompile Include="..\src\packets\preport.cpp" />
+    <ClCompile Include="..\src\packets\pserver.cpp" />
+    <ClCompile Include="..\src\packets\pshop.cpp" />
+    <ClCompile Include="..\src\packets\ptech.cpp" />
+    <ClCompile Include="..\src\packets\ptrade.cpp" />
+    <ClCompile Include="..\src\packets\ptroop.cpp" />
+    <ClCompile Include="..\src\packets\punknown.cpp" />
+    <ClCompile Include="..\src\PlayerCity.cpp" />
+    <ClCompile Include="..\src\request_handler.cpp" />
+    <ClCompile Include="..\src\spitfire.cpp" />
+    <ClCompile Include="..\src\Tile.cpp" />
+    <ClCompile Include="..\src\Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Alliance.h" />
+    <ClInclude Include="..\src\AllianceMgr.h" />
+    <ClInclude Include="..\src\amf3.h" />
+    <ClInclude Include="..\src\amf3array.h" />
+    <ClInclude Include="..\src\amf3classdef.h" />
+    <ClInclude Include="..\src\amf3object.h" />
+    <ClInclude Include="..\src\amf3objectmap.h" />
+    <ClInclude Include="..\src\amf3parser.h" />
+    <ClInclude Include="..\src\amf3reflist.h" />
+    <ClInclude Include="..\src\amf3writer.h" />
+    <ClInclude Include="..\src\City.h" />
+    <ClInclude Include="..\src\Client.h" />
+    <ClInclude Include="..\src\connection.h" />
+    <ClInclude Include="..\src\defines.h" />
+    <ClInclude Include="..\src\Hero.h" />
+    <ClInclude Include="..\src\Map.h" />
+    <ClInclude Include="..\src\Market.h" />
+    <ClInclude Include="..\src\NpcCity.h" />
+    <ClInclude Include="..\src\packets\packet.h" />
+    <ClInclude Include="..\src\packets\palliance.h" />
+    <ClInclude Include="..\src\packets\parmy.h" />
+    <ClInclude Include="..\src\packets\pcastle.h" />
+    <ClInclude Include="..\src\packets\pcity.h" />
+    <ClInclude Include="..\src\packets\pcommon.h" />
+    <ClInclude Include="..\src\packets\pfield.h" />
+    <ClInclude Include="..\src\packets\pfortifications.h" />
+    <ClInclude Include="..\src\packets\pfriend.h" />
+    <ClInclude Include="..\src\packets\pfurlough.h" />
+    <ClInclude Include="..\src\packets\pgameclient.h" />
+    <ClInclude Include="..\src\packets\phero.h" />
+    <ClInclude Include="..\src\packets\pinterior.h" />
+    <ClInclude Include="..\src\packets\plogin.h" />
+    <ClInclude Include="..\src\packets\pmail.h" />
+    <ClInclude Include="..\src\packets\pquest.h" />
+    <ClInclude Include="..\src\packets\prank.h" />
+    <ClInclude Include="..\src\packets\preport.h" />
+    <ClInclude Include="..\src\packets\pserver.h" />
+    <ClInclude Include="..\src\packets\pshop.h" />
+    <ClInclude Include="..\src\packets\ptech.h" />
+    <ClInclude Include="..\src\packets\ptrade.h" />
+    <ClInclude Include="..\src\packets\ptroop.h" />
+    <ClInclude Include="..\src\packets\punknown.h" />
+    <ClInclude Include="..\src\PlayerCity.h" />
+    <ClInclude Include="..\src\request_handler.h" />
+    <ClInclude Include="..\src\spitfire.h" />
+    <ClInclude Include="..\src\structs.h" />
+    <ClInclude Include="..\src\Tile.h" />
+    <ClInclude Include="..\src\Utils.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D2DCEAFD-57F7-4DE3-91BE-94271EBDA177}</ProjectGuid>
+    <Keyword>Linux</Keyword>
+    <RootNamespace>spitfire</RootNamespace>
+    <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
+    <ApplicationType>Linux</ApplicationType>
+    <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
+    <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
+    <LinuxProjectType>{D2DCEAFD-57F7-4DE3-91BE-94271EBDA177}</LinuxProjectType>
+    <ProjectName>spitfire</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>lib/poco-1.7.8/Foundation/include;lib/poco-1.7.8/Net/include;lib/poco-1.7.8/NetSSL/include;lib/poco-1.7.8/NetSSL_OpenSSL/include;lib/poco-1.7.8/Crypto/include;lib/json/src;lib/redisclient/src;lib/fmt;lib/poco-1.7.8/Data/MySQL/include;lib/poco-1.7.8/Data/include;$(IncludePath)</IncludePath>
+    <TargetExt />
+    <SourcePath>
+    </SourcePath>
+    <RemoteCppCompileToolExe>g++-7</RemoteCppCompileToolExe>
+    <LibraryPath>lib/fmt/fmt</LibraryPath>
+    <RemoteCCompileToolExe>g++-7</RemoteCCompileToolExe>
+    <RemoteLdToolExe>g++-7</RemoteLdToolExe>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>lib/poco-1.7.8/Foundation/include;lib/poco-1.7.8/Net/include;lib/poco-1.7.8/NetSSL/include;lib/poco-1.7.8/NetSSL_OpenSSL/include;lib/poco-1.7.8/Crypto/include;lib/json/src;lib/redisclient/src;lib/fmt;$(IncludePath)</IncludePath>
+    <TargetExt />
+    <LibraryPath>lib/poco-1.7.8/lib;lib/fmt/fmt</LibraryPath>
+    <RemoteCCompileToolExe>g++-7</RemoteCCompileToolExe>
+    <RemoteCppCompileToolExe>g++-7</RemoteCppCompileToolExe>
+    <RemoteLdToolExe>g++-7</RemoteLdToolExe>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <LibraryDependencies>PocoFoundation;PocoData;PocoDataMySQL;pthread;crypto;z;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;ASIO_STANDALONE;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(StlIncludeDirectories);/root/spitfire/lib/spdlog/include;/usr/local/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-std=c++17 </AdditionalOptions>
+      <CppAdditionalWarning>
+      </CppAdditionalWarning>
+      <CAdditionalWarning />
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <CppLanguageStandard>
+      </CppLanguageStandard>
+      <CLanguageStandard />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <LibraryDependencies>PocoFoundation;PocoData;PocoDataMySQL;pthread;crypto;z;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
+    <ClCompile>
+      <CppLanguageStandard>
+      </CppLanguageStandard>
+      <CAdditionalWarning />
+      <CppAdditionalWarning />
+      <PreprocessorDefinitions>ASIO_STANDALONE;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB</PreprocessorDefinitions>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <AdditionalOptions>-std=c++17 %(AdditionalOptions)</AdditionalOptions>
+      <CLanguageStandard />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

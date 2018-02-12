@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Alliance.cpp" />
+    <ClCompile Include="..\src\AllianceMgr.cpp" />
+    <ClCompile Include="..\src\amf3array.cpp" />
+    <ClCompile Include="..\src\amf3classdef.cpp" />
+    <ClCompile Include="..\src\amf3object.cpp" />
+    <ClCompile Include="..\src\amf3objectmap.cpp" />
+    <ClCompile Include="..\src\amf3parser.cpp" />
+    <ClCompile Include="..\src\amf3writer.cpp" />
+    <ClCompile Include="..\src\City.cpp" />
+    <ClCompile Include="..\src\Client.cpp" />
+    <ClCompile Include="..\src\connection.cpp" />
+    <ClCompile Include="..\src\Hero.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Map.cpp" />
+    <ClCompile Include="..\src\Market.cpp" />
+    <ClCompile Include="..\src\NpcCity.cpp" />
+    <ClCompile Include="..\src\packets\packet.cpp" />
+    <ClCompile Include="..\src\packets\palliance.cpp" />
+    <ClCompile Include="..\src\packets\parmy.cpp" />
+    <ClCompile Include="..\src\packets\pcastle.cpp" />
+    <ClCompile Include="..\src\packets\pcity.cpp" />
+    <ClCompile Include="..\src\packets\pcommon.cpp" />
+    <ClCompile Include="..\src\packets\pfield.cpp" />
+    <ClCompile Include="..\src\packets\pfortifications.cpp" />
+    <ClCompile Include="..\src\packets\pfriend.cpp" />
+    <ClCompile Include="..\src\packets\pfurlough.cpp" />
+    <ClCompile Include="..\src\packets\pgameclient.cpp" />
+    <ClCompile Include="..\src\packets\phero.cpp" />
+    <ClCompile Include="..\src\packets\pinterior.cpp" />
+    <ClCompile Include="..\src\packets\plogin.cpp" />
+    <ClCompile Include="..\src\packets\pmail.cpp" />
+    <ClCompile Include="..\src\packets\pquest.cpp" />
+    <ClCompile Include="..\src\packets\prank.cpp" />
+    <ClCompile Include="..\src\packets\preport.cpp" />
+    <ClCompile Include="..\src\packets\pserver.cpp" />
+    <ClCompile Include="..\src\packets\pshop.cpp" />
+    <ClCompile Include="..\src\packets\ptech.cpp" />
+    <ClCompile Include="..\src\packets\ptrade.cpp" />
+    <ClCompile Include="..\src\packets\ptroop.cpp" />
+    <ClCompile Include="..\src\packets\punknown.cpp" />
+    <ClCompile Include="..\src\PlayerCity.cpp" />
+    <ClCompile Include="..\src\request_handler.cpp" />
+    <ClCompile Include="..\src\spitfire.cpp" />
+    <ClCompile Include="..\src\Tile.cpp" />
+    <ClCompile Include="..\src\Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Alliance.h" />
+    <ClInclude Include="..\src\AllianceMgr.h" />
+    <ClInclude Include="..\src\amf3.h" />
+    <ClInclude Include="..\src\amf3array.h" />
+    <ClInclude Include="..\src\amf3classdef.h" />
+    <ClInclude Include="..\src\amf3object.h" />
+    <ClInclude Include="..\src\amf3objectmap.h" />
+    <ClInclude Include="..\src\amf3parser.h" />
+    <ClInclude Include="..\src\amf3reflist.h" />
+    <ClInclude Include="..\src\amf3writer.h" />
+    <ClInclude Include="..\src\City.h" />
+    <ClInclude Include="..\src\Client.h" />
+    <ClInclude Include="..\src\connection.h" />
+    <ClInclude Include="..\src\defines.h" />
+    <ClInclude Include="..\src\Hero.h" />
+    <ClInclude Include="..\src\Map.h" />
+    <ClInclude Include="..\src\Market.h" />
+    <ClInclude Include="..\src\NpcCity.h" />
+    <ClInclude Include="..\src\packets\packet.h" />
+    <ClInclude Include="..\src\packets\palliance.h" />
+    <ClInclude Include="..\src\packets\parmy.h" />
+    <ClInclude Include="..\src\packets\pcastle.h" />
+    <ClInclude Include="..\src\packets\pcity.h" />
+    <ClInclude Include="..\src\packets\pcommon.h" />
+    <ClInclude Include="..\src\packets\pfield.h" />
+    <ClInclude Include="..\src\packets\pfortifications.h" />
+    <ClInclude Include="..\src\packets\pfriend.h" />
+    <ClInclude Include="..\src\packets\pfurlough.h" />
+    <ClInclude Include="..\src\packets\pgameclient.h" />
+    <ClInclude Include="..\src\packets\phero.h" />
+    <ClInclude Include="..\src\packets\pinterior.h" />
+    <ClInclude Include="..\src\packets\plogin.h" />
+    <ClInclude Include="..\src\packets\pmail.h" />
+    <ClInclude Include="..\src\packets\pquest.h" />
+    <ClInclude Include="..\src\packets\prank.h" />
+    <ClInclude Include="..\src\packets\preport.h" />
+    <ClInclude Include="..\src\packets\pserver.h" />
+    <ClInclude Include="..\src\packets\pshop.h" />
+    <ClInclude Include="..\src\packets\ptech.h" />
+    <ClInclude Include="..\src\packets\ptrade.h" />
+    <ClInclude Include="..\src\packets\ptroop.h" />
+    <ClInclude Include="..\src\packets\punknown.h" />
+    <ClInclude Include="..\src\PlayerCity.h" />
+    <ClInclude Include="..\src\request_handler.h" />
+    <ClInclude Include="..\src\spitfire.h" />
+    <ClInclude Include="..\src\Tile.h" />
+    <ClInclude Include="..\src\Utils.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{866C9B18-FA95-45FE-89E5-D84CB14E59A0}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>spitfirewin</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>..\..\poco-1.7.8-all\lib\Debug;..\lib\fmt\fmt\Debug;..\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>..\..\poco-1.7.8-all\lib\Release;..\lib\fmt\fmt\Release;..\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_HAS_AUTO_PTR_ETC;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;ASIO_STANDALONE;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;_SCL_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0600;_DEBUG;_CONSOLE;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\headers;C:\headers\openssl</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>
+      </MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>PocoFoundationd.lib;PocoDataMySQLd.lib;PocoDatad.lib;fmt.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_HAS_AUTO_PTR_ETC;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;ASIO_STANDALONE;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;_SCL_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0600;NDEBUG;_CONSOLE;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\headers;C:\headers\openssl</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>PocoFoundation.lib;PocoData.lib;PocoDataMySQL.lib;fmt.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

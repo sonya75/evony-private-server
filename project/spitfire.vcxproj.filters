@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\spitfire.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\amf3array.cpp">
+      <Filter>src\amf3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\amf3classdef.cpp">
+      <Filter>src\amf3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\amf3object.cpp">
+      <Filter>src\amf3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\amf3objectmap.cpp">
+      <Filter>src\amf3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\amf3parser.cpp">
+      <Filter>src\amf3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\amf3writer.cpp">
+      <Filter>src\amf3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Utils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\connection.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\request_handler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Client.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Tile.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\NpcCity.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\PlayerCity.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\City.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Map.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Hero.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Market.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Alliance.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AllianceMgr.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\palliance.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\parmy.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pcastle.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pcity.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pcommon.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pfield.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pfortifications.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pfriend.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pfurlough.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pgameclient.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\phero.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pinterior.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pmail.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pquest.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\prank.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\preport.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pserver.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\pshop.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\ptech.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\ptrade.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\ptroop.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\punknown.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\packet.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\packets\plogin.cpp">
+      <Filter>src\packets</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\CMakeLists.txt">
+      <Filter>misc</Filter>
+    </None>
+    <None Include="..\.gitattributes">
+      <Filter>misc</Filter>
+    </None>
+    <None Include="..\.gitignore">
+      <Filter>misc</Filter>
+    </None>
+    <None Include="..\.gitmodules">
+      <Filter>misc</Filter>
+    </None>
+    <None Include="..\LICENSE">
+      <Filter>misc</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{eada61b0-b871-4eae-b05c-a0c31cb089f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc">
+      <UniqueIdentifier>{06630e07-5253-46c1-a0d6-cd41cbff9443}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\amf3">
+      <UniqueIdentifier>{d848a577-0c83-4cb4-8815-3bc78d9e62cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\packets">
+      <UniqueIdentifier>{4758048a-8d27-4a23-bdce-ef9d8059cb19}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\spitfire.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3array.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3classdef.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3object.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3objectmap.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3parser.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3reflist.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3writer.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\amf3.h">
+      <Filter>src\amf3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Utils.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\connection.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\request_handler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Client.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Tile.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\NpcCity.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\PlayerCity.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\City.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Map.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\defines.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Hero.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Market.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Alliance.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AllianceMgr.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\palliance.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\parmy.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pcastle.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pcity.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pcommon.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pfield.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pfortifications.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pfriend.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pfurlough.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pgameclient.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\phero.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pinterior.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pmail.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pquest.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\prank.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\preport.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pserver.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\pshop.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\ptech.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\ptrade.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\ptroop.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\punknown.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\packet.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\packets\plogin.h">
+      <Filter>src\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\structs.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
