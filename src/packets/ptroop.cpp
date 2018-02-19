@@ -40,7 +40,7 @@ void ptroop::process()
 
 //		client->lists.lock();
 		amf3array producequeue = amf3array();
-		for (int i = 0; i < 35; ++i)
+		for (int i = 0; i < 33; ++i)
 		{
 			stBuilding * building = city->GetBuilding(i);
 			if ((building) && (building->type == B_BARRACKS))
