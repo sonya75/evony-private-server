@@ -24,6 +24,7 @@ pcastle::~pcastle()
 
 }
 
+int pcastle::outsidebuildings[4]= {7,4,5,6};
 void pcastle::process()
 {
 	obj2["data"] = amf3object();
@@ -244,10 +245,8 @@ void pcastle::process()
 		obj2["cmd"] = "castle.getAvailableBuildingListOutside";
 		amf3array buildinglist = amf3array();
 
-		for (int i = 0; i < 35; ++i)
+		for (int& i: outsidebuildings)
 		{
-			if (gserver.m_buildingconfig[i][0].inside != 0)
-				continue;
 			if (gserver.m_buildingconfig[i][0].limit > 0 && gserver.m_buildingconfig[i][0].limit <= city->GetBuildingCount(i))
 				continue;
 			if (gserver.m_buildingconfig[i][0].time > 0)
