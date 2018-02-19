@@ -104,7 +104,7 @@ std::string PlayerCity::DBTroopQueues() const
 int8_t PlayerCity::SetTroopQueue(int32_t position, int32_t troopid, int32_t count, int64_t costtime, int64_t endtime)
 {
     stTroopQueue* x = GetBarracksQueue(position);
-    if (x == NULL) return false;
+    if (x == nullptr) return false;
     if (endtime <= Utils::time()) {
         SetTroops(troopid, count);
         return false;
@@ -125,8 +125,8 @@ void PlayerCity::ParseTroopQueues(std::string str)
         char* x = new char[str.length() + 1];
         memcpy(x, str.c_str(), str.length());
         x[str.length()] = 0;
-        char* tk1 = NULL;
-        char* tk2 = NULL;
+        char* tk1 = nullptr;
+        char* tk2 = nullptr;
         char* token;
         char* token1;
         int position;
@@ -137,21 +137,21 @@ void PlayerCity::ParseTroopQueues(std::string str)
         int troopid;
         int queueid;
         bool status;
-        for (token=strtok_s(x,"|",&tk1) ; token != NULL;token=strtok_s(NULL,"|",&tk1)) {
-            tk2 = NULL;
+        for (token=strtok_s(x,"|",&tk1) ; token != nullptr;token=strtok_s(nullptr,"|",&tk1)) {
+            tk2 = nullptr;
             token1 = strtok_s(token, ",", &tk2);
-            if (token1 == NULL) continue;
+            if (token1 == nullptr) continue;
             position = atoi(token1);
-            token1 = strtok_s(NULL, ",", &tk2);
-            if (token1 == NULL) continue;
+            token1 = strtok_s(nullptr, ",", &tk2);
+            if (token1 == nullptr) continue;
             endtime = atof(token1);
-            for (token1=strtok_s(NULL,",",&tk2); token1 != NULL; token1 = strtok_s(NULL, ",", &tk2)) {
+            for (token1=strtok_s(nullptr,",",&tk2); token1 != nullptr; token1 = strtok_s(nullptr, ",", &tk2)) {
                 troopid = atoi(token1);
-                token1 = strtok_s(NULL, ",", &tk2);
-                if (token1 == NULL) break;
+                token1 = strtok_s(nullptr, ",", &tk2);
+                if (token1 == nullptr) break;
                 count = atoi(token1);
-                token1 = strtok_s(NULL, ",", &tk2);
-                if (token1 == NULL) break;
+                token1 = strtok_s(nullptr, ",", &tk2);
+                if (token1 == nullptr) break;
                 costtime = atof(token1);
                 if (SetTroopQueue(position, troopid, count, costtime, endtime)) endtime = 0;
                 else endtime += costtime;
