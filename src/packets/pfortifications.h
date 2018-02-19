@@ -11,8 +11,8 @@
 class pfortifications : public packet
 {
 public:
-	pfortifications(spitfire & server, request & req, amf3object & o);
-	~pfortifications();
-	void process();
+    pfortifications(spitfire & server, request & req, amf3object & o);
+    ~pfortifications();
+    void process();
 };
 

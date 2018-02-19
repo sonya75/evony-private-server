@@ -7,7 +7,7 @@
 #include "pserver.h"
 
 pserver::pserver(spitfire & server, request & req, amf3object & obj)
-	: packet(server, req, obj)
+    : packet(server, req, obj)
 {
 
 }
@@ -19,14 +19,14 @@ pserver::~pserver()
 
 void pserver::process()
 {
-	obj2["data"] = amf3object();
-	amf3object & data2 = obj2["data"];
+    obj2["data"] = amf3object();
+    amf3object & data2 = obj2["data"];
 
 
 #pragma region server
-	// 	if ((cmdtype == "server"))
-	// 	{
-	// 		//shouldn't have anything
-	// 	}
+    //     if ((cmdtype == "server"))
+    //     {
+    //         //shouldn't have anything
+    //     }
 #pragma endregion
 }

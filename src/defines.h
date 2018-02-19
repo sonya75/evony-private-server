@@ -192,22 +192,22 @@ inline void my_split(std::vector<std::string> & toks, const std::string & src, c
             break;
     }
 }
-// #define SQLCATCH(a)	catch (std::exception & e)\
+// #define SQLCATCH(a)    catch (std::exception & e)\
 // {\
-// 	std::string file = __FILE__;\
-// 	log->error("std::exception: {} {} {}", file, __LINE__, e.what()); \
+//     std::string file = __FILE__;\
+//     log->error("std::exception: {} {} {}", file, __LINE__, e.what()); \
 // }
 
-// #define SQLCATCH2(a, b)	catch (std::exception & e)\
+// #define SQLCATCH2(a, b)    catch (std::exception & e)\
 // {\
-// 	std::string file = __FILE__;\
-// 	b->log->error("std::exception: {} {} {}", file, __LINE__, e.what()); \
+//     std::string file = __FILE__;\
+//     b->log->error("std::exception: {} {} {}", file, __LINE__, e.what()); \
 // }
 
-// #define SQLCATCH3(a, b)	catch (std::exception & e)\
+// #define SQLCATCH3(a, b)    catch (std::exception & e)\
 // {\
-// 	std::string file = __FILE__;\
-// 	b.log->error("std::exception: {} {} {}", file, __LINE__, e.what()); \
+//     std::string file = __FILE__;\
+//     b.log->error("std::exception: {} {} {}", file, __LINE__, e.what()); \
 // }
 
 #ifdef WIN32
@@ -222,79 +222,79 @@ inline void my_split(std::vector<std::string> & toks, const std::string & src, c
 #define SQLCATCH3(a, b) __SQLCATCH3(_SFFUNC_, a, b)
 
 
-#define __SQLCATCH(b, a)	catch (Poco::Data::MySQL::ConnectionException& e)\
+#define __SQLCATCH(b, a)    catch (Poco::Data::MySQL::ConnectionException& e)\
 {\
-	log->error("ConnectionException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
-	a; \
+    log->error("ConnectionException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::Data::MySQL::StatementException& e)\
+    catch (Poco::Data::MySQL::StatementException& e)\
 {\
-	log->error("StatementException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
-	a; \
+    log->error("StatementException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::Data::MySQL::MySQLException& e)\
+    catch (Poco::Data::MySQL::MySQLException& e)\
 {\
-	log->error("MySQLException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
-	a; \
+    log->error("MySQLException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::InvalidArgumentException& e)\
+    catch (Poco::InvalidArgumentException& e)\
 {\
-	log->error("InvalidArgumentException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
-	a; \
+    log->error("InvalidArgumentException: {} {} {} {}", __FILE__, b, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (std::exception & e)\
+    catch (std::exception & e)\
 {\
-	log->error("std::exception: {} {} {} {}", __FILE__, b, __LINE__, e.what()); \
+    log->error("std::exception: {} {} {} {}", __FILE__, b, __LINE__, e.what()); \
 }
 
-#define __SQLCATCH2(c, a, b)	catch (Poco::Data::MySQL::ConnectionException& e)\
+#define __SQLCATCH2(c, a, b)    catch (Poco::Data::MySQL::ConnectionException& e)\
 {\
-	b->log->error("ConnectionException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b->log->error("ConnectionException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::Data::MySQL::StatementException& e)\
+    catch (Poco::Data::MySQL::StatementException& e)\
 {\
-	b->log->error("StatementException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b->log->error("StatementException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::Data::MySQL::MySQLException& e)\
+    catch (Poco::Data::MySQL::MySQLException& e)\
 {\
-	b->log->error("MySQLException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b->log->error("MySQLException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::InvalidArgumentException& e)\
+    catch (Poco::InvalidArgumentException& e)\
 {\
-	b->log->error("InvalidArgumentException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b->log->error("InvalidArgumentException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (std::exception & e)\
+    catch (std::exception & e)\
 {\
-	b->log->error("std::exception: {} {} {} {}", __FILE__, c, __LINE__, e.what()); \
+    b->log->error("std::exception: {} {} {} {}", __FILE__, c, __LINE__, e.what()); \
 }
 
-#define __SQLCATCH3(c, a, b)	catch (Poco::Data::MySQL::ConnectionException& e)\
+#define __SQLCATCH3(c, a, b)    catch (Poco::Data::MySQL::ConnectionException& e)\
 {\
-	b.log->error("ConnectionException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b.log->error("ConnectionException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::Data::MySQL::StatementException& e)\
+    catch (Poco::Data::MySQL::StatementException& e)\
 {\
-	b.log->error("StatementException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b.log->error("StatementException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::Data::MySQL::MySQLException& e)\
+    catch (Poco::Data::MySQL::MySQLException& e)\
 {\
-	b.log->error("MySQLException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b.log->error("MySQLException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (Poco::InvalidArgumentException& e)\
+    catch (Poco::InvalidArgumentException& e)\
 {\
-	b.log->error("InvalidArgumentException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
-	a; \
+    b.log->error("InvalidArgumentException: {} {} {} {}", __FILE__, c, __LINE__, e.displayText());\
+    a; \
 }\
-	catch (std::exception & e)\
+    catch (std::exception & e)\
 {\
-	b.log->error("std::exception: {} {} {} {}", __FILE__, c, __LINE__, e.what()); \
+    b.log->error("std::exception: {} {} {} {}", __FILE__, c, __LINE__, e.what()); \
 }
 
 

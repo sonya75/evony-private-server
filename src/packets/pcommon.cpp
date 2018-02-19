@@ -19,7 +19,7 @@ using namespace Poco::Data;
 using namespace Poco::Data::Keywords;
 
 pcommon::pcommon(spitfire & server, request & req, amf3object & obj)
-	: packet(server, req, obj)
+    : packet(server, req, obj)
 {
 
 }
@@ -31,293 +31,293 @@ pcommon::~pcommon()
 
 void pcommon::process()
 {
-	obj2["data"] = amf3object();
-	amf3object & data2 = obj2["data"];
+    obj2["data"] = amf3object();
+    amf3object & data2 = obj2["data"];
 
-	if (command == "worldChat")
-	{
-		obj2["cmd"] = "common.worldChat";
-		data2["packageId"] = 0.0;
-		data2["ok"] = 1;
+    if (command == "worldChat")
+    {
+        obj2["cmd"] = "common.worldChat";
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
 
-		gserver.SendObject(client, obj2);
+        gserver.SendObject(client, obj2);
 
-		amf3object obj3;
-		obj3["cmd"] = "server.ChannelChatMsg";
-		obj3["data"] = amf3object();
-		amf3object & data3 = obj3["data"];
-		if (client->prestigerank == 1)
-			data3["msg"] = "<font color=\"#FF0000\">" + (std::string)data["msg"] + "</font>";
-		else
-		{
-			if (client->HasAlliance() && client->GetAlliance()->m_prestigerank == 1)
-				data3["msg"] = "<font color=\"#0066FF\">" + (std::string)data["msg"] + "</font>";
-			else
-				data3["msg"] = data["msg"];
-		}
-		data3["languageType"] = 0;
-		data3["ownitemid"] = client->icon;
-		data3["fromUser"] = client->playername;
-		data3["channel"] = "world";
+        amf3object obj3;
+        obj3["cmd"] = "server.ChannelChatMsg";
+        obj3["data"] = amf3object();
+        amf3object & data3 = obj3["data"];
+        if (client->prestigerank == 1)
+            data3["msg"] = "<font color=\"#FF0000\">" + (std::string)data["msg"] + "</font>";
+        else
+        {
+            if (client->HasAlliance() && client->GetAlliance()->m_prestigerank == 1)
+                data3["msg"] = "<font color=\"#0066FF\">" + (std::string)data["msg"] + "</font>";
+            else
+                data3["msg"] = data["msg"];
+        }
+        data3["languageType"] = 0;
+        data3["ownitemid"] = client->icon;
+        data3["fromUser"] = client->playername;
+        data3["channel"] = "world";
 
-		std::list<Client*>::iterator playeriter;
+        std::list<Client*>::iterator playeriter;
 
-		if (gserver.ParseChat(client, data["msg"]))
-		{
-			for (playeriter = gserver.players.begin(); playeriter != gserver.players.end(); ++playeriter)
-			{
-				Client * client = *playeriter;
-				if (client)
-					gserver.SendObject(client, obj3);
-			}
-		}
-		return;
-	}
-	if (command == "privateChat")
-	{
-		Client * clnt = gserver.GetClientByName(data["targetName"]);
-		if (!clnt)
-		{
-			gserver.SendObject(client, gserver.CreateError("common.privateChat", -41, "Player " + (std::string)data["targetName"] + " doesn't exist."));
-			return;
-		}
-		obj2["cmd"] = "common.privateChat";
-		data2["msg"] = data["msg"];
-		data2["packageId"] = 0.0;
-		data2["ok"] = 1;
-		gserver.SendObject(client, obj2);
+        if (gserver.ParseChat(client, data["msg"]))
+        {
+            for (playeriter = gserver.players.begin(); playeriter != gserver.players.end(); ++playeriter)
+            {
+                Client * client = *playeriter;
+                if (client)
+                    gserver.SendObject(client, obj3);
+            }
+        }
+        return;
+    }
+    if (command == "privateChat")
+    {
+        Client * clnt = gserver.GetClientByName(data["targetName"]);
+        if (!clnt)
+        {
+            gserver.SendObject(client, gserver.CreateError("common.privateChat", -41, "Player " + (std::string)data["targetName"] + " doesn't exist."));
+            return;
+        }
+        obj2["cmd"] = "common.privateChat";
+        data2["msg"] = data["msg"];
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+        gserver.SendObject(client, obj2);
 
-		amf3object obj3;
-		obj3["cmd"] = "server.PrivateChatMessage";
-		obj3["data"] = amf3object();
-		amf3object & data3 = obj3["data"];
-		data3["msg"] = data["msg"];
-		data3["chatType"] = 0;
-		data3["ownitemid"] = client->icon;
-		data3["fromUser"] = client->playername;
-		gserver.SendObject(clnt, obj3);
-		return;
-	}
-	if ((command == "channelChat"))
-	{
-		obj2["cmd"] = "common.channelChat";
-		data2["msg"] = data["msg"];
-		data2["ok"] = 1;
-		data2["channel"] = "beginner";
+        amf3object obj3;
+        obj3["cmd"] = "server.PrivateChatMessage";
+        obj3["data"] = amf3object();
+        amf3object & data3 = obj3["data"];
+        data3["msg"] = data["msg"];
+        data3["chatType"] = 0;
+        data3["ownitemid"] = client->icon;
+        data3["fromUser"] = client->playername;
+        gserver.SendObject(clnt, obj3);
+        return;
+    }
+    if ((command == "channelChat"))
+    {
+        obj2["cmd"] = "common.channelChat";
+        data2["msg"] = data["msg"];
+        data2["ok"] = 1;
+        data2["channel"] = "beginner";
 
-		gserver.SendObject(client, obj2);
+        gserver.SendObject(client, obj2);
 
-		amf3object obj3;
-		obj3["cmd"] = "server.ChannelChatMsg";
-		obj3["data"] = amf3object();
-		amf3object & data3 = obj3["data"];
-		if (client->prestigerank == 1)
-			data3["msg"] = "<font color=\"#FF0000\">" + (std::string)data["sendMsg"] + "</font>";
-		else
-		{
-			if (client->HasAlliance() && client->GetAlliance()->m_prestigerank == 1)
-				data3["msg"] = "<font color=\"#0066FF\">" + (std::string)data["sendMsg"] + "</font>";
-			else
-				data3["msg"] = data["sendMsg"];
-		}
-		data3["languageType"] = 0;
-		data3["ownitemid"] = client->icon;
-		data3["fromUser"] = client->playername;
-		data3["channel"] = "beginner";
-
-
-		std::list<Client*>::iterator playeriter;
-
-		if (gserver.ParseChat(client, data["sendMsg"]))
-		{
-			for (playeriter = gserver.players.begin(); playeriter != gserver.players.end(); ++playeriter)
-			{
-				Client * client = *playeriter;
-				if (client)
-					gserver.SendObject(client, obj3);
-			}
-		}
-		return;
-	}
-	if ((command == "allianceChat"))
-	{
-
-		if (client->allianceid <= 0)
-		{
-			gserver.SendObject(client, gserver.CreateError("common.allianceChat", -99, "To send an alliance message, you must be a member of an alliance"));
-			return;
-		}
-
-		obj2["cmd"] = "common.allianceChat";
-		data2["msg"] = data["msg"];
-		data2["ok"] = 1;
-		data2["channel"] = "alliance";
-
-		gserver.SendObject(client, obj2);
-
-		amf3object obj3;
-		obj3["cmd"] = "server.AllianceChatMsg";
-		obj3["data"] = amf3object();
-		amf3object & data3 = obj3["data"];
-		data3["msg"] = data["msg"];
-		data3["languageType"] = 0;
-		data3["ownitemid"] = client->icon;
-		data3["fromUser"] = client->playername;
-		data3["channel"] = "alliance";
-
-		Alliance * alliance = client->GetAlliance();
-
-		if (gserver.ParseChat(client, data["msg"]))
-		{
-			for (Alliance::stMember & member : alliance->m_members)
-			{
-				gserver.SendObject(gserver.GetClient(member.clientid), obj3);
-			}
-		}
-		return;
-	}
-	if ((command == "mapInfoSimple"))
-	{
-
-		int x1 = data["x1"];
-		int x2 = data["x2"];
-		int y1 = data["y1"];
-		int y2 = data["y2"];
-		uint32_t castleId = data["castleId"];
+        amf3object obj3;
+        obj3["cmd"] = "server.ChannelChatMsg";
+        obj3["data"] = amf3object();
+        amf3object & data3 = obj3["data"];
+        if (client->prestigerank == 1)
+            data3["msg"] = "<font color=\"#FF0000\">" + (std::string)data["sendMsg"] + "</font>";
+        else
+        {
+            if (client->HasAlliance() && client->GetAlliance()->m_prestigerank == 1)
+                data3["msg"] = "<font color=\"#0066FF\">" + (std::string)data["sendMsg"] + "</font>";
+            else
+                data3["msg"] = data["sendMsg"];
+        }
+        data3["languageType"] = 0;
+        data3["ownitemid"] = client->icon;
+        data3["fromUser"] = client->playername;
+        data3["channel"] = "beginner";
 
 
-		obj2["cmd"] = "common.mapInfoSimple";
-		try
-		{
-			obj2["data"] = gserver.map->GetTileRangeObject(req.conn->client_->accountid, x1, x2, y1, y2);
-		}
-		catch (...)
-		{
+        std::list<Client*>::iterator playeriter;
 
-		}
+        if (gserver.ParseChat(client, data["sendMsg"]))
+        {
+            for (playeriter = gserver.players.begin(); playeriter != gserver.players.end(); ++playeriter)
+            {
+                Client * client = *playeriter;
+                if (client)
+                    gserver.SendObject(client, obj3);
+            }
+        }
+        return;
+    }
+    if ((command == "allianceChat"))
+    {
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "zoneInfo"))
-	{
-		obj2["cmd"] = "common.zoneInfo";
-		data2["packageId"] = 0.0;
-		data2["ok"] = 1;
-		amf3array amfarray = amf3array();
-		amf3object zone2;
-		for (int i = 0; i < 16; ++i)
-		{
-			amf3object zone = amf3object();
-			zone["id"] = i;
-			zone["rate"] = gserver.map->m_stats[i].playerrate;
-			zone["name"] = gserver.map->states[i];
-			zone["playerCount"] = gserver.map->m_stats[i].players;
-			zone["castleCount"] = gserver.map->m_stats[i].numbercities;
-			amfarray.Add(zone);
-		}
-		data2["zones"] = amfarray;
+        if (client->allianceid <= 0)
+        {
+            gserver.SendObject(client, gserver.CreateError("common.allianceChat", -99, "To send an alliance message, you must be a member of an alliance"));
+            return;
+        }
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "getPackage")) //TODO
-	{
-		obj["ruleId"];//package id to claim
-		obj["serial"];//unsure of what this does - is sent as a null string (0 length)
+        obj2["cmd"] = "common.allianceChat";
+        data2["msg"] = data["msg"];
+        data2["ok"] = 1;
+        data2["channel"] = "alliance";
 
-		//on success
-		obj2["cmd"] = "common.getPackage";
-		data2["packageId"] = 0.0;
-		data2["ok"] = 1;
+        gserver.SendObject(client, obj2);
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "getPackageList")) //TODO
-	{
-		obj2["cmd"] = "common.getPackageList";
-		data2["packages"] = client->Packages();
-		data2["packageId"] = 0.0;
-		data2["ok"] = 1;
+        amf3object obj3;
+        obj3["cmd"] = "server.AllianceChatMsg";
+        obj3["data"] = amf3object();
+        amf3object & data3 = obj3["data"];
+        data3["msg"] = data["msg"];
+        data3["languageType"] = 0;
+        data3["ownitemid"] = client->icon;
+        data3["fromUser"] = client->playername;
+        data3["channel"] = "alliance";
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "getPackageNumber")) //TODO
-	{
-		obj2["cmd"] = "common.getPackageNumber";
-		data2["packageId"] = 0.0;
-		data2["ok"] = 1;
-		data2["number"] = 0;//unclaimed package counts
+        Alliance * alliance = client->GetAlliance();
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "changeUserFace")) //TODO check for valid faceurl (currently can send any link, even offsite)
-	{
-		obj2["cmd"] = "common.changeUserFace";
-		data2["packageId"] = 0.0;
+        if (gserver.ParseChat(client, data["msg"]))
+        {
+            for (Alliance::stMember & member : alliance->m_members)
+            {
+                gserver.SendObject(gserver.GetClient(member.clientid), obj3);
+            }
+        }
+        return;
+    }
+    if ((command == "mapInfoSimple"))
+    {
+
+        int x1 = data["x1"];
+        int x2 = data["x2"];
+        int y1 = data["y1"];
+        int y2 = data["y2"];
+        uint32_t castleId = data["castleId"];
+
+
+        obj2["cmd"] = "common.mapInfoSimple";
+        try
+        {
+            obj2["data"] = gserver.map->GetTileRangeObject(req.conn->client_->accountid, x1, x2, y1, y2);
+        }
+        catch (...)
+        {
+
+        }
+
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "zoneInfo"))
+    {
+        obj2["cmd"] = "common.zoneInfo";
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+        amf3array amfarray = amf3array();
+        amf3object zone2;
+        for (int i = 0; i < 16; ++i)
+        {
+            amf3object zone = amf3object();
+            zone["id"] = i;
+            zone["rate"] = gserver.map->m_stats[i].playerrate;
+            zone["name"] = gserver.map->states[i];
+            zone["playerCount"] = gserver.map->m_stats[i].players;
+            zone["castleCount"] = gserver.map->m_stats[i].numbercities;
+            amfarray.Add(zone);
+        }
+        data2["zones"] = amfarray;
+
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "getPackage")) //TODO
+    {
+        obj["ruleId"];//package id to claim
+        obj["serial"];//unsure of what this does - is sent as a null string (0 length)
+
+        //on success
+        obj2["cmd"] = "common.getPackage";
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "getPackageList")) //TODO
+    {
+        obj2["cmd"] = "common.getPackageList";
+        data2["packages"] = client->Packages();
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "getPackageNumber")) //TODO
+    {
+        obj2["cmd"] = "common.getPackageNumber";
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+        data2["number"] = 0;//unclaimed package counts
+
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "changeUserFace")) //TODO check for valid faceurl (currently can send any link, even offsite)
+    {
+        obj2["cmd"] = "common.changeUserFace";
+        data2["packageId"] = 0.0;
 
         std::string faceurl = data["faceUrl"];
-		int sex = data["sex"];
+        int sex = data["sex"];
 
-		if (client->haschangedface || faceurl.length() > 30 || faceurl.length() < 0 || sex < 0 || sex > 1)
-		{
-			//TODO not a valid error message. need to obtain official response for invalid request
-			gserver.SendObject(client, gserver.CreateError("common.changeUserFace", -99, "Invalid setting."));
-			return;
-		}
-		data2["ok"] = 1;
-		data2["msg"] = "\xE5\xA4\xB4\xE5\x83\x8F\xE8\xAE\xBE\xE7\xBD\xAE\xE6\x88\x90\xE5\x8A\x9F";
+        if (client->haschangedface || faceurl.length() > 30 || faceurl.length() < 0 || sex < 0 || sex > 1)
+        {
+            //TODO not a valid error message. need to obtain official response for invalid request
+            gserver.SendObject(client, gserver.CreateError("common.changeUserFace", -99, "Invalid setting."));
+            return;
+        }
+        data2["ok"] = 1;
+        data2["msg"] = "\xE5\xA4\xB4\xE5\x83\x8F\xE8\xAE\xBE\xE7\xBD\xAE\xE6\x88\x90\xE5\x8A\x9F";
 
-		client->faceurl = faceurl;
-		client->sex = sex;
+        client->faceurl = faceurl;
+        client->sex = sex;
 
-		client->haschangedface = true;
+        client->haschangedface = true;
 
-		client->SaveToDB();
+        client->SaveToDB();
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "delUniteServerPeaceStatus")) //TODO is this correct?
-	{
-		obj2["cmd"] = "common.delUniteServerPeaceStatus";
-		data2["packageId"] = 0.0;
-		data2["ok"] = 1;
-		data2["number"] = 0;
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "delUniteServerPeaceStatus")) //TODO is this correct?
+    {
+        obj2["cmd"] = "common.delUniteServerPeaceStatus";
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+        data2["number"] = 0;
 
-		client->status = DEF_NORMAL;
+        client->status = DEF_NORMAL;
 
-		client->SaveToDB();
+        client->SaveToDB();
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "getItemDefXml")) //TODO lots of things to fix here.
-	{
-		//send online user count for fun
-		uint32_t tc = 0;
-		for (Client * client : gserver.players)
-		{
-			if (client->socket)
-			{
-				tc++;
-			}
-		}
-		gserver.SendMessage(client, fmt::format("<font color='#00A2FF'>Welcome to EPS! There are currently <u>{}</u> players online.</font>", tc));
-		/*
-		Items =		itemType=\"\xE5\xAE\x9D\xE7\x89\xA9\"
-		Hot Sale =
-		Speed Up =
-		Produce =
-		Chest =		itemType=\"\xE5\xAE\x9D\xE7\xAE\xB1\"
-		*/
-		obj2["cmd"] = "common.getItemDefXml";
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "getItemDefXml")) //TODO lots of things to fix here.
+    {
+        //send online user count for fun
+        uint32_t tc = 0;
+        for (Client * client : gserver.players)
+        {
+            if (client->socket)
+            {
+                tc++;
+            }
+        }
+        gserver.SendMessage(client, fmt::format("<font color='#00A2FF'>Welcome to EPS! There are currently <u>{}</u> players online.</font>", tc));
+        /*
+        Items =        itemType=\"\xE5\xAE\x9D\xE7\x89\xA9\"
+        Hot Sale =
+        Speed Up =
+        Produce =
+        Chest =        itemType=\"\xE5\xAE\x9D\xE7\xAE\xB1\"
+        */
+        obj2["cmd"] = "common.getItemDefXml";
 
-		data2["ok"] = 1;
-		data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+        data2["packageId"] = 0.0;
         std::string s = R"(<?xml version="1.0" encoding="UTF-8"?>
 <itemdef>
 <items>
@@ -353,260 +353,260 @@ void pcommon::process()
 <pack id="Hollow Wooden Bull"/>
 </special>
 </itemdef>)";
-		data2["itemXml"] = s;
+        data2["itemXml"] = s;
 
 
-		//gserver.m_itemxml;
+        //gserver.m_itemxml;
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
-	if ((command == "createNewPlayer"))
-	{
-		std::string captcha = data["captcha"];
+        gserver.SendObject(client, obj2);
+        return;
+    }
+    if ((command == "createNewPlayer"))
+    {
+        std::string captcha = data["captcha"];
         std::string faceUrl = data["faceUrl"];
         std::string castleName = data["castleName"];
         std::string flag = data["flag"];
-		int sex = data["sex"];
+        int sex = data["sex"];
         std::string userName = data["userName"];
-		int zone = data["zone"];
+        int zone = data["zone"];
 
-		if ((client->accountid > 0) && (client->citycount > 0))
-		{
-			// already has a city
-			gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -86, "City/Account exists."));
-			return;
-		}
+        if ((client->accountid > 0) && (client->citycount > 0))
+        {
+            // already has a city
+            gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -86, "City/Account exists."));
+            return;
+        }
 
 
-		//check for data error
-		if (zone < 0 || zone > 15 || userName.length() < 1 || userName.length() > 20 || flag.length() < 1 || flag.length() > 5 || castleName.length() < 1 || castleName.length() > 10
-			|| faceUrl.length() < 1 || faceUrl.length() > 30 || sex < 0 || sex > 1)
-		{
-			gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -87, "Invalid data sent."));
-			return;
-		}
+        //check for data error
+        if (zone < 0 || zone > 15 || userName.length() < 1 || userName.length() > 20 || flag.length() < 1 || flag.length() > 5 || castleName.length() < 1 || castleName.length() > 10
+            || faceUrl.length() < 1 || faceUrl.length() > 30 || sex < 0 || sex > 1)
+        {
+            gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -87, "Invalid data sent."));
+            return;
+        }
 
-		if (client->accountid == 0)
-		{
-			gserver.log->info("Account [{}] doesn't exist", userName);
-			Session ses(gserver.serverpool->get());
-			Statement select(ses);
-			select << "SELECT * FROM `accounts` WHERE `username`=?;", use(userName);
-			select.execute();
-			RecordSet rs(select);
+        if (client->accountid == 0)
+        {
+            gserver.log->info("Account [{}] doesn't exist", userName);
+            Session ses(gserver.serverpool->get());
+            Statement select(ses);
+            select << "SELECT * FROM `accounts` WHERE `username`=?;", use(userName);
+            select.execute();
+            RecordSet rs(select);
 
-			if (rs.rowCount() > 0)
-			{
-				//player name exists
-				gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -88, "Player name taken"));
-				return;
-			}
-		}
-		//else
-		{
-			//see if state can support a new city
-			if (gserver.map->m_openflats[zone] > 0)
-			{
-				gserver.map->m_openflats[zone]--;
-				//create new account, create new city, then send account details
+            if (rs.rowCount() > 0)
+            {
+                //player name exists
+                gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -88, "Player name taken"));
+                return;
+            }
+        }
+        //else
+        {
+            //see if state can support a new city
+            if (gserver.map->m_openflats[zone] > 0)
+            {
+                gserver.map->m_openflats[zone]--;
+                //create new account, create new city, then send account details
 
-				char tempc[50];
-				int randomid = gserver.map->GetRandomOpenTile(zone);
-				int mapsize = gserver.mapsize;
-				GETXYFROMID(randomid);
-				int x = xfromid;
-				int y = yfromid;
-				if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != -1)
-				{
-					gserver.log->error("Error. Flat not empty!");
-					gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -25, "Error with account creation. #-25"));
-					return;
-				}
+                char tempc[50];
+                int randomid = gserver.map->GetRandomOpenTile(zone);
+                int mapsize = gserver.mapsize;
+                GETXYFROMID(randomid);
+                int x = xfromid;
+                int y = yfromid;
+                if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != -1)
+                {
+                    gserver.log->error("Error. Flat not empty!");
+                    gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -25, "Error with account creation. #-25"));
+                    return;
+                }
 
                 std::string user;
                 std::string flag2;
                 std::string faceUrl2;
                 std::string castlename2;
-				user = Utils::makesafe(userName);
-				castlename2 = Utils::makesafe(castleName);
-				faceUrl2 = Utils::makesafe(faceUrl);
-				flag2 = Utils::makesafe(flag);
-				if (client->accountid == 0)
-				{
+                user = Utils::makesafe(userName);
+                castlename2 = Utils::makesafe(castleName);
+                faceUrl2 = Utils::makesafe(faceUrl);
+                flag2 = Utils::makesafe(flag);
+                if (client->accountid == 0)
+                {
 
-					Session ses(gserver.serverpool->get());
-					Statement select(ses);
-					select << "SELECT * FROM `accounts` WHERE `username`=?;", use(userName);
-					select.execute();
-					RecordSet rs(select);
-					uint64_t nixtime = Utils::time();
-					int32_t zero = 0;
+                    Session ses(gserver.serverpool->get());
+                    Statement select(ses);
+                    select << "SELECT * FROM `accounts` WHERE `username`=?;", use(userName);
+                    select.execute();
+                    RecordSet rs(select);
+                    uint64_t nixtime = Utils::time();
+                    int32_t zero = 0;
                     std::string empty = "";
-					Statement stmt = (ses << "INSERT INTO `accounts` (`parentid`, `username`, `lastlogin`, `creation`, `ipaddress`, `status`, `reason`, `sex`, `flag`, `faceurl`, `buffs`, `research`, `items`, `misc`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', '', '', '');", use(client->masteraccountid), use(user), use(nixtime), use(nixtime), use(client->ipaddress), use(zero), use(empty), use(sex), use(flag2), use(faceUrl2));
-					stmt.execute();
-					if (!stmt.done())
-					{
-						gserver.log->error("Unable to create account.");
-						gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -26, "Error with account creation. #-26"));
-						return;
-					}
-					Statement lastinsert = (ses << "SELECT " + LAST_INSERT_ID);
-					lastinsert.execute();
-					RecordSet lsi(lastinsert);
-					lsi.moveFirst();
-					int32_t lsiv = lsi.value(LAST_INSERT_ID).convert<int32_t>();
-					if (lsiv > 0)
-					{
-						client->accountid = lsiv;
-					}
-					else
-					{
-						gserver.log->error("Unable to create account.");
-						gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -27, "Error with account creation. #-27"));
-						return;
-					}
+                    Statement stmt = (ses << "INSERT INTO `accounts` (`parentid`, `username`, `lastlogin`, `creation`, `ipaddress`, `status`, `reason`, `sex`, `flag`, `faceurl`, `buffs`, `research`, `items`, `misc`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '', '', '', '');", use(client->masteraccountid), use(user), use(nixtime), use(nixtime), use(client->ipaddress), use(zero), use(empty), use(sex), use(flag2), use(faceUrl2));
+                    stmt.execute();
+                    if (!stmt.done())
+                    {
+                        gserver.log->error("Unable to create account.");
+                        gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -26, "Error with account creation. #-26"));
+                        return;
+                    }
+                    Statement lastinsert = (ses << "SELECT " + LAST_INSERT_ID);
+                    lastinsert.execute();
+                    RecordSet lsi(lastinsert);
+                    lsi.moveFirst();
+                    int32_t lsiv = lsi.value(LAST_INSERT_ID).convert<int32_t>();
+                    if (lsiv > 0)
+                    {
+                        client->accountid = lsiv;
+                    }
+                    else
+                    {
+                        gserver.log->error("Unable to create account.");
+                        gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -27, "Error with account creation. #-27"));
+                        return;
+                    }
 
-					//res2 = gserver.sql2->QueryRes("SELECT LAST_INSERT_ID()");
-					//res2->next();
-					//client->m_accountid = res2->getInt(1);
-					//delete res2;
-				}
-				client->accountexists = true;
+                    //res2 = gserver.sql2->QueryRes("SELECT LAST_INSERT_ID()");
+                    //res2->next();
+                    //client->m_accountid = res2->getInt(1);
+                    //delete res2;
+                }
+                client->accountexists = true;
 
                 std::stringstream ss;
                 std::string temp;
                 ss << "50,10.000000,100.000000,100.000000,100.000000,100.000000,90,0," << Utils::time();
-				temp = ss.str();
+                temp = ss.str();
 
-				// 					if (!gserver.sql2->Query("INSERT INTO `cities` (`accountid`,`misc`,`fieldid`,`name`,`buildings`,`gold`,`food`,`wood`,`iron`,`stone`,`creation`,`transingtrades`,`troop`,`fortification`,`trades`) \
-														// 								 VALUES ("XI64", '%s',%d, '%s', '%s',100000,100000,100000,100000,100000,"DBL",'','','','');",
-				// 								 client->m_accountid, (char*)temp.c_str(), randomid, castleName, "31,1,-1,0,0.000000,0.000000", (double)unixtime()))
-				Session ses(gserver.serverpool->get());
-				uint64_t nixtime = Utils::time();
-				int32_t zero = 0;
+                //                     if (!gserver.sql2->Query("INSERT INTO `cities` (`accountid`,`misc`,`fieldid`,`name`,`buildings`,`gold`,`food`,`wood`,`iron`,`stone`,`creation`,`transingtrades`,`troop`,`fortification`,`trades`) \
+                                                        //                                  VALUES ("XI64", '%s',%d, '%s', '%s',100000,100000,100000,100000,100000,"DBL",'','','','');",
+                //                                  client->m_accountid, (char*)temp.c_str(), randomid, castleName, "31,1,-1,0,0.000000,0.000000", (double)unixtime()))
+                Session ses(gserver.serverpool->get());
+                uint64_t nixtime = Utils::time();
+                int32_t zero = 0;
                 std::string empty = "";
                 std::string defaultbuildings = "31,1,-1,0,0.000000,0.000000";
-				Statement stmt = (ses << "INSERT INTO `cities` (`accountid`,`misc`,`fieldid`,`name`,`buildings`,`gold`,`food`,`wood`,`iron`,`stone`,`creation`,`transingtrades`,`troop`,`fortification`,`trades`,`troopqueues`) VALUES (?, ?, ?, ?, ?,100000,100000,100000,100000,100000,?,'','','','','');",
-									use(client->accountid), use(temp), use(randomid), use(castleName), use(defaultbuildings), use(nixtime));
-				stmt.execute();
-				if (!stmt.done())
-				{
-					//gserver.FileLog()->Log("Unable to create city.");
-					//error making city
-					gserver.log->error("Error. Unable to insert new city row.");
-					gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -28, "Error with account creation. #-28"));
-					return;
-				}
+                Statement stmt = (ses << "INSERT INTO `cities` (`accountid`,`misc`,`fieldid`,`name`,`buildings`,`gold`,`food`,`wood`,`iron`,`stone`,`creation`,`transingtrades`,`troop`,`fortification`,`trades`,`troopqueues`) VALUES (?, ?, ?, ?, ?,100000,100000,100000,100000,100000,?,'','','','','');",
+                                    use(client->accountid), use(temp), use(randomid), use(castleName), use(defaultbuildings), use(nixtime));
+                stmt.execute();
+                if (!stmt.done())
+                {
+                    //gserver.FileLog()->Log("Unable to create city.");
+                    //error making city
+                    gserver.log->error("Error. Unable to insert new city row.");
+                    gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -28, "Error with account creation. #-28"));
+                    return;
+                }
 
-				client->playername = user;
-				client->flag = flag2;
-				client->faceurl = faceUrl2;
-				client->sex = sex;
+                client->playername = user;
+                client->flag = flag2;
+                client->faceurl = faceUrl2;
+                client->sex = sex;
 
-				PlayerCity * city;
+                PlayerCity * city;
 
-				Statement lastinsert = (ses << "SELECT " + LAST_INSERT_ID);
-				lastinsert.execute();
-				RecordSet lsi(lastinsert);
-				lsi.moveFirst();
-				uint32_t lsiv = lsi.value(LAST_INSERT_ID).convert<uint32_t>();
-				if (lsiv > 0)
-				{
-					client->accountid = lsiv;
-					city = (PlayerCity*)gserver.AddPlayerCity(client, randomid, lsiv);
-				}
-				else
-				{
-					gserver.log->error("Unable to create account.");
-					gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -29, "Error with account creation. #-29"));
-					return;
-				}
+                Statement lastinsert = (ses << "SELECT " + LAST_INSERT_ID);
+                lastinsert.execute();
+                RecordSet lsi(lastinsert);
+                lsi.moveFirst();
+                uint32_t lsiv = lsi.value(LAST_INSERT_ID).convert<uint32_t>();
+                if (lsiv > 0)
+                {
+                    client->accountid = lsiv;
+                    city = (PlayerCity*)gserver.AddPlayerCity(client, randomid, lsiv);
+                }
+                else
+                {
+                    gserver.log->error("Unable to create account.");
+                    gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -29, "Error with account creation. #-29"));
+                    return;
+                }
 
-				//res = gserver.sql2->QueryRes("SELECT LAST_INSERT_ID()");
-				//res->next();
+                //res = gserver.sql2->QueryRes("SELECT LAST_INSERT_ID()");
+                //res->next();
 
-				city->ParseBuildings("31,1,-1,0,0.000000,0.000000");
-				city->m_logurl = "images/icon/cityLogo/citylogo_01.png";
-				//city->m_accountid = client->m_accountid;
-				city->m_cityname = castlename2;
-				//city->m_tileid = randomid;
-				client->currentcityid = city->m_castleid;
-				city->m_creation = Utils::time();
-				client->currentcityindex = 0;
-				city->SetResources(100000, 100000, 100000, 100000, 100000);
-				city->CalculateResources();
-				city->CalculateStats();
+                city->ParseBuildings("31,1,-1,0,0.000000,0.000000");
+                city->m_logurl = "images/icon/cityLogo/citylogo_01.png";
+                //city->m_accountid = client->m_accountid;
+                city->m_cityname = castlename2;
+                //city->m_tileid = randomid;
+                client->currentcityid = city->m_castleid;
+                city->m_creation = Utils::time();
+                client->currentcityindex = 0;
+                city->SetResources(100000, 100000, 100000, 100000, 100000);
+                city->CalculateResources();
+                city->CalculateStats();
 
-				/* Send new account data */
+                /* Send new account data */
 
-				if (client->GetItemCount("consume.1.a") < 10000)
-					client->SetItem("consume.1.a", 10000);
-				client->cents = 5000;
-
-
-				gserver.SortPlayers();
-				gserver.SortHeroes();
-				gserver.SortCastles();
+                if (client->GetItemCount("consume.1.a") < 10000)
+                    client->SetItem("consume.1.a", 10000);
+                client->cents = 5000;
 
 
-				amf3object obj3;
-				obj3["cmd"] = "common.createNewPlayer";
-				obj3["data"] = amf3object();
-				amf3object & data3 = obj3["data"];
-				data3["packageId"] = 0.0;
-				data3["ok"] = 1;
-				data3["msg"] = "success";
-				data3["player"] = client->ToObject();
-
-				gserver.SendObject(client, obj3);
-
-				client->connected = true;
-
-				if (client->GetItemCount("consume.1.a") < 10000)
-					client->SetItem("consume.1.a", 10000);
+                gserver.SortPlayers();
+                gserver.SortHeroes();
+                gserver.SortCastles();
 
 
-				gserver.map->CalculateOpenTiles();
+                amf3object obj3;
+                obj3["cmd"] = "common.createNewPlayer";
+                obj3["data"] = amf3object();
+                amf3object & data3 = obj3["data"];
+                data3["packageId"] = 0.0;
+                data3["ok"] = 1;
+                data3["msg"] = "success";
+                data3["player"] = client->ToObject();
 
-				client->SaveToDB();
-				city->SaveToDB();
+                gserver.SendObject(client, obj3);
+
+                client->connected = true;
+
+                if (client->GetItemCount("consume.1.a") < 10000)
+                    client->SetItem("consume.1.a", 10000);
 
 
-				return;
-			}
-			else
-			{
-				//state is full
-				gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -25, "No open flats exist."));
-				return;
-			}
+                gserver.map->CalculateOpenTiles();
 
-		}
-		return;
-	}
-	if (command == "setSecurityCode")
-	{
+                client->SaveToDB();
+                city->SaveToDB();
+
+
+                return;
+            }
+            else
+            {
+                //state is full
+                gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -25, "No open flats exist."));
+                return;
+            }
+
+        }
+        return;
+    }
+    if (command == "setSecurityCode")
+    {
         std::string code = data["code"];
-		return;
-	}
-	if (command == "deleteUserAndRestart")
-	{
+        return;
+    }
+    if (command == "deleteUserAndRestart")
+    {
         std::string pwd = data["pwd"];
-		data2["packageId"] = 0.0;
-		data2["ok"] = 0;
+        data2["packageId"] = 0.0;
+        data2["ok"] = 0;
 
 
-		//call delete stuff
-		//EnemyArmysUpdate;//send enemy armies back 
-		//FriendArmysUpdate;//send reinforced alliance armies back
-		//SelfArmysUpdate;//notify any enemies of army removal
-		//NewMail;//clear mail
-		//NewReport;//clear reports
+        //call delete stuff
+        //EnemyArmysUpdate;//send enemy armies back 
+        //FriendArmysUpdate;//send reinforced alliance armies back
+        //SelfArmysUpdate;//notify any enemies of army removal
+        //NewMail;//clear mail
+        //NewReport;//clear reports
 
-		obj["cmd"] = "common.deleteUserAndRestart";
+        obj["cmd"] = "common.deleteUserAndRestart";
 
-		gserver.SendObject(client, obj2);//return command success ( sends back to login screen )
-		return;
-	}
+        gserver.SendObject(client, obj2);//return command success ( sends back to login screen )
+        return;
+    }
 }

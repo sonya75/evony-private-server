@@ -23,16 +23,16 @@ public:
     bool CheckObjectTable(const amf3object & obj)
     {
         // TODO: Fix object tables
-        // 		map<int, amf3object>::const_iterator iter;
-        // 		iter = objectTable.begin();
-        // 		for (uint32_t i = 0; i < objectTable.size(); ++iter, ++i)
-        // 		{
-        // 			if (amf3object::IsEqual((amf3object&)(iter->second), obj))
-        // 			{
-        // 				TypelessWrite(i << 1);
-        // 				return true;
-        // 			}
-        // 		}
+        //         map<int, amf3object>::const_iterator iter;
+        //         iter = objectTable.begin();
+        //         for (uint32_t i = 0; i < objectTable.size(); ++iter, ++i)
+        //         {
+        //             if (amf3object::IsEqual((amf3object&)(iter->second), obj))
+        //             {
+        //                 TypelessWrite(i << 1);
+        //                 return true;
+        //             }
+        //         }
         return false;
     }
     void Write(Amf3TypeCode type);

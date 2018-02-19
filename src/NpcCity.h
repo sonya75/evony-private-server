@@ -12,29 +12,29 @@
 class NpcCity : public City
 {
 public:
-	NpcCity();
-	~NpcCity(void);
-	void Initialize(bool resources, bool troops);
-	void SetTroops(int32_t warrior, int32_t pike, int32_t sword, int32_t archer, int32_t cavalry);
-	void SetupBuildings();
-	void CalculateStats(bool resources, bool troops);
+    NpcCity();
+    ~NpcCity(void);
+    void Initialize(bool resources, bool troops);
+    void SetTroops(int32_t warrior, int32_t pike, int32_t sword, int32_t archer, int32_t cavalry);
+    void SetupBuildings();
+    void CalculateStats(bool resources, bool troops);
 
-	struct stTroops
-	{
-		stTroops() { warrior = pike = sword = archer = cavalry = 0; }
-		int32_t warrior;
-		int32_t pike;
-		int32_t sword;
-		int32_t archer;
-		int32_t cavalry;
-	} m_troops, m_maxtroops;
+    struct stTroops
+    {
+        stTroops() { warrior = pike = sword = archer = cavalry = 0; }
+        int32_t warrior;
+        int32_t pike;
+        int32_t sword;
+        int32_t archer;
+        int32_t cavalry;
+    } m_troops, m_maxtroops;
 
-	stForts m_maxforts;
+    stForts m_maxforts;
 
-	Hero * m_temphero;
+    Hero * m_temphero;
 
-	uint64_t m_calculatestuff;
+    uint64_t m_calculatestuff;
 
 
-	int32_t m_ownerid;
+    int32_t m_ownerid;
 };

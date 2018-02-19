@@ -79,17 +79,17 @@ Client::Client()
 
 //     itemlist.resize(30);
     debugmode = false;
-    // 	for (int i = 0; i < 30; ++i)
-    // 	{
-    // 		m_buffs[i].endtime = 0.0;
-    // 		m_buffs[i].id = "";
-    // 	}
+    //     for (int i = 0; i < 30; ++i)
+    //     {
+    //         m_buffs[i].endtime = 0.0;
+    //         m_buffs[i].id = "";
+    //     }
 }
 
 Client::~Client(void)
 {
-    //	for (int i = 0; i < m_city.size(); ++i)
-    //		delete (City*)m_city.at(i);
+    //    for (int i = 0; i < m_city.size(); ++i)
+    //        delete (City*)m_city.at(i);
 }
 
 Alliance * Client::GetAlliance()
@@ -266,7 +266,7 @@ amf3object  Client::ToObject()
         s = ss.str();
     }
 
-    //	obj["currentDateTime"] = "2011.07.27 03.20.32";
+    //    obj["currentDateTime"] = "2011.07.27 03.20.32";
     obj["currentDateTime"] = s.c_str();
     obj["newReportCount_army"] = 0;
     obj["friendArmys"] = amf3array();
@@ -307,11 +307,11 @@ amf3array Client::CastleSignArray()
 }
 amf3array Client::Items()
 {
-    //	amf3object retobj;
+    //    amf3object retobj;
     //amf3array * itemarray = new amf3array();
     amf3array itemarray = amf3array();
-    //	retobj.type = Array;
-    //	retobj._value._array = itemarray;
+    //    retobj.type = Array;
+    //    retobj._value._array = itemarray;
 
     amf3object obj = amf3object();
     //age2?
@@ -391,22 +391,22 @@ amf3array Client::SaleTypeItems()
     array.Add(obj3);
     array.Add(obj4);
 
-    //	obj["items"] = "consume.2.a#consume.2.b#consume.2.b.1#consume.2.c#consume.2.c.1#consume.2.d#player.fort.1.c#player.troop.1.b#consume.transaction.1";
+    //    obj["items"] = "consume.2.a#consume.2.b#consume.2.b.1#consume.2.c#consume.2.c.1#consume.2.d#player.fort.1.c#player.troop.1.b#consume.transaction.1";
 
-    // 	obj = amf3object();
-    // 	obj["typeName"] = "\xE5\xAE\x9D\xE7\xAE\xB1";//宝箱
-    // 	obj["items"] = "player.box.special.1#player.box.special.2#player.box.special.3#player.box.currently.1#player.box.gambling.1#player.box.gambling.2#player.box.gambling.3#player.box.gambling.4#player.box.gambling.5#player.box.gambling.6#player.box.gambling.7#player.box.gambling.8#player.box.gambling.9#player.box.gambling.10#player.box.gambling.11#player.box.gambling.12";
-    // 	array.Add(obj);
+    //     obj = amf3object();
+    //     obj["typeName"] = "\xE5\xAE\x9D\xE7\xAE\xB1";//宝箱
+    //     obj["items"] = "player.box.special.1#player.box.special.2#player.box.special.3#player.box.currently.1#player.box.gambling.1#player.box.gambling.2#player.box.gambling.3#player.box.gambling.4#player.box.gambling.5#player.box.gambling.6#player.box.gambling.7#player.box.gambling.8#player.box.gambling.9#player.box.gambling.10#player.box.gambling.11#player.box.gambling.12";
+    //     array.Add(obj);
     // 
-    // 	obj = amf3object();
-    // 	obj["typeName"] = "\xE7\x94\x9F\xE4\xBA\xA7";//生产
-    // 	obj["items"] = "player.resinc.1#player.resinc.1.b#player.resinc.2#player.resinc.2.b#player.resinc.3#player.resinc.3.b#player.resinc.4#player.resinc.4.b#player.gold.1.a#player.gold.1.b";
-    // 	array.Add(obj);
+    //     obj = amf3object();
+    //     obj["typeName"] = "\xE7\x94\x9F\xE4\xBA\xA7";//生产
+    //     obj["items"] = "player.resinc.1#player.resinc.1.b#player.resinc.2#player.resinc.2.b#player.resinc.3#player.resinc.3.b#player.resinc.4#player.resinc.4.b#player.gold.1.a#player.gold.1.b";
+    //     array.Add(obj);
     // 
-    // 	obj = amf3object();
-    // 	obj["typeName"] = "\xE5\xAE\x9D\xE7\x89\xA9";//宝物
-    // 	obj["items"] = "player.speak.bronze_publicity_ambassador.permanent#player.speak.bronze_publicity_ambassador.permanent.15#player.pop.1.a#hero.management.1#player.experience.1.b#player.experience.1.a#player.queue.building#player.experience.1.c#player.peace.1#player.heart.1.a#hero.intelligence.1#consume.blueprint.1#consume.refreshtavern.1#consume.move.1#player.more.castle.1.a#player.name.1.a#consume.changeflag.1#player.troop.1.a#player.attackinc.1#player.attackinc.1.b#consume.hegemony.1#player.defendinc.1#player.defendinc.1.b#player.relive.1#hero.reset.1#hero.reset.1.a#player.destroy.1.a#hero.power.1#consume.1.a#consume.1.b#consume.1.c";
-    // 	array.Add(obj);
+    //     obj = amf3object();
+    //     obj["typeName"] = "\xE5\xAE\x9D\xE7\x89\xA9";//宝物
+    //     obj["items"] = "player.speak.bronze_publicity_ambassador.permanent#player.speak.bronze_publicity_ambassador.permanent.15#player.pop.1.a#hero.management.1#player.experience.1.b#player.experience.1.a#player.queue.building#player.experience.1.c#player.peace.1#player.heart.1.a#hero.intelligence.1#consume.blueprint.1#consume.refreshtavern.1#consume.move.1#player.more.castle.1.a#player.name.1.a#consume.changeflag.1#player.troop.1.a#player.attackinc.1#player.attackinc.1.b#consume.hegemony.1#player.defendinc.1#player.defendinc.1.b#player.relive.1#hero.reset.1#hero.reset.1.a#player.destroy.1.a#hero.power.1#consume.1.a#consume.1.b#consume.1.c";
+    //     array.Add(obj);
     return array;
 }
 amf3array Client::SaleItems()
@@ -465,10 +465,10 @@ amf3array Client::SaleItems()
 }
 amf3array Client::CastleArray()
 {
-    // 	Amf3Array array = new Amf3Array();
-    // 	for (int i = 0; i < m_citycount; ++i)
-    // 		array.DenseArray.Add(((City)m_city[i]).ToObject());
-    // 	return array;
+    //     Amf3Array array = new Amf3Array();
+    //     for (int i = 0; i < m_citycount; ++i)
+    //         array.DenseArray.Add(((City)m_city[i]).ToObject());
+    //     return array;
     amf3array array = amf3array();
     for (int32_t i = 0; i < citycount; ++i)
     {
@@ -488,11 +488,11 @@ amf3array Client::BuffsArray()
         temp["id"] = bufflist[i].id;
         array.Add(temp);
     }
-    // 	amf3object t = amf3object();
-    // 	t["id"] = "PlayerSpeakerBuf_BPAP_15";
-    // 	t["endTime"] = unixtime()+100000;
-    // 	t["desc"] = 3;
-    // 	array.Add(t);
+    //     amf3object t = amf3object();
+    //     t["id"] = "PlayerSpeakerBuf_BPAP_15";
+    //     t["endTime"] = unixtime()+100000;
+    //     t["desc"] = 3;
+    //     array.Add(t);
     return array;
 }
 amf3array Client::Packages()

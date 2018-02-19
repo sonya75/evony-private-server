@@ -227,11 +227,11 @@ void amf3writer::TypelessWrite(amf3array * _array, const amf3object & obj)
 
     TypelessWrite(int32_t(obj._array->dense.size() << 1 | 1));
 
-    //	if (obj._value._array->associative.propnames.size() > 0)
+    //    if (obj._value._array->associative.propnames.size() > 0)
     {
         WriteDictionary(&obj._array->associative);
     }
-    //	else
+    //    else
     {
         //TypelessWrite(1);
     }

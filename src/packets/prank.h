@@ -12,7 +12,7 @@
 class prank : public packet
 {
 public:
-	prank(spitfire & server, request & req, amf3object & o);
-	~prank();
-	void process();
+    prank(spitfire & server, request & req, amf3object & o);
+    ~prank();
+    void process();
 };

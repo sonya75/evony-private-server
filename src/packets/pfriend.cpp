@@ -7,7 +7,7 @@
 #include "pfriend.h"
 
 pfriend::pfriend(spitfire & server, request & req, amf3object & obj)
-	: packet(server, req, obj)
+    : packet(server, req, obj)
 {
 
 }
@@ -19,12 +19,12 @@ pfriend::~pfriend()
 
 void pfriend::process()
 {
-	obj2["data"] = amf3object();
-	amf3object & data2 = obj2["data"];
+    obj2["data"] = amf3object();
+    amf3object & data2 = obj2["data"];
 
-	if (command == "")
-	{
+    if (command == "")
+    {
 
-	}
+    }
 }
 

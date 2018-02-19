@@ -11,7 +11,7 @@
 class pmail : public packet
 {
 public:
-	pmail(spitfire & server, request & req, amf3object & o);
-	~pmail();
-	void process();
+    pmail(spitfire & server, request & req, amf3object & o);
+    ~pmail();
+    void process();
 };

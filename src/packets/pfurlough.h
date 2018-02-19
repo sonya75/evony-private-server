@@ -12,7 +12,7 @@
 class pfurlough : public packet
 {
 public:
-	pfurlough(spitfire & server, request & req, amf3object & o);
-	~pfurlough();
-	void process();
+    pfurlough(spitfire & server, request & req, amf3object & o);
+    ~pfurlough();
+    void process();
 };

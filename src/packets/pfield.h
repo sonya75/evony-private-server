@@ -11,8 +11,8 @@
 class pfield : public packet
 {
 public:
-	pfield(spitfire & server, request & req, amf3object & o);
-	~pfield();
-	void process();
+    pfield(spitfire & server, request & req, amf3object & o);
+    ~pfield();
+    void process();
 };
 

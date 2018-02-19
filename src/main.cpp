@@ -130,10 +130,10 @@ int main(int argc, char * argv[])
 void sigfunc(int sig_no)
 {
     printf("Signal received: %d\n", sig_no);
-    //	if (sig_no == SIGSEGV)
-    //	{
-    //		Log("Seg fault onoes!");
-    //	}
+    //    if (sig_no == SIGSEGV)
+    //    {
+    //        Log("Seg fault onoes!");
+    //    }
     /*else*/ if (sig_no == SIGINT)
     {
         printf("Interrupt request\n");

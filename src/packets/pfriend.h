@@ -11,7 +11,7 @@
 class pfriend : public packet
 {
 public:
-	pfriend(spitfire & server, request & req, amf3object & o);
-	~pfriend();
-	void process();
+    pfriend(spitfire & server, request & req, amf3object & o);
+    ~pfriend();
+    void process();
 };

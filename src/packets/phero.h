@@ -12,8 +12,8 @@
 class phero : public packet
 {
 public:
-	phero(spitfire & server, request & req, amf3object & o);
-	~phero();
-	void process();
+    phero(spitfire & server, request & req, amf3object & o);
+    ~phero();
+    void process();
 };
 

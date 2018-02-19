@@ -11,8 +11,8 @@
 class palliance : public packet
 {
 public:
-	palliance(spitfire & server, request & req, amf3object & o);
-	~palliance();
-	void process();
+    palliance(spitfire & server, request & req, amf3object & o);
+    ~palliance();
+    void process();
 };
 

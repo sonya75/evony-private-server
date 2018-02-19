@@ -11,7 +11,7 @@
 #include "../Tile.h"
 
 pfield::pfield(spitfire & server, request & req, amf3object & obj)
-	: packet(server, req, obj)
+    : packet(server, req, obj)
 {
 
 }
@@ -23,25 +23,25 @@ pfield::~pfield()
 
 void pfield::process()
 {
-	obj2["data"] = amf3object();
-	amf3object & data2 = obj2["data"];
+    obj2["data"] = amf3object();
+    amf3object & data2 = obj2["data"];
 
-	if (command == "getOtherFieldInfo")
-	{
-		int fieldid = data["fieldId"];
+    if (command == "getOtherFieldInfo")
+    {
+        int fieldid = data["fieldId"];
 
-		obj2["cmd"] = "field.getOtherFieldInfo";
+        obj2["cmd"] = "field.getOtherFieldInfo";
 
-		amf3object bean;
+        amf3object bean;
 
-		data2["bean"] = gserver.map->GetMapCastle(fieldid, req.conn->client_->accountid);
+        data2["bean"] = gserver.map->GetMapCastle(fieldid, req.conn->client_->accountid);
 
-		//data2["errorMsg"] = "";
-		data2["ok"] = 1;
-		data2["packageId"] = 0.0;
+        //data2["errorMsg"] = "";
+        data2["ok"] = 1;
+        data2["packageId"] = 0.0;
 
-		gserver.SendObject(client, obj2);
-		return;
-	}
+        gserver.SendObject(client, obj2);
+        return;
+    }
 }
 

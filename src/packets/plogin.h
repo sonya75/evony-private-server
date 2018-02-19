@@ -11,8 +11,8 @@
 class plogin : public packet
 {
 public:
-	plogin(spitfire & server, request & req, amf3object & o);
-	~plogin();
-	void process();
+    plogin(spitfire & server, request & req, amf3object & o);
+    ~plogin();
+    void process();
 };
 

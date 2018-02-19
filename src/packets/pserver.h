@@ -11,7 +11,7 @@
 class pserver : public packet
 {
 public:
-	pserver(spitfire & server, request & req, amf3object & o);
-	~pserver();
-	void process();
+    pserver(spitfire & server, request & req, amf3object & o);
+    ~pserver();
+    void process();
 };

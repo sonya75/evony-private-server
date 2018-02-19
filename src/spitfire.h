@@ -203,19 +203,19 @@ public:
     Poco::Data::SessionPool * serverpool;
 
     // mutexes
-    // 		struct mutexes
-    // 		{
-    // 			shared_mutex tiledata;
-    // 			shared_mutex clientlist;
-    // 			shared_mutex lua;
-    // 			shared_mutex timers;
-    // 			shared_mutex market;
-    // 			shared_mutex alliance;
-    // 			shared_mutex ranklist;
-    // 			shared_mutex herocreate;
-    // 			shared_mutex maillist;
-    // 			shared_mutex reportlist;
-    // 		} mtxlist;
+    //         struct mutexes
+    //         {
+    //             shared_mutex tiledata;
+    //             shared_mutex clientlist;
+    //             shared_mutex lua;
+    //             shared_mutex timers;
+    //             shared_mutex market;
+    //             shared_mutex alliance;
+    //             shared_mutex ranklist;
+    //             shared_mutex herocreate;
+    //             shared_mutex maillist;
+    //             shared_mutex reportlist;
+    //         } mtxlist;
 
     // Max players allowed connected
     uint32_t maxplayers;
