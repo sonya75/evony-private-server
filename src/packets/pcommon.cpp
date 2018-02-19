@@ -36,10 +36,9 @@ void pcommon::process()
 
 	if (command == "worldChat")
 	{
-		obj2["cmd"] = "common.channelChat";
-		data2["msg"] = data["msg"];
+		obj2["cmd"] = "common.worldChat";
+		data2["packageId"] = 0.0;
 		data2["ok"] = 1;
-		data2["channel"] = "world";
 
 		gserver.SendObject(client, obj2);
 
@@ -488,7 +487,7 @@ void pcommon::process()
 				int32_t zero = 0;
                 std::string empty = "";
                 std::string defaultbuildings = "31,1,-1,0,0.000000,0.000000";
-				Statement stmt = (ses << "INSERT INTO `cities` (`accountid`,`misc`,`fieldid`,`name`,`buildings`,`gold`,`food`,`wood`,`iron`,`stone`,`creation`,`transingtrades`,`troop`,`fortification`,`trades`) VALUES (?, ?, ?, ?, ?,100000,100000,100000,100000,100000,?,'','','','');",
+				Statement stmt = (ses << "INSERT INTO `cities` (`accountid`,`misc`,`fieldid`,`name`,`buildings`,`gold`,`food`,`wood`,`iron`,`stone`,`creation`,`transingtrades`,`troop`,`fortification`,`trades`,`troopqueues`) VALUES (?, ?, ?, ?, ?,100000,100000,100000,100000,100000,?,'','','','','');",
 									use(client->accountid), use(temp), use(randomid), use(castleName), use(defaultbuildings), use(nixtime));
 				stmt.execute();
 				if (!stmt.done())
