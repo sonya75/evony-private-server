@@ -14,4 +14,5 @@ public:
     pcastle(spitfire & server, request & req, amf3object & o);
     ~pcastle();
     void process();
+	static int outsidebuildings[4];
 };
