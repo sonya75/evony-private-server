@@ -24,7 +24,6 @@ pcastle::~pcastle()
 
 }
 
-int pcastle::outsidebuildings[4]= {7,4,5,6};
 void pcastle::process()
 {
     obj2["data"] = amf3object();
@@ -244,8 +243,8 @@ void pcastle::process()
 
         obj2["cmd"] = "castle.getAvailableBuildingListOutside";
         amf3array buildinglist = amf3array();
-
-        for (int& i: outsidebuildings)
+        // using a fixed building order, temporary fix so that buildings appear in proper order in client
+        for (int i: {7,4,5,6})
         {
             if (gserver.m_buildingconfig[i][0].limit > 0 && gserver.m_buildingconfig[i][0].limit <= city->GetBuildingCount(i))
                 continue;
