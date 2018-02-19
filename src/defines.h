@@ -168,6 +168,7 @@ inline void my_split(std::vector<std::string> & toks, const std::string & src, c
 {
     std::string target;
     std::string::size_type n, nxt, offset = 0;
+    toks.clear();
     if (anyof.size() == 0)
         return;
     while (true)
