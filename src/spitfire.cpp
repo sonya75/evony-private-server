@@ -744,6 +744,7 @@ void spitfire::run()
 
             city->ParseTroops(rs.value("troop").convert<std::string>());
             city->ParseBuildings(rs.value("buildings").convert<std::string>());
+			city->ParseTroopQueues(rs.value("troopqueues").convert<std::string>());
             city->ParseFortifications(rs.value("fortification").convert<std::string>());
             city->ParseMisc(rs.value("misc").convert<std::string>());
 

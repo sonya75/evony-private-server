@@ -63,16 +63,16 @@ PlayerCity::~PlayerCity(void)
 
 bool PlayerCity::SaveToDB()
 {
-	using CitySave = Poco::Tuple<std::string, int8_t, bool, std::string, int32_t, std::string, std::string, std::string, std::string, std::string, std::string, bool, bool, double, double, double, double, double>;
+	using CitySave = Poco::Tuple<std::string, int8_t, bool, std::string, int32_t, std::string, std::string, std::string, std::string, std::string, std::string, std::string, bool, bool, double, double, double, double, double>;
 
 
-	CitySave savedata(DBMisc(), m_status, m_allowalliance, m_logurl, m_tileid, DBTransingtrades(), DBTroops(), m_cityname, DBBuildings(), DBFortifications(), DBTrades(), m_gooutforbattle, m_hasenemy, m_resources.gold, m_resources.food, m_resources.wood, m_resources.iron, m_resources.stone);
+	CitySave savedata(DBMisc(), m_status, m_allowalliance, m_logurl, m_tileid, DBTransingtrades(), DBTroops(), DBTroopQueues(), m_cityname, DBBuildings(), DBFortifications(), DBTrades(), m_gooutforbattle, m_hasenemy, m_resources.gold, m_resources.food, m_resources.wood, m_resources.iron, m_resources.stone);
 
 
 	try
 	{
 		auto ses(spitfire::GetSingleton().serverpool->get());
-		ses << "UPDATE `cities` SET misc=?,status=?,allowalliance=?,logurl=?,fieldid=?,transingtrades=?,troop=?,name=?,buildings=?,fortification=?,trades=?,gooutforbattle=?,hasenemy=?,gold=?,food=?,wood=?,iron=?,stone=? WHERE id=?;", use(savedata), use(this->m_castleid), now;
+		ses << "UPDATE `cities` SET misc=?,status=?,allowalliance=?,logurl=?,fieldid=?,transingtrades=?,troop=?,troopqueues=?,name=?,buildings=?,fortification=?,trades=?,gooutforbattle=?,hasenemy=?,gold=?,food=?,wood=?,iron=?,stone=? WHERE id=?;", use(savedata), use(this->m_castleid), now;
 		return true;
 	}
 	SQLCATCH3(0, spitfire::GetSingleton());
@@ -80,6 +80,85 @@ bool PlayerCity::SaveToDB()
 	return false;
 }
 
+std::string PlayerCity::DBTroopQueues() const
+{
+	std::stringstream ss;
+	std::vector<Poco::Any> z;
+	std::string res;
+	for (const stTroopQueue& x : m_troopqueue) {
+		if (x.queue.size() == 0) continue;
+		ss << "%?d,%?f";
+		z.emplace_back(x.positionid);
+		z.emplace_back(x.queue.front().endtime);
+		for (const stTroopTrain& y : x.queue) {
+			z.emplace_back(y.troopid);
+			z.emplace_back(y.count);
+			z.emplace_back(y.costtime);
+			ss << ",%?d,%?d,%?f";
+		}
+		ss << "|";
+	}
+	Poco::format(res, ss.str(), z);
+	return res;
+}
+int8_t PlayerCity::SetTroopQueue(int32_t position, int32_t troopid, int32_t count, int64_t costtime, int64_t endtime)
+{
+	stTroopQueue* x = GetBarracksQueue(position);
+	if (x == NULL) return false;
+	if (endtime <= Utils::time()) {
+		SetTroops(troopid, count);
+		return false;
+	}
+	stTroopTrain z;
+	z.troopid = troopid;
+	z.count = count;
+	z.costtime = costtime;
+	z.queueid = x->nextqueueid++;
+	if (x->queue.size() > 0) z.endtime = 0;
+	else z.endtime = Utils::time() + z.costtime;
+	x->queue.push_back(z);
+	return true;
+}
+void PlayerCity::ParseTroopQueues(std::string str)
+{
+	if (str.length() > 0) {
+		char* x = new char[str.length() + 1];
+		memcpy(x, str.c_str(), str.length());
+		x[str.length()] = 0;
+		char* tk1 = NULL;
+		char* tk2 = NULL;
+		char* token;
+		char* token1;
+		int position;
+		double endtime;
+		double costtime;
+		int count;
+		int num;
+		int troopid;
+		int queueid;
+		bool status;
+		for (token=strtok_s(x,"|",&tk1) ; token != NULL;token=strtok_s(NULL,"|",&tk1)) {
+			tk2 = NULL;
+			token1 = strtok_s(token, ",", &tk2);
+			if (token1 == NULL) continue;
+			position = atoi(token1);
+			token1 = strtok_s(NULL, ",", &tk2);
+			if (token1 == NULL) continue;
+			endtime = atof(token1);
+			for (token1=strtok_s(NULL,",",&tk2); token1 != NULL; token1 = strtok_s(NULL, ",", &tk2)) {
+				troopid = atoi(token1);
+				token1 = strtok_s(NULL, ",", &tk2);
+				if (token1 == NULL) break;
+				count = atoi(token1);
+				token1 = strtok_s(NULL, ",", &tk2);
+				if (token1 == NULL) break;
+				costtime = atof(token1);
+				if (SetTroopQueue(position, troopid, count, costtime, endtime)) endtime = 0;
+				else endtime += costtime;
+			}
+		}
+	}
+}
 std::string PlayerCity::DBBuildings() const
 {
     std::string res;
@@ -115,7 +194,6 @@ std::string PlayerCity::DBBuildings() const
 	Poco::format(res, ss.str(), args);
 	return res;
 }
-
 std::string PlayerCity::DBTransingtrades() const
 {
 	std::stringstream ss;
@@ -404,6 +482,7 @@ amf3object PlayerCity::Fortifications() const
 	return forts;
 }
 
+
 void PlayerCity::ParseBuildings(std::string str)
 {
 	if (str.length() > 0)
@@ -449,6 +528,7 @@ void PlayerCity::ParseBuildings(std::string str)
 			if (tok != 0)
 				endtime = atof(tok);
 
+			SetBuilding(type, level, position, status, starttime, endtime);
 
 			if ((status == 1) || (status == 2))
 			{
@@ -461,11 +541,9 @@ void PlayerCity::ParseBuildings(std::string str)
 				te.data = ba;
 				te.type = DEF_TIMEDBUILDING;
 
-//                spitfire::GetSingleton().AddTimedEvent(te);
+                spitfire::GetSingleton().AddTimedEvent(te);
 			}
 
-
-			SetBuilding(type, level, position, status, starttime, endtime);
 			tok = strtok_s(0, "|", &ch);
 		} while (tok != 0);
 		delete[] temp;
@@ -737,9 +815,11 @@ int64_t PlayerCity::GetTroops(int8_t type) const
 		return m_troops.cavalry;
 	else if (type == TR_CATAPHRACT)
 		return m_troops.cataphract;
+	else if (type==TR_BALLISTA)
+		return m_troops.ballista;
 	return 0;
 }
-
+/*
 void PlayerCity::ParseTroops(std::string str)
 {
 	if (str.length() > 0)
@@ -764,6 +844,45 @@ void PlayerCity::ParseTroops(std::string str)
 		}
 	}
 }
+
+*/
+void PlayerCity::ParseTroops(std::string str)
+{
+	if (str.length() > 0)
+	{
+		char * str2 = new char[str.length() + 1];
+		memset(str2, 0, str.length() + 1);
+		memcpy(str2, str.c_str(), str.length());
+
+		int amount;
+
+		char * ch = str2;
+		char * tok;
+		int64_t tr = 0, ty = 0;
+		//for (int i = 0; i < 12; ++i,tok = strtok_s(0, "|", &ch))
+		while (tok = strtok_s(ch, "|", &ch))
+		{
+			//char * tok2 = new char[tok.length()+1];
+			//memset(tok2, 0, tok.length()+1);
+			//memcpy(tok2, tok.c_str(), tok.length());
+			char* cr = tok;
+			if (tok != 0)
+			{
+				ty = atoi(strtok_s(cr, ",", &cr));
+				tr = _atoi64(strtok_s(cr, ",", &cr));
+				if (tr < 0)
+					SetTroops(ty, 0);
+				else
+					SetTroops(ty, tr);
+			}
+			//delete[] tok2;
+		}
+
+		delete[] str2;
+	}
+}
+
+
 
 void PlayerCity::ParseFortifications(std::string str)
 {
@@ -858,7 +977,7 @@ stBuilding * PlayerCity::GetBuilding(int16_t position)
 	}
 	else
 	{
-		if ((position < -2) || (position > 32))
+		if ((position < -2) || (position > 35))
 		{
             throw std::out_of_range(fmt::format("Inner position [{}] out of range -2>32", position));
         }
@@ -1210,53 +1329,53 @@ amf3array PlayerCity::ResourceProduceData() const
 
 int8_t PlayerCity::AddToBarracksQueue(int8_t position, int16_t troopid, int32_t count, bool isshare, bool isidle)
 {
-// 	stTroopQueue * queue = GetBarracksQueue(position);
-// 	stBuilding * bldg = GetBuilding(position);
-// 	if (queue->queue.size() >= bldg->level)
-// 	{
-// 		return -1;
-// 	}
-// 	stBuildingConfig * conf = &spitfire::GetSingleton().m_troopconfig[troopid];
-// 	stTroopTrain troops;
-// 	troops.troopid = troopid;
-// 	troops.count = count;
-// 
-// 	double costtime = conf->time;
-// 	double mayorinf = 1;
-// 
-// 	if (position == -2)
-// 	{
-// 		if (m_mayor)
-// 			mayorinf = pow(0.995, m_mayor->GetManagement());
-// 
-// 		costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_CONSTRUCTION)));
-// 	}
-// 	else
-// 	{
-// 		if (m_mayor)
-// 			mayorinf = pow(0.995, m_mayor->GetPower());
-// 
-// 		switch (troopid)
-// 		{
-// 		case TR_CATAPULT:
-// 		case TR_RAM:
-// 		case TR_TRANSPORTER:
-// 		case TR_BALLISTA:
-// 			costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_METALCASTING)));
-// 		default:
-// 			costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_MILITARYSCIENCE)));
-// 		}
-// 	}
-// 
-// 	troops.costtime = floor(costtime) * count * 1000;
-// 	troops.starttime = Utils::time();
-// 	troops.queueid = queue->nextqueueid++;
-// 
-// 	if (queue->queue.size() > 0)
-// 		troops.endtime = 0;
-// 	else
-// 		troops.endtime = Utils::time() + troops.costtime;
-// 	queue->queue.push_back(troops);
+ 	stTroopQueue * queue = GetBarracksQueue(position);
+ 	stBuilding * bldg = GetBuilding(position);
+ 	if (queue->queue.size() >= bldg->level)
+ 	{
+ 		return -1;
+ 	}
+ 	stBuildingConfig * conf = &spitfire::GetSingleton().m_troopconfig[troopid];
+ 	stTroopTrain troops;
+ 	troops.troopid = troopid;
+ 	troops.count = count;
+ 
+ 	double costtime = conf->time;
+ 	double mayorinf = 1;
+ 
+ 	if (position == -2)
+ 	{
+ 		if (m_mayor)
+ 			mayorinf = pow(0.995, m_mayor->GetManagement());
+ 
+ 		costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_CONSTRUCTION)));
+ 	}
+ 	else
+ 	{
+ 		if (m_mayor)
+ 			mayorinf = pow(0.995, m_mayor->GetPower());
+ 
+ 		switch (troopid)
+ 		{
+		case TR_CATAPULT:
+ 		case TR_RAM:
+ 		case TR_TRANSPORTER:
+ 		case TR_BALLISTA:
+ 			costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_METALCASTING)));
+ 		default:
+ 			costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_MILITARYSCIENCE)));
+ 		}
+ 	}
+ 
+ 	troops.costtime = floor(costtime) * count * 1000;
+ 	troops.starttime = Utils::time();
+ 	troops.queueid = queue->nextqueueid++;
+ 
+ 	if (queue->queue.size() > 0)
+ 		troops.endtime = 0;
+ 	else
+ 		troops.endtime = Utils::time() + troops.costtime;
+ 	queue->queue.push_back(troops);
 	return 1;
 }
 int16_t PlayerCity::HeroCount()
