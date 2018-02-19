@@ -145,55 +145,55 @@ void spitfire::run()
 #pragma region data load
 
     //Read Item XML info
-    // 	FILE * itemxml;
-    // 	fopen_s(&itemxml, "itemxml.xml", "r");
-    // 	fseek(itemxml, 0, SEEK_END);
-    // 	int32_t filesize = ftell(itemxml);
-    // 	char * itemxmlbuff = new char[filesize+1];
-    // 	itemxmlbuff[filesize+1] = 0;
-    // 	fseek(itemxml, 0, SEEK_SET);
-    // 	if (fread_s(itemxmlbuff, filesize, 1, filesize, itemxml) != filesize)
-    // 	{
-    // 		fclose(itemxml);
-    // 		throw(std::exception("No settings exist for server."));
-    // 		//error reading
-    // 	}
-    // 	fclose(itemxml);
+    //     FILE * itemxml;
+    //     fopen_s(&itemxml, "itemxml.xml", "r");
+    //     fseek(itemxml, 0, SEEK_END);
+    //     int32_t filesize = ftell(itemxml);
+    //     char * itemxmlbuff = new char[filesize+1];
+    //     itemxmlbuff[filesize+1] = 0;
+    //     fseek(itemxml, 0, SEEK_SET);
+    //     if (fread_s(itemxmlbuff, filesize, 1, filesize, itemxml) != filesize)
+    //     {
+    //         fclose(itemxml);
+    //         throw(std::exception("No settings exist for server."));
+    //         //error reading
+    //     }
+    //     fclose(itemxml);
     // 
-    // 	this->m_itemxml = itemxmlbuff;
-    // 	delete[] itemxmlbuff;
+    //     this->m_itemxml = itemxmlbuff;
+    //     delete[] itemxmlbuff;
 
 
 
 
     //good to keep on hand for future
-    // 	typedef Poco::Tuple<std::string, std::string, std::string, uint32_t, std::string, uint32_t, uint32_t, std::string, uint32_t> PAccount;
-    // 	PAccount account;
-    //	Statement stmt = ( ses << "SELECT * FROM account WHERE `name`=? AND `password`=?", use(username), use(password), into(account), now );
-    //	account.get<0>()
+    //     typedef Poco::Tuple<std::string, std::string, std::string, uint32_t, std::string, uint32_t, uint32_t, std::string, uint32_t> PAccount;
+    //     PAccount account;
+    //    Statement stmt = ( ses << "SELECT * FROM account WHERE `name`=? AND `password`=?", use(username), use(password), into(account), now );
+    //    account.get<0>()
 
     int count = 0;
 
 
-    // 	if (rs.rowCount() == 0)
-    // 	{
-    // 		//no settings exist
-    // 		throw(std::exception("No settings exist for server."));
-    // 		return;
-    // 	}
+    //     if (rs.rowCount() == 0)
+    //     {
+    //         //no settings exist
+    //         throw(std::exception("No settings exist for server."));
+    //         return;
+    //     }
     // 
     // 
-    // 	rs.moveFirst();
-    // 	//client.name = (string)rs.value("name");
-    // 	client.name = rs.value("name").convert<string>();
-    // 	client.password = rs.value("password").convert<string>();
-    // 	client.email = rs.value("email").convert<string>();
-    // 	client.message = rs.value("reason").convert<string>();
-    // 	client.lastip = rs.value("lastip").convert<string>();
-    // 	client.xcoins = rs.value("xcoins").convert<uint32_t>();
-    // 	client.lastlogin = rs.value("lasttime").convert<uint32_t>();
-    // 	client.status = rs.value("status").convert<uint32_t>();
-    // 	client.online = rs.value("online").convert<uint32_t>();
+    //     rs.moveFirst();
+    //     //client.name = (string)rs.value("name");
+    //     client.name = rs.value("name").convert<string>();
+    //     client.password = rs.value("password").convert<string>();
+    //     client.email = rs.value("email").convert<string>();
+    //     client.message = rs.value("reason").convert<string>();
+    //     client.lastip = rs.value("lastip").convert<string>();
+    //     client.xcoins = rs.value("xcoins").convert<uint32_t>();
+    //     client.lastlogin = rs.value("lasttime").convert<uint32_t>();
+    //     client.status = rs.value("status").convert<uint32_t>();
+    //     client.online = rs.value("online").convert<uint32_t>();
 
 
 
@@ -726,25 +726,25 @@ void spitfire::run()
             city->m_cityname = rs.value("name").convert<std::string>();
             city->m_logurl = rs.value("logurl").convert<std::string>();
             city->m_tileid = fieldid;
-            //		city->m_accountid = accountid;
-            //		city->m_client = client;
+            //        city->m_accountid = accountid;
+            //        city->m_client = client;
             city->m_creation = rs.value("creation").convert<double>();
 
-            //		client->m_citycount++;
+            //        client->m_citycount++;
 
-            // 		server->m_map->m_tile[fieldid].m_city = city;
-            // 		server->m_map->m_tile[fieldid].m_npc = false;
-            // 		server->m_map->m_tile[fieldid].m_ownerid = accountid;
-            // 		server->m_map->m_tile[fieldid].m_type = CASTLE;
+            //         server->m_map->m_tile[fieldid].m_city = city;
+            //         server->m_map->m_tile[fieldid].m_npc = false;
+            //         server->m_map->m_tile[fieldid].m_ownerid = accountid;
+            //         server->m_map->m_tile[fieldid].m_type = CASTLE;
             // 
-            // 		//server->m_map->m_tile[fieldid].m_zoneid = server->m_map->GetStateFromID(fieldid);
+            //         //server->m_map->m_tile[fieldid].m_zoneid = server->m_map->GetStateFromID(fieldid);
             // 
-            // 		server->m_map->m_tile[fieldid].m_castleid = cityid;
+            //         server->m_map->m_tile[fieldid].m_castleid = cityid;
 
 
             city->ParseTroops(rs.value("troop").convert<std::string>());
             city->ParseBuildings(rs.value("buildings").convert<std::string>());
-			city->ParseTroopQueues(rs.value("troopqueues").convert<std::string>());
+            city->ParseTroopQueues(rs.value("troopqueues").convert<std::string>());
             city->ParseFortifications(rs.value("fortification").convert<std::string>());
             city->ParseMisc(rs.value("misc").convert<std::string>());
 
@@ -1125,20 +1125,20 @@ void spitfire::stop(connection_ptr c, bool checklock)
 {
     try
     {
-        //		if (checklock)
-        //			c->mtx.lock();
+        //        if (checklock)
+        //            c->mtx.lock();
         connections_.erase(c);
         asio::error_code ignored_ec;
         c->socket().shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
         c->stop();
-        //		if (checklock)
-        //			c->mtx.unlock();
+        //        if (checklock)
+        //            c->mtx.unlock();
     }
     catch (std::exception& e)
     {
         std::cerr << "exception: " << e.what() << "\n";
-        //		if (checklock)
-        //			c->mtx.unlock();
+        //        if (checklock)
+        //            c->mtx.unlock();
     }
 }
 
@@ -1574,13 +1574,13 @@ bool spitfire::ParseChat(Client * client, std::string str)
                         CloseClient(*playeriter, 1, "");
                     Shutdown();
                 }
-                // 				amf3object sobj;
-                // 				sobj["cmd"] = "server.ConnectionLost";
-                // 				sobj["data"] = amf3object();
-                // 				amf3object & sdata = sobj["data"];
-                // 				sdata["reasonCode"] = 1;
+                //                 amf3object sobj;
+                //                 sobj["cmd"] = "server.ConnectionLost";
+                //                 sobj["data"] = amf3object();
+                //                 amf3object & sdata = sobj["data"];
+                //                 sdata["reasonCode"] = 1;
 
-                //					SendObject((*playeriter)->socket, sobj);
+                //                    SendObject((*playeriter)->socket, sobj);
             }
             else if (!strcmp(command, "online"))
             {
@@ -1622,7 +1622,7 @@ bool spitfire::ParseChat(Client * client, std::string str)
                 client->cents += 50000;
                 client->PlayerUpdate();
             }
-            /*			else if (!strcmp(command, "pres"))
+            /*            else if (!strcmp(command, "pres"))
             {
             int test = 12786431;
             stringstream ss;
@@ -1884,13 +1884,13 @@ void spitfire::TimerThread()
 
 
                 //
-                // 						fclient->SelfArmyUpdate();
+                //                         fclient->SelfArmyUpdate();
                 //
-                // 						stTimedEvent te;
-                // 						te.data = am;
-                // 						te.type = DEF_TIMEDARMY;
+                //                         stTimedEvent te;
+                //                         te.data = am;
+                //                         te.type = DEF_TIMEDARMY;
                 //
-                // 						gserver->AddTimedEvent(te);
+                //                         gserver->AddTimedEvent(te);
 
                 // recv: server.HeroUpdate
                 // recv: server.InjuredTroopUpdate
@@ -2154,25 +2154,25 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
             }
             if (t3mintimer < ltime)
             {
-                //				if (!savethreadrunning)
-                //					savethread = shared_ptr<thread>(new thread(std::bind(std::mem_fun(&Server::SaveData), this)));
-                //				std::thread timerthread(std::bind(std::mem_fun(&Server::TimerThread), gserver));
-                // 				//hSaveThread = (HANDLE)_beginthreadex(0, 0, SaveData, 0, 0, &uAddr);
+                //                if (!savethreadrunning)
+                //                    savethread = shared_ptr<thread>(new thread(std::bind(std::mem_fun(&Server::SaveData), this)));
+                //                std::thread timerthread(std::bind(std::mem_fun(&Server::TimerThread), gserver));
+                //                 //hSaveThread = (HANDLE)_beginthreadex(0, 0, SaveData, 0, 0, &uAddr);
                 //t3mintimer += 180000;
                 t3mintimer += 180000;
             }
-            // 			if (t5mintimer < ltime)
-            // 			{
+            //             if (t5mintimer < ltime)
+            //             {
             // #ifndef WIN32
-            // 			if (pthread_create(&hSaveThread, NULL, SaveData, 0))
-            // 			{
-            // 				SFERROR("pthread_create");
-            // 			}
+            //             if (pthread_create(&hSaveThread, NULL, SaveData, 0))
+            //             {
+            //                 SFERROR("pthread_create");
+            //             }
             // #else
-            // 				//hSaveThread = (HANDLE)_beginthreadex(0, 0, SaveData, 0, 0, &uAddr);
+            //                 //hSaveThread = (HANDLE)_beginthreadex(0, 0, SaveData, 0, 0, &uAddr);
             // #endif
-            // 				t5mintimer += 300000;
-            // 			}
+            //                 t5mintimer += 300000;
+            //             }
             if (t6mintimer < ltime)
             {
                 try
@@ -2196,16 +2196,16 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                 }
                 t6mintimer += 360000;
             }
-            // 			if (t30mintimer < ltime)
-            // 			{
-            // 				LOCK(M_RANKEDLIST);
-            // 				gserver->SortPlayers();
-            // 				gserver->SortHeroes();
-            // 				gserver->SortCastles();
-            // 				gserver->m_alliances->SortAlliances();
-            // 				UNLOCK(M_RANKEDLIST);
-            // 				t30mintimer += 1800000;
-            // 			}
+            //             if (t30mintimer < ltime)
+            //             {
+            //                 LOCK(M_RANKEDLIST);
+            //                 gserver->SortPlayers();
+            //                 gserver->SortHeroes();
+            //                 gserver->SortCastles();
+            //                 gserver->m_alliances->SortAlliances();
+            //                 UNLOCK(M_RANKEDLIST);
+            //                 t30mintimer += 1800000;
+            //             }
             if (t1htimer < ltime)
             {
 
