@@ -66,6 +66,7 @@ public:
     std::string DBTrades() const;
     std::string DBTroops() const;
     std::string DBMisc() const;
+	std::string DBTroopQueues() const;
 	bool SaveToDB();
 
 	amf3object ToObject();
@@ -78,12 +79,14 @@ public:
 
 	void SetTroops(int8_t type, int64_t amount);
 	void SetForts(int32_t type, int32_t count);
+	int8_t SetTroopQueue(int32_t position, int32_t troopid, int32_t count, int64_t costtime, int64_t endtime=0);
 	int64_t GetTroops(int8_t type) const;
 	Hero * GetHero(uint64_t id);
 	bool HasTroops(stTroops & troops) const;
 
 	void ParseBuildings(std::string str);
 	void ParseTroops(std::string str);
+	void ParseTroopQueues(std::string str);
 	void ParseFortifications(std::string str);
 	void ParseMisc(std::string str);
 
