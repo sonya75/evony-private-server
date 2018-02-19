@@ -26,80 +26,90 @@ parmy::~parmy()
 
 void parmy::process()
 {
-// 	obj2["data"] = amf3object();
-// 	amf3object & data2 = obj2["data"];
-// 
-// 	if (command == "setArmyGoOut")
-// 	{
-// 		VERIFYCASTLEID();
-// 		CHECKCASTLEID();
-// 
-// 		client->GetFocusCity()->m_gooutforbattle = data["isArmyGoOut"];
-// 		obj2["cmd"] = "army.setArmyGoOut";
-// 		data2["packageId"] = 0.0;
-// 		data2["ok"] = 1;
-// 		gserver.SendObject(client, obj2);
-// 	}
-// 	if (command == "IsDropItemInCastle")
-// 	{
-// 		//??
-// 		int32_t y = obj["y"];
-// 		int32_t x = obj["x"];
-// 		return;
-// 	}
-// 	if ((command == "callBackArmy"))
-// 	{
-// 		VERIFYCASTLEID();
-// 		CHECKCASTLEID();
-// 
-// 		uint32_t armyid = data["armyId"];
-// 
-// 		return;
-// 	}
-// 	if ((command == "getInjuredTroop"))
-// 	{
-// 		VERIFYCASTLEID();
-// 		CHECKCASTLEID();
-// 
-// 		uint32_t castleid = data["castleId"];
-// 
-// 		amf3object obj3;
-// 		obj3["cmd"] = "server.InjuredTroopUpdate";
-// 		obj3["data"] = amf3object();
-// 		amf3object & data3 = obj3["data"];
-// 		data3["castleId"] = 0.0;
-// 		data3["troop"] = client->GetFocusCity()->InjuredTroops();
-// 		gserver.SendObject(client, obj3);
-// 		return;
-// 	}
-// 	if (command == "getTroopParam")
-// 	{
-// 		VERIFYCASTLEID();
-// 		CHECKCASTLEID();
-// 
-// 		uint32_t castleid = data["castleId"];
-// 
-// 		amf3object obj3;
-// 		obj3["cmd"] = "army.getTroopParam";
-// 		obj3["data"] = amf3object();
-// 		amf3object & data3 = obj3["data"];
-// 		data3["marchSkillParam"] = client->GetResearchLevel(T_COMPASS) * 10;
-// 		data3["loadSkillParam"] = client->GetResearchLevel(T_LOGISTICS) * 10;
-// 		data3["packageId"] = 0.0;
-// 		data3["ok"] = 1;
-// 		data3["driveSkillParam"] = client->GetResearchLevel(T_HORSEBACKRIDING) * 5;
-// 		data3["transportStationParam"] = client->GetFocusCity()->GetReliefMultiplier();
-// 		gserver.SendObject(client, obj3);
-// 		return;
-// 	}
-// 	if (command == "newArmy")
-// 	{
-// 		VERIFYCASTLEID();
-// 		CHECKCASTLEID();
-// 
-// 		//TODO: should set a mutex up to prevent the possibility of multiple threads trying to start new armies effectively duplicating troops
-// 		//or causing troop number errors
-// 
+ 	obj2["data"] = amf3object();
+ 	amf3object & data2 = obj2["data"];
+ 
+ 	if (command == "setArmyGoOut")
+ 	{
+ 		VERIFYCASTLEID();
+ 		CHECKCASTLEID();
+ 
+ 		client->GetFocusCity()->m_gooutforbattle = data["isArmyGoOut"];
+ 		obj2["cmd"] = "army.setArmyGoOut";
+ 		data2["packageId"] = 0.0;
+ 		data2["ok"] = 1;
+ 		gserver.SendObject(client, obj2);
+ 		return;
+ 	}
+ 	if (command == "IsDropItemInCastle")
+ 	{
+ 		//??
+ 		int32_t y = obj["y"];
+ 		int32_t x = obj["x"];
+ 		return;
+ 	}
+ 	if ((command == "callBackArmy"))
+ 	{
+ 		VERIFYCASTLEID();
+ 		CHECKCASTLEID();
+ 
+ 		uint32_t armyid = data["armyId"];
+ 
+ 		return;
+ 	}
+ 	if ((command == "getInjuredTroop"))
+ 	{
+ 		VERIFYCASTLEID();
+ 		CHECKCASTLEID();
+ 
+ 		uint32_t castleid = data["castleId"];
+ 
+ 		amf3object obj3;
+ 		obj3["cmd"] = "server.InjuredTroopUpdate";
+ 		obj3["data"] = amf3object();
+ 		amf3object & data3 = obj3["data"];
+ 		data3["castleId"] = data["castleId"];
+ 		data3["troop"] = client->GetFocusCity()->InjuredTroops();
+ 		gserver.SendObject(client, obj3);
+
+ 		amf3object obj4;
+ 		obj4["cmd"] = "army.getInjuredTroop";
+ 		obj4["data"]=amf3object();
+ 		obj4["data"]["packageId"]=0.0;
+ 		obj4["data"]["ok"]=1;
+ 		gserver.SendObject(client,obj4);
+ 		return;
+ 	}
+ 	if (command == "getTroopParam")
+ 	{
+ 		VERIFYCASTLEID();
+ 		CHECKCASTLEID();
+ 
+ 		uint32_t castleid = data["castleId"];
+ 
+ 		amf3object obj3;
+ 		obj3["cmd"] = "army.getTroopParam";
+ 		obj3["data"] = amf3object();
+ 		amf3object & data3 = obj3["data"];
+ 		data3["marchSkillParam"] = client->GetResearchLevel(T_COMPASS) * 10;
+ 		data3["loadSkillParam"] = client->GetResearchLevel(T_LOGISTICS) * 10;
+ 		data3["packageId"] = 0.0;
+ 		data3["ok"] = 1;
+ 		data3["driveSkillParam"] = client->GetResearchLevel(T_HORSEBACKRIDING) * 5;
+ 		data3["transportStationParam"] = client->GetFocusCity()->GetReliefMultiplier();
+ 		gserver.SendObject(client, obj3);
+ 		return;
+ 	}
+ 	if (command == "newArmy")
+ 	{
+ 		VERIFYCASTLEID();
+ 		CHECKCASTLEID();
+ 
+ 		//TODO: should set a mutex up to prevent the possibility of multiple threads trying to start new armies effectively duplicating troops
+ 		//or causing troop number errors
+ 
+ 		gserver.SendObject(client, gserver.CreateError("army.newArmy", -13, "You can't perform this operation against this target."));
+
 // 		amf3object & armybean = data["newArmyBean"];
 // 		uint32_t castleid = data["castleId"];
 // 		int32_t targettile = armybean["targetPoint"];
@@ -370,22 +380,22 @@ void parmy::process()
 // 		// 				["useFlag"] Type: Boolean - Value: False
 // 		// 				["backAfterConstruct"] Type: Boolean - Value: False
 // 
-// 	}
-// 	if (command == "getStayAllianceArmys")
-// 	{
-// 		VERIFYCASTLEID();
-// 		CHECKCASTLEID();
-// 
-// 		uint32_t castleid = data["castleId"];
-// 
-// 		amf3object obj3;
-// 		obj3["cmd"] = "army.getStayAllianceArmys";
-// 		obj3["data"] = amf3object();
-// 		amf3object & data3 = obj3["data"];
-// 		data3["packageId"] = 0.0;
-// 		data3["ok"] = 1;
-// 		//armies in embassy from other players go here
-// 		gserver.SendObject(client, obj3);
-// 		return;
-// 	}
+ 	}
+ 	if (command == "getStayAllianceArmys")
+ 	{
+ 		VERIFYCASTLEID();
+ 		CHECKCASTLEID();
+ 
+ 		uint32_t castleid = data["castleId"];
+ 
+ 		amf3object obj3;
+ 		obj3["cmd"] = "army.getStayAllianceArmys";
+ 		obj3["data"] = amf3object();
+ 		amf3object & data3 = obj3["data"];
+ 		data3["packageId"] = 0.0;
+ 		data3["ok"] = 1;
+ 		//armies in embassy from other players go here
+ 		gserver.SendObject(client, obj3);
+ 		return;
+ 	}
 }
