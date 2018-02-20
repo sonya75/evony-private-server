@@ -20,4 +20,5 @@ link_directories(${Poco_LIBRARY_DIR})
 MESSAGE( STATUS "MAKE_SOURCE_DIR     " ${CMAKE_SOURCE_DIR} )
 MESSAGE( STATUS "Poco_LIBRARY_DIR:   " ${Poco_LIBRARY_DIR} )
 
-target_link_libraries(spitfire pthread ${Poco_LIBRARY_DIR}/libPocoFoundation.so ${Poco_LIBRARY_DIR}/libPocoData.so ${Poco_LIBRARY_DIR}/libPocoDataMySQL.so ssl crypto z
+target_link_libraries(spitfire pthread ${Poco_LIBRARY_DIR}/libPocoFoundation.so ${Poco_LIBRARY_DIR}/libPocoData.so ${Poco_LIBRARY_DIR}/libPocoDataMySql.so ${Poco_LIBRARY_DIR}/libPocoNet.so ssl crypto z)
+
