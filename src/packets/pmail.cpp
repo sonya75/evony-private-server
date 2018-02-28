@@ -97,7 +97,7 @@ void pmail::process()
                 }
                 else
                 {
-                    Client * sender = gserver.GetClient(iter->playerid);
+                    Client * sender = gserver.get_client(iter->playerid);
                     temp["sender"] = sender->playername;
                     temp["playerId"] = sender->accountid;
                 }
@@ -139,9 +139,9 @@ void pmail::process()
         mail["selected"] = false;
         mail["title"] = "title";
         mail["receiver"] = "Daisy";
-        mail["playerId"] = client->m_playerid;
+        mail["playerId"] = client->playerid;
         mail["receiveTime"] = unixtime();
-        mail["targetId"] = client->m_playerid;
+        mail["targetId"] = client->playerid;
         mail["type_id"] = 1;//??
         mail["isRead"] = 0;//0 = unread, 1 = read?
         mails.Add(mail);
@@ -165,7 +165,7 @@ void pmail::process()
                 if (mail.playerid != 0)
                 {
                     Client * sender = nullptr;
-                    sender = gserver.GetClient(mail.playerid);
+                    sender = gserver.get_client(mail.playerid);
                     data2["sender"] = sender->playername;
                     data2["targetId"] = sender->accountid;//player who sent the mail - if System, set to reader's id
 
@@ -215,13 +215,13 @@ void pmail::process()
         std::string content = data["content"];
 
 /*
-        if (client->m_playername == username)
+        if (client->playername == username)
         {
             gserver.SendObject(client, gserver.CreateError("mail.sendMail", -21, "invalid mailing operation."));
             return;
         }*/
 
-        Client * tclient = gserver.GetClientByName(username);
+        Client * tclient = gserver.get_client_by_name(username);
         if (!tclient)
         {
             gserver.SendObject(client, gserver.CreateError("mail.sendMail", -41, "Player " + username + " doesn't exist."));

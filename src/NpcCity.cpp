@@ -10,57 +10,57 @@
 #include "Hero.h"
 #include "defines.h"
 
-NpcCity::NpcCity(): m_temphero(nullptr), m_calculatestuff(0), m_ownerid(0)
+NpcCity::NpcCity(): temphero(nullptr), calculatestuff(0), ownerid(0)
 {
-    m_maxresources.food = m_maxresources.wood = m_maxresources.gold = m_maxresources.iron = m_maxresources.stone = 0;
-    m_resources.food = m_resources.wood = m_resources.gold = m_resources.iron = m_resources.stone = 0;
-    //     m_calculatestuff = unixtime();
-    //     m_ownerid = 0;
-    //     memset(&m_troops, 0, sizeof(m_troops));
-    //     m_temphero.m_name = "Test NPC Hero";
+    maxresources.food = maxresources.wood = maxresources.gold = maxresources.iron = maxresources.stone = 0;
+    resources.food = resources.wood = resources.gold = resources.iron = resources.stone = 0;
+    //     calculatestuff = unixtime();
+    //     ownerid = 0;
+    //     memset(&troops, 0, sizeof(troops));
+    //     temphero.name = "Test NPC Hero";
 }
 void NpcCity::SetTroops(int32_t warrior, int32_t pike, int32_t sword, int32_t archer, int32_t cavalry)
 {
-    m_troops.warrior = warrior;
-    m_troops.pike = pike;
-    m_troops.sword = sword;
-    m_troops.archer = archer;
-    m_troops.cavalry = cavalry;
+    troops.warrior = warrior;
+    troops.pike = pike;
+    troops.sword = sword;
+    troops.archer = archer;
+    troops.cavalry = cavalry;
 }
 void NpcCity::SetupBuildings()
 {
-    SetBuilding(4, m_level, 1011 + ((m_level - 1) * 3), 0, 0, 0);
-    SetBuilding(5, m_level, 1012 + ((m_level - 1) * 3), 0, 0, 0);
-    SetBuilding(6, m_level, 1013 + ((m_level - 1) * 3), 0, 0, 0);
-    for (int i = 0; i < 10 + (m_level - 1) * 3; ++i)
+    SetBuilding(4, level, 1011 + ((level - 1) * 3), 0, 0, 0);
+    SetBuilding(5, level, 1012 + ((level - 1) * 3), 0, 0, 0);
+    SetBuilding(6, level, 1013 + ((level - 1) * 3), 0, 0, 0);
+    for (int i = 0; i < 10 + (level - 1) * 3; ++i)
     {
-        SetBuilding(7, m_level, 1001 + i, 0, 0, 0);
+        SetBuilding(7, level, 1001 + i, 0, 0, 0);
     }
-    SetBuilding(25, m_level, 0, 0, 0, 0);
-    SetBuilding(22, m_level, 1, 0, 0, 0);
-    SetBuilding(28, m_level, 2, 0, 0, 0);
-    SetBuilding(27, m_level, 3, 0, 0, 0);
-    SetBuilding(23, m_level, 4, 0, 0, 0);
-    SetBuilding(30, m_level, 5, 0, 0, 0);
-    SetBuilding(20, m_level, 6, 0, 0, 0);
+    SetBuilding(25, level, 0, 0, 0, 0);
+    SetBuilding(22, level, 1, 0, 0, 0);
+    SetBuilding(28, level, 2, 0, 0, 0);
+    SetBuilding(27, level, 3, 0, 0, 0);
+    SetBuilding(23, level, 4, 0, 0, 0);
+    SetBuilding(30, level, 5, 0, 0, 0);
+    SetBuilding(20, level, 6, 0, 0, 0);
 
-    SetBuilding(21, m_level, 7, 0, 0, 0);
-    SetBuilding(29, m_level, 8, 0, 0, 0);
-    SetBuilding(24, m_level, 9, 0, 0, 0);
-    SetBuilding(26, m_level, 10, 0, 0, 0);
-    SetBuilding(2, m_level, 11, 0, 0, 0);
+    SetBuilding(21, level, 7, 0, 0, 0);
+    SetBuilding(29, level, 8, 0, 0, 0);
+    SetBuilding(24, level, 9, 0, 0, 0);
+    SetBuilding(26, level, 10, 0, 0, 0);
+    SetBuilding(2, level, 11, 0, 0, 0);
     for (int i = 12; i < 32; ++i)
     {
-        SetBuilding(1, m_level, i, 0, 0, 0);
+        SetBuilding(1, level, i, 0, 0, 0);
     }
 
-    SetBuilding(31, m_level, -1, 0, 0, 0);
-    SetBuilding(32, m_level, -2, 0, 0, 0);
+    SetBuilding(31, level, -1, 0, 0, 0);
+    SetBuilding(32, level, -2, 0, 0, 0);
 }
 
 void NpcCity::Initialize(bool resources, bool troops)
 {
-    switch (m_level)
+    switch (level)
     {
     case 1:
         SetResources(55000, 100000, 20000, 20000, 20000);
@@ -140,9 +140,9 @@ void NpcCity::Initialize(bool resources, bool troops)
         SetupBuildings();
         break;
     }
-    //     memcpy(&m_maxresources, &m_resources, sizeof(stResources));
-    //     memcpy(&m_maxtroops, &m_troops, sizeof(stTroops));
-    //     memcpy(&m_maxforts, &m_forts, sizeof(stForts));
+    //     memcpy(&maxresources, &resources, sizeof(stResources));
+    //     memcpy(&maxtroops, &troops, sizeof(stTroops));
+    //     memcpy(&maxforts, &forts, sizeof(stForts));
 }
 
 void NpcCity::CalculateStats(bool resources, bool troops)
@@ -150,97 +150,97 @@ void NpcCity::CalculateStats(bool resources, bool troops)
     double add;
     if (resources)
     {
-        add = m_maxresources.food / 80;
-        if (m_maxresources.food > (m_resources.food + add))
-            m_resources.food += add;
+        add = maxresources.food / 80;
+        if (maxresources.food > (resources.food + add))
+            resources.food += add;
         else
-            m_resources.food = m_maxresources.food;
+            resources.food = maxresources.food;
 
-        add = m_maxresources.wood / 80;
-        if (m_maxresources.wood > (m_resources.wood + add))
-            m_resources.wood += add;
+        add = maxresources.wood / 80;
+        if (maxresources.wood > (resources.wood + add))
+            resources.wood += add;
         else
-            m_resources.wood = m_maxresources.wood;
+            resources.wood = maxresources.wood;
 
-        add = m_maxresources.stone / 80;
-        if (m_maxresources.stone > (m_resources.stone + add))
-            m_resources.stone += add;
+        add = maxresources.stone / 80;
+        if (maxresources.stone > (resources.stone + add))
+            resources.stone += add;
         else
-            m_resources.stone = m_maxresources.stone;
+            resources.stone = maxresources.stone;
 
-        add = m_maxresources.iron / 80;
-        if (m_maxresources.iron > (m_resources.iron + add))
-            m_resources.iron += add;
+        add = maxresources.iron / 80;
+        if (maxresources.iron > (resources.iron + add))
+            resources.iron += add;
         else
-            m_resources.iron = m_maxresources.iron;
+            resources.iron = maxresources.iron;
 
-        //         add = m_maxresources.gold/80;
-        //         if (m_maxresources.gold > (m_resources.gold + add))
-        //             m_resources.gold += add;
+        //         add = maxresources.gold/80;
+        //         if (maxresources.gold > (resources.gold + add))
+        //             resources.gold += add;
         //         else
-        //             m_resources.gold = m_maxresources.gold;
+        //             resources.gold = maxresources.gold;
     }
     if (troops)
     {
-        add = m_maxtroops.archer / 10;
-        if (m_maxtroops.archer > (m_troops.archer + add))
-            m_troops.archer += add;
+        add = maxtroops.archer / 10;
+        if (maxtroops.archer > (troops.archer + add))
+            troops.archer += add;
         else
-            m_troops.archer = m_maxtroops.archer;
+            troops.archer = maxtroops.archer;
 
-        add = m_maxtroops.cavalry / 10;
-        if (m_maxtroops.cavalry > (m_troops.cavalry + add))
-            m_troops.cavalry += add;
+        add = maxtroops.cavalry / 10;
+        if (maxtroops.cavalry > (troops.cavalry + add))
+            troops.cavalry += add;
         else
-            m_troops.cavalry = m_maxtroops.cavalry;
+            troops.cavalry = maxtroops.cavalry;
 
-        add = m_maxtroops.pike / 10;
-        if (m_maxtroops.pike > (m_troops.pike + add))
-            m_troops.pike += add;
+        add = maxtroops.pike / 10;
+        if (maxtroops.pike > (troops.pike + add))
+            troops.pike += add;
         else
-            m_troops.pike = m_maxtroops.pike;
+            troops.pike = maxtroops.pike;
 
-        add = m_maxtroops.sword / 10;
-        if (m_maxtroops.sword > (m_troops.sword + add))
-            m_troops.sword += add;
+        add = maxtroops.sword / 10;
+        if (maxtroops.sword > (troops.sword + add))
+            troops.sword += add;
         else
-            m_troops.sword = m_maxtroops.sword;
+            troops.sword = maxtroops.sword;
 
-        add = m_maxtroops.warrior / 10;
-        if (m_maxtroops.warrior > (m_troops.warrior + add))
-            m_troops.warrior += add;
+        add = maxtroops.warrior / 10;
+        if (maxtroops.warrior > (troops.warrior + add))
+            troops.warrior += add;
         else
-            m_troops.warrior = m_maxtroops.warrior;
+            troops.warrior = maxtroops.warrior;
 
-        add = m_maxforts.abatis / 10;
-        if (m_maxforts.abatis > (m_forts.abatis + add))
-            m_forts.abatis += add;
+        add = maxforts.abatis / 10;
+        if (maxforts.abatis > (forts.abatis + add))
+            forts.abatis += add;
         else
-            m_forts.abatis = m_maxforts.abatis;
+            forts.abatis = maxforts.abatis;
 
-        add = m_maxforts.logs / 10;
-        if (m_maxforts.logs > (m_forts.logs + add))
-            m_forts.logs += add;
+        add = maxforts.logs / 10;
+        if (maxforts.logs > (forts.logs + add))
+            forts.logs += add;
         else
-            m_forts.logs = m_maxforts.logs;
+            forts.logs = maxforts.logs;
 
-        add = m_maxforts.towers / 10;
-        if (m_maxforts.towers > (m_forts.towers + add))
-            m_forts.towers += add;
+        add = maxforts.towers / 10;
+        if (maxforts.towers > (forts.towers + add))
+            forts.towers += add;
         else
-            m_forts.towers = m_maxforts.towers;
+            forts.towers = maxforts.towers;
 
-        add = m_maxforts.traps / 10;
-        if (m_maxforts.traps > (m_forts.traps + add))
-            m_forts.traps += add;
+        add = maxforts.traps / 10;
+        if (maxforts.traps > (forts.traps + add))
+            forts.traps += add;
         else
-            m_forts.traps = m_maxforts.traps;
+            forts.traps = maxforts.traps;
 
-        add = m_maxforts.trebs / 10;
-        if (m_maxforts.trebs > (m_forts.trebs + add))
-            m_forts.trebs += add;
+        add = maxforts.trebs / 10;
+        if (maxforts.trebs > (forts.trebs + add))
+            forts.trebs += add;
         else
-            m_forts.trebs = m_maxforts.trebs;
+            forts.trebs = maxforts.trebs;
 
     }
 }

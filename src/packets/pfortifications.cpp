@@ -79,54 +79,54 @@ void pfortifications::process()
         switch (type)
         {
         case TR_TRAP:
-            if (city->m_forts.traps < num)
+            if (city->forts.traps < num)
             {
                 gserver.SendObject(client, gserver.CreateError("fortifications.destructWallProtect", -99, "You do not have that many traps."));
                 return;
             }
-            destruct = { gserver.m_troopconfig[TR_TRAP].gold, gserver.m_troopconfig[TR_TRAP].food, gserver.m_troopconfig[TR_TRAP].wood, gserver.m_troopconfig[TR_TRAP].stone, gserver.m_troopconfig[TR_TRAP].iron };
-            city->m_resources += destruct;
-            city->m_forts.traps -= num;
+            destruct = { gserver.troopconfig[TR_TRAP].gold, gserver.troopconfig[TR_TRAP].food, gserver.troopconfig[TR_TRAP].wood, gserver.troopconfig[TR_TRAP].stone, gserver.troopconfig[TR_TRAP].iron };
+            city->resources += destruct;
+            city->forts.traps -= num;
             break;
         case TR_ABATIS:
-            if (city->m_forts.abatis < num)
+            if (city->forts.abatis < num)
             {
                 gserver.SendObject(client, gserver.CreateError("fortifications.destructWallProtect", -99, "You do not have that many abatis."));
                 return;
             }
-            destruct = { gserver.m_troopconfig[TR_ABATIS].gold, gserver.m_troopconfig[TR_ABATIS].food, gserver.m_troopconfig[TR_ABATIS].wood, gserver.m_troopconfig[TR_ABATIS].stone, gserver.m_troopconfig[TR_ABATIS].iron };
-            city->m_resources += destruct;
-            city->m_forts.abatis -= num;
+            destruct = { gserver.troopconfig[TR_ABATIS].gold, gserver.troopconfig[TR_ABATIS].food, gserver.troopconfig[TR_ABATIS].wood, gserver.troopconfig[TR_ABATIS].stone, gserver.troopconfig[TR_ABATIS].iron };
+            city->resources += destruct;
+            city->forts.abatis -= num;
             break;
         case TR_ARCHERTOWER:
-            if (city->m_forts.towers < num)
+            if (city->forts.towers < num)
             {
                 gserver.SendObject(client, gserver.CreateError("fortifications.destructWallProtect", -99, "You do not have that many archer towers."));
                 return;
             }
-            destruct = { gserver.m_troopconfig[TR_ARCHERTOWER].gold, gserver.m_troopconfig[TR_ARCHERTOWER].food, gserver.m_troopconfig[TR_ARCHERTOWER].wood, gserver.m_troopconfig[TR_ARCHERTOWER].stone, gserver.m_troopconfig[TR_ARCHERTOWER].iron };
-            city->m_resources += destruct;
-            city->m_forts.towers -= num;
+            destruct = { gserver.troopconfig[TR_ARCHERTOWER].gold, gserver.troopconfig[TR_ARCHERTOWER].food, gserver.troopconfig[TR_ARCHERTOWER].wood, gserver.troopconfig[TR_ARCHERTOWER].stone, gserver.troopconfig[TR_ARCHERTOWER].iron };
+            city->resources += destruct;
+            city->forts.towers -= num;
             break;
         case TR_ROLLINGLOG:
-            if (city->m_forts.logs < num)
+            if (city->forts.logs < num)
             {
                 gserver.SendObject(client, gserver.CreateError("fortifications.destructWallProtect", -99, "You do not have that many rolling logs."));
                 return;
             }
-            destruct = { gserver.m_troopconfig[TR_ROLLINGLOG].gold, gserver.m_troopconfig[TR_ROLLINGLOG].food, gserver.m_troopconfig[TR_ROLLINGLOG].wood, gserver.m_troopconfig[TR_ROLLINGLOG].stone, gserver.m_troopconfig[TR_ROLLINGLOG].iron };
-            city->m_resources += destruct;
-            city->m_forts.logs -= num;
+            destruct = { gserver.troopconfig[TR_ROLLINGLOG].gold, gserver.troopconfig[TR_ROLLINGLOG].food, gserver.troopconfig[TR_ROLLINGLOG].wood, gserver.troopconfig[TR_ROLLINGLOG].stone, gserver.troopconfig[TR_ROLLINGLOG].iron };
+            city->resources += destruct;
+            city->forts.logs -= num;
             break;
         case TR_TREBUCHET:
-            if (city->m_forts.trebs < num)
+            if (city->forts.trebs < num)
             {
                 gserver.SendObject(client, gserver.CreateError("fortifications.destructWallProtect", -99, "You do not have that many trebuchets."));
                 return;
             }
-            destruct = { gserver.m_troopconfig[TR_TREBUCHET].gold, gserver.m_troopconfig[TR_TREBUCHET].food, gserver.m_troopconfig[TR_TREBUCHET].wood, gserver.m_troopconfig[TR_TREBUCHET].stone, gserver.m_troopconfig[TR_TREBUCHET].iron };
-            city->m_resources += destruct;
-            city->m_forts.trebs -= num;
+            destruct = { gserver.troopconfig[TR_TREBUCHET].gold, gserver.troopconfig[TR_TREBUCHET].food, gserver.troopconfig[TR_TREBUCHET].wood, gserver.troopconfig[TR_TREBUCHET].stone, gserver.troopconfig[TR_TREBUCHET].iron };
+            city->resources += destruct;
+            city->forts.trebs -= num;
             break;
         default:
             gserver.SendObject(client, gserver.CreateError("fortifications.destructWallProtect", -99, "Invalid trap"));
@@ -152,33 +152,33 @@ void pfortifications::process()
 
         for (int i = 0; i < 20; ++i)
         {
-            if (gserver.m_troopconfig[i].inside != 2)
+            if (gserver.troopconfig[i].inside != 2)
                 continue;
-            if (gserver.m_troopconfig[i].time > 0)
+            if (gserver.troopconfig[i].time > 0)
             {
                 amf3object parent;
                 amf3object conditionbean;
 
-                double costtime = gserver.m_troopconfig[i].time;
+                double costtime = gserver.troopconfig[i].time;
                 double mayorinf = 1;
-                if (city->m_mayor)
-                    mayorinf = pow(0.995, city->m_mayor->GetManagement());
+                if (city->mayor)
+                    mayorinf = pow(0.995, city->mayor->GetManagement());
 
                 costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
                 conditionbean["time"] = floor(costtime);
                 conditionbean["destructTime"] = 0;
-                conditionbean["wood"] = gserver.m_troopconfig[i].wood;
-                conditionbean["food"] = gserver.m_troopconfig[i].food;
-                conditionbean["iron"] = gserver.m_troopconfig[i].iron;
-                conditionbean["gold"] = gserver.m_troopconfig[i].gold;
-                conditionbean["stone"] = gserver.m_troopconfig[i].stone;
+                conditionbean["wood"] = gserver.troopconfig[i].wood;
+                conditionbean["food"] = gserver.troopconfig[i].food;
+                conditionbean["iron"] = gserver.troopconfig[i].iron;
+                conditionbean["gold"] = gserver.troopconfig[i].gold;
+                conditionbean["stone"] = gserver.troopconfig[i].stone;
 
                 amf3array buildings = amf3array();
                 amf3array items = amf3array();
                 amf3array techs = amf3array();
 
-                for (stPrereq & req : gserver.m_troopconfig[i].buildings)
+                for (stPrereq & req : gserver.troopconfig[i].buildings)
                 {
                     if (req.id > 0)
                     {
@@ -191,7 +191,7 @@ void pfortifications::process()
                         buildings.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_troopconfig[i].items)
+                for (stPrereq & req : gserver.troopconfig[i].items)
                 {
                     if (req.id > 0)
                     {
@@ -200,11 +200,11 @@ void pfortifications::process()
                         ta["curNum"] = temp;
                         ta["num"] = req.level;
                         ta["successFlag"] = temp >= req.level ? true : false;
-                        ta["id"] = gserver.m_items[req.id].name;
+                        ta["id"] = gserver.items[req.id].name;
                         items.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_troopconfig[i].techs)
+                for (stPrereq & req : gserver.troopconfig[i].techs)
                 {
                     if (req.id > 0)
                     {
@@ -316,24 +316,24 @@ void pfortifications::process()
         int num = data["num"];
 
         stResources res;
-        res.food = gserver.m_troopconfig[trooptype].food * num;
-        res.wood = gserver.m_troopconfig[trooptype].wood * num;
-        res.stone = gserver.m_troopconfig[trooptype].stone * num;
-        res.iron = gserver.m_troopconfig[trooptype].iron * num;
-        res.gold = gserver.m_troopconfig[trooptype].gold * num;
+        res.food = gserver.troopconfig[trooptype].food * num;
+        res.wood = gserver.troopconfig[trooptype].wood * num;
+        res.stone = gserver.troopconfig[trooptype].stone * num;
+        res.iron = gserver.troopconfig[trooptype].iron * num;
+        res.gold = gserver.troopconfig[trooptype].gold * num;
 
 
-        if ((res.food > city->m_resources.food)
-            || (res.wood > city->m_resources.wood)
-            || (res.stone > city->m_resources.stone)
-            || (res.iron > city->m_resources.iron)
-            || (res.gold > city->m_resources.gold))
+        if ((res.food > city->resources.food)
+            || (res.wood > city->resources.wood)
+            || (res.stone > city->resources.stone)
+            || (res.iron > city->resources.iron)
+            || (res.gold > city->resources.gold))
         {
             gserver.SendObject(client, gserver.CreateError("fortifications.produceWallProtect", -1, "Not enough resources."));
             return;
         }
 
-        city->m_resources -= res;
+        city->resources -= res;
         city->ResourceUpdate();
 
         if (city->AddToBarracksQueue(-2, trooptype, num, false, false) == -1)
@@ -371,13 +371,13 @@ void pfortifications::process()
                     //in progress
                     //refund 1/3 resources and set next queue to run
                     stResources res;
-                    res.food = (gserver.m_troopconfig[iter->troopid].food * iter->count) / 3;
-                    res.wood = (gserver.m_troopconfig[iter->troopid].wood * iter->count) / 3;
-                    res.stone = (gserver.m_troopconfig[iter->troopid].stone * iter->count) / 3;
-                    res.iron = (gserver.m_troopconfig[iter->troopid].iron * iter->count) / 3;
-                    res.gold = (gserver.m_troopconfig[iter->troopid].gold * iter->count) / 3;
+                    res.food = (gserver.troopconfig[iter->troopid].food * iter->count) / 3;
+                    res.wood = (gserver.troopconfig[iter->troopid].wood * iter->count) / 3;
+                    res.stone = (gserver.troopconfig[iter->troopid].stone * iter->count) / 3;
+                    res.iron = (gserver.troopconfig[iter->troopid].iron * iter->count) / 3;
+                    res.gold = (gserver.troopconfig[iter->troopid].gold * iter->count) / 3;
 
-                    city->m_resources += res;
+                    city->resources += res;
                     city->ResourceUpdate();
                     tq->queue.erase(iter++);
 
@@ -389,13 +389,13 @@ void pfortifications::process()
                     //not in progress
                     //refund all resources
                     stResources res;
-                    res.food = gserver.m_troopconfig[iter->troopid].food * iter->count;
-                    res.wood = gserver.m_troopconfig[iter->troopid].wood * iter->count;
-                    res.stone = gserver.m_troopconfig[iter->troopid].stone * iter->count;
-                    res.iron = gserver.m_troopconfig[iter->troopid].iron * iter->count;
-                    res.gold = gserver.m_troopconfig[iter->troopid].gold * iter->count;
+                    res.food = gserver.troopconfig[iter->troopid].food * iter->count;
+                    res.wood = gserver.troopconfig[iter->troopid].wood * iter->count;
+                    res.stone = gserver.troopconfig[iter->troopid].stone * iter->count;
+                    res.iron = gserver.troopconfig[iter->troopid].iron * iter->count;
+                    res.gold = gserver.troopconfig[iter->troopid].gold * iter->count;
 
-                    city->m_resources += res;
+                    city->resources += res;
                     tq->queue.erase(iter);
                     city->ResourceUpdate();
                 }

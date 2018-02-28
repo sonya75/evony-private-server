@@ -24,28 +24,28 @@ public:
     void SetForts(int32_t traps, int32_t abatis, int32_t towers, int32_t logs, int32_t trebs);
     int32_t GetForts(int32_t type) const;
 
-    std::string m_cityname;
-    int8_t m_status;
-    int32_t m_tileid;
-    int8_t m_type;
-    int8_t m_level;
+    std::string cityname;
+    int8_t status;
+    int32_t tileid;
+    int8_t type;
+    int8_t level;
 
-    int8_t m_loyalty;
-    int8_t m_grievance;
+    int8_t loyalty;
+    int8_t grievance;
 
-    stResources m_resources;
-    stResources m_maxresources;
+    stResources resources;
+    stResources maxresources;
 
-    stForts m_forts;
+    stForts forts;
     
-    stBuilding m_innerbuildings[35]; // 735 bytes
-    stBuilding m_outerbuildings[41]; // 840 bytes
+    stBuilding innerbuildings[35]; // 735 bytes
+    stBuilding outerbuildings[41]; // 840 bytes
                                      // 
-                                     //     public bool m_npc = true;
-                                     //     public Client m_client = null;
-                                     //     public int m_herocount = 0;
-                                     //     public ArrayList m_heroes = new ArrayList();
-                                     //     public bool m_allowAlliance = false;
-                                     //     //public ArrayList m_buildings = new ArrayList();
-                                     //     public Building[] m_buildings;
+                                     //     public bool npc = true;
+                                     //     public Client client = null;
+                                     //     public int herocount = 0;
+                                     //     public ArrayList heroes = new ArrayList();
+                                     //     public bool allowAlliance = false;
+                                     //     //public ArrayList buildings = new ArrayList();
+                                     //     public Building[] buildings;
 };

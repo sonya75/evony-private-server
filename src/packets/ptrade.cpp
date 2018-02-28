@@ -169,7 +169,7 @@ void ptrade::process()
         entry.client = client;
         entry.price = atoi((data["price"]).c_str());
 
-        if ((int)data["tradeType"] != 1 && client->GetFocusCity()->m_resources.gold < entry.amount*entry.price)
+        if ((int)data["tradeType"] != 1 && client->GetFocusCity()->resources.gold < entry.amount*entry.price)
         {
             gserver.SendObject(client, gserver.CreateError("trade.newTrade", -99, "Not enough gold."));
             return;
@@ -218,7 +218,7 @@ void ptrade::process()
             amf3object data;
 
             obj["cmd"] = "server.TransingTradeUpdate";
-            data["castleId"] = client->m_currentcityid;
+            data["castleId"] = client->currentcityid;
             amf3object bean;
             bean["amount"] = 5;
             bean["total"] = 100;

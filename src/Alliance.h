@@ -65,15 +65,15 @@ public:
 
     uint64_t enemyactioncooldown;
 
-    int16_t m_currentmembers;
-    int16_t m_maxmembers;
+    int16_t currentmembers;
+    int16_t maxmembers;
 
-    int64_t m_prestige;
-    int64_t m_honor;
-    int16_t m_prestigerank;
-    int16_t m_honorrank;
-    int16_t m_membersrank;
-    int32_t m_citycount;
+    int64_t prestige;
+    int64_t honor;
+    int16_t prestigerank;
+    int16_t honorrank;
+    int16_t membersrank;
+    int32_t citycount;
 
     struct stMember
     {
@@ -100,20 +100,20 @@ public:
         double invitetime;
     };
 
-    std::list<stInviteList> m_invites;
+    std::list<stInviteList> invites;
 
-    std::list<stMember> m_members;
-    std::list<int64_t> m_enemies;
-    std::list<int64_t> m_allies;
-    std::list<int64_t> m_neutral;
+    std::list<stMember> members;
+    std::list<int64_t> enemies;
+    std::list<int64_t> allies;
+    std::list<int64_t> neutral;
 
-    int64_t m_ownerid;
-    std::string m_owner;
-    std::string m_name;
-    std::string m_founder;
-    std::string m_note;
-    std::string m_intro;
-    std::string m_motd;
+    int64_t ownerid;
+    std::string owner;
+    std::string name;
+    std::string founder;
+    std::string note;
+    std::string intro;
+    std::string motd;
 
-    int64_t m_allianceid;
+    int64_t allianceid;
 };

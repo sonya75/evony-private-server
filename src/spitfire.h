@@ -22,18 +22,6 @@
 #include <Poco/Dynamic/Var.h>
 #include <Poco/Data/SessionPool.h>
 
-// #include <boost/asio.hpp>
-// #include <boost/bind.hpp>
-// #include <boost/bind/placeholders.hpp>
-// #include <boost/asio/steady_timer.hpp>
-// #include <boost/lexical_cast.hpp>
-// 
-// #include <boost/asio/io_service.hpp>
-// #include <boost/asio/ip/address.hpp>
-// #include <boost/tuple/tuple.hpp>
-// #include <boost/tokenizer.hpp>
-// #include <boost/thread/future.hpp>
-
 #include <spdlog/spdlog.h>
 
 #include <chrono>
@@ -42,7 +30,6 @@
 #include <mutex>
 
 #include <nlohmann/json.hpp>
-//#include "../lib/fmt/fmt/ostream.h"
 
 #include "connection.h"
 #include "amf3.h"
@@ -59,14 +46,8 @@ using json = nlohmann::json;
 class spitfire
 {
 public:
-    static spitfire & CreateInstance() { _instance = new spitfire(); return *_instance; }
-    static spitfire & GetSingleton() { return *_instance; }
-    static void DestroyInstance() { delete _instance; }
-private:
     spitfire();
     ~spitfire();
-    static spitfire * _instance;
-public:
 
     enum server_status
     {
@@ -77,37 +58,34 @@ public:
     };
 
 
-    void setupLogging();
-    void io_thread();
-    void run();
+    void start_logging();
+    void run(size_t thread_pool_size);
     void stop();
     void start(connection_ptr c);
-    void startpolicy(connection_ptr c);
-    bool Init();
+    void start_policy(connection_ptr c);
+    bool initialize();
     void stop(connection_ptr c, bool checklock = true);
     void stop_all();
     void do_accept();
     void do_acceptpolicy();
 
-    void PlayerCount(int8_t amount)
+    void player_count(int8_t amount)
     {
-        currentplayersonline += amount;
-        if (currentplayersonline < 0)
+        players_online += amount;
+        if (players_online < 0)
         {
-            currentplayersonline = 0;
+            players_online = 0;
             std::cerr << "server.currentplayersonline less than 0 error\n";
         }
     }
-    int64_t PlayerCount() { return currentplayersonline; }
+    int64_t player_count() { return players_online; }
 
-    bool ConnectSQL();
-    bool InitSockets();
-    Client * NewClient();
-    Client * GetClient(int64_t accountid);
+    Client * new_client();
+    Client * get_client(int64_t accountid);
     Client * GetClientByParent(int64_t accountid);
-    Client * GetClientByName(std::string name);
-    Client * GetClientByCastle(int64_t castleid);
-    int32_t  GetClientIndex(int64_t accountid);
+    Client * get_client_by_name(std::string name);
+    Client * get_client_by_castle(int64_t castleid);
+    int32_t  get_client_index(int64_t accountid);
 
     std::shared_ptr<spdlog::logger> log;
     
@@ -141,7 +119,7 @@ public:
     // 3 = "Another computer has logged into your account. Make sure you are not trying to log into the game from two computers or browser windows."
     // 4 = "Server undergoing maintenance."
     // 5 = custom message
-    void CloseClient(Client * client, int typecode = 1, std::string message = "Connection Closed") const;
+    void close_client(Client * client, int typecode = 1, std::string message = "Connection Closed") const;
 
     City * AddPlayerCity(Client * client, int tileid, uint64_t castleid);
     City * AddNpcCity(int tileid);
@@ -221,20 +199,20 @@ public:
     uint32_t maxplayers;
 
     // Current players connected
-    uint32_t currentplayersonline;
+    uint32_t players_online;
 
     // Whether the timer thread is running or not
     bool TimerThreadRunning;
     bool SaveThreadRunning;
 
-    Map * map;
+    Map * game_map;
 
 
     // List of active cities on the server (NPC and Player)
-    std::vector<City*> m_city;
+    std::vector<City*> city;
 
     // Alliance Controller
-    AllianceMgr * m_alliances;
+    AllianceMgr * alliances;
 
 
     std::list<Client*> players;
@@ -243,10 +221,10 @@ public:
 
     uint64_t armycounter;
     uint64_t tecounter;
-    std::string m_itemxml;
-    stItemConfig m_items[400];
-    int m_itemcount;
-    stRarityGamble m_gambleitems;
+    std::string itemxml;
+    stItemConfig items[400];
+    int itemcount;
+    stRarityGamble gambleitems;
 
     Market market;
 
@@ -263,22 +241,22 @@ public:
     void AddTimedEvent(stTimedEvent & te);
 
 
-    stBuildingConfig m_buildingconfig[35][10];
-    stBuildingConfig m_researchconfig[25][10];
-    stBuildingConfig m_troopconfig[20];
+    stBuildingConfig buildingconfig[35][10];
+    stBuildingConfig researchconfig[25][10];
+    stBuildingConfig troopconfig[20];
 
     std::list<stTimedEvent> armylist;
     std::list<stTimedEvent> buildinglist;
     std::list<stTimedEvent> researchlist;
 
-    std::queue<stPacketOut> m_packetout;
+    std::queue<stPacketOut> packetout;
 
-    int64_t m_heroid;
-    int64_t m_cityid;
-    int32_t m_allianceid;
+    int64_t heroid;
+    int64_t cityid;
+    int32_t allianceid;
 
-    std::vector<int32_t> m_deletedhero;
-    std::vector<int32_t> m_deletedcity;
+    std::vector<int32_t> deletedhero;
+    std::vector<int32_t> deletedcity;
 
     int RandomStat() const;
 
@@ -296,18 +274,18 @@ public:
     void SortPlayers();
 
 
-    std::list<stClientRank> m_prestigerank;
-    std::list<stClientRank> m_honorrank;
-    std::list<stClientRank> m_titlerank;
-    std::list<stClientRank> m_populationrank;
-    std::list<stClientRank> m_citiesrank;
+    std::list<stClientRank> prestigerank;
+    std::list<stClientRank> honorrank;
+    std::list<stClientRank> titlerank;
+    std::list<stClientRank> populationrank;
+    std::list<stClientRank> citiesrank;
 
 
 
-    std::list<stHeroRank> m_herorankstratagem;
-    std::list<stHeroRank> m_herorankpower;
-    std::list<stHeroRank> m_herorankmanagement;
-    std::list<stHeroRank> m_herorankgrade;
+    std::list<stHeroRank> herorankstratagem;
+    std::list<stHeroRank> herorankpower;
+    std::list<stHeroRank> herorankmanagement;
+    std::list<stHeroRank> herorankgrade;
 
     void SortHeroes();
     static bool comparestratagem(stHeroRank first, stHeroRank second);
@@ -316,18 +294,18 @@ public:
     static bool comparegrade(stHeroRank first, stHeroRank second);
 
 
-    std::list<stCastleRank> m_castleranklevel;
-    std::list<stCastleRank> m_castlerankpopulation;
+    std::list<stCastleRank> castleranklevel;
+    std::list<stCastleRank> castlerankpopulation;
 
     void SortCastles();
     static bool comparepopulation(stCastleRank first, stCastleRank second);
     static bool comparelevel(stCastleRank first, stCastleRank second);
 
 
-    std::list<stSearchClientRank> m_searchclientranklist;
-    std::list<stSearchHeroRank> m_searchheroranklist;
-    std::list<stSearchCastleRank> m_searchcastleranklist;
-    std::list<stSearchAllianceRank> m_searchallianceranklist;
+    std::list<stSearchClientRank> searchclientranklist;
+    std::list<stSearchHeroRank> searchheroranklist;
+    std::list<stSearchCastleRank> searchcastleranklist;
+    std::list<stSearchAllianceRank> searchallianceranklist;
 
     void * DoRankSearch(std::string key, int8_t type, void * subtype, int16_t page, int16_t pagesize);
     void CheckRankSearchTimeouts(uint64_t time);

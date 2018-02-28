@@ -44,7 +44,7 @@ void palliance::process()
             data2["ok"] = 1;
             data2["packageId"] = 0.0;
             gserver.SendObject(client, obj2);
-            gserver.m_alliances->CheckAlliance(alliance);
+            gserver.alliances->CheckAlliance(alliance);
         }
         return;
     }
@@ -68,53 +68,53 @@ void palliance::process()
             amf3array enemyList = amf3array();
             amf3array friendlyList = amf3array();
 
-            if (alliance->m_neutral.size() > 0)
+            if (alliance->neutral.size() > 0)
             {
-                for (int64_t target : alliance->m_neutral)
+                for (int64_t target : alliance->neutral)
                 {
-                    tempalliance = gserver.m_alliances->AllianceById(target);
+                    tempalliance = gserver.alliances->AllianceById(target);
                     if (tempalliance != (Alliance*)-1)
                     {
                         amf3object ta = amf3object();
-                        ta["rank"] = tempalliance->m_prestigerank;
-                        ta["honor"] = tempalliance->m_honor;// HACK: might be 0 -- alliance.isHasAlliance
-                        ta["allianceName"] = tempalliance->m_name.c_str();
-                        ta["memberCount"] = tempalliance->m_currentmembers;
-                        ta["aPrestigeCount"] = tempalliance->m_prestige;// HACK: might be 0 -- alliance.isHasAlliance
+                        ta["rank"] = tempalliance->prestigerank;
+                        ta["honor"] = tempalliance->honor;// HACK: might be 0 -- alliance.isHasAlliance
+                        ta["allianceName"] = tempalliance->name.c_str();
+                        ta["memberCount"] = tempalliance->currentmembers;
+                        ta["aPrestigeCount"] = tempalliance->prestige;// HACK: might be 0 -- alliance.isHasAlliance
                         middleList.Add(ta);
                     }
                 }
             }
-            if (alliance->m_enemies.size() > 0)
+            if (alliance->enemies.size() > 0)
             {
-                for (int64_t target : alliance->m_enemies)
+                for (int64_t target : alliance->enemies)
                 {
-                    tempalliance = gserver.m_alliances->AllianceById(target);
+                    tempalliance = gserver.alliances->AllianceById(target);
                     if (tempalliance != (Alliance*)-1)
                     {
                         amf3object ta = amf3object();
-                        ta["rank"] = tempalliance->m_prestigerank;
-                        ta["honor"] = tempalliance->m_honor;// HACK: might be 0 -- alliance.isHasAlliance
-                        ta["allianceName"] = tempalliance->m_name.c_str();
-                        ta["memberCount"] = tempalliance->m_currentmembers;
-                        ta["aPrestigeCount"] = tempalliance->m_prestige;// HACK: might be 0 -- alliance.isHasAlliance
+                        ta["rank"] = tempalliance->prestigerank;
+                        ta["honor"] = tempalliance->honor;// HACK: might be 0 -- alliance.isHasAlliance
+                        ta["allianceName"] = tempalliance->name.c_str();
+                        ta["memberCount"] = tempalliance->currentmembers;
+                        ta["aPrestigeCount"] = tempalliance->prestige;// HACK: might be 0 -- alliance.isHasAlliance
                         enemyList.Add(ta);
                     }
                 }
             }
-            if (alliance->m_allies.size() > 0)
+            if (alliance->allies.size() > 0)
             {
-                for (int64_t target : alliance->m_allies)
+                for (int64_t target : alliance->allies)
                 {
-                    tempalliance = gserver.m_alliances->AllianceById(target);
+                    tempalliance = gserver.alliances->AllianceById(target);
                     if (tempalliance != (Alliance*)-1)
                     {
                         amf3object ta = amf3object();
-                        ta["rank"] = tempalliance->m_prestigerank;
-                        ta["honor"] = tempalliance->m_honor;// HACK: might be 0 -- alliance.isHasAlliance
-                        ta["allianceName"] = tempalliance->m_name.c_str();
-                        ta["memberCount"] = tempalliance->m_currentmembers;
-                        ta["aPrestigeCount"] = tempalliance->m_prestige;// HACK: might be 0 -- alliance.isHasAlliance
+                        ta["rank"] = tempalliance->prestigerank;
+                        ta["honor"] = tempalliance->honor;// HACK: might be 0 -- alliance.isHasAlliance
+                        ta["allianceName"] = tempalliance->name.c_str();
+                        ta["memberCount"] = tempalliance->currentmembers;
+                        ta["aPrestigeCount"] = tempalliance->prestige;// HACK: might be 0 -- alliance.isHasAlliance
                         friendlyList.Add(ta);
                     }
                 }
@@ -151,20 +151,20 @@ void palliance::process()
 
         for (int i = 0; i < DEF_MAXALLIANCES; ++i)
         {
-            if (gserver.m_alliances->m_alliances[i])
+            if (gserver.alliances->alliances[i])
             {
-                Alliance * alliance = gserver.m_alliances->m_alliances[i];
-                if (alliance->m_invites.size())
+                Alliance * alliance = gserver.alliances->alliances[i];
+                if (alliance->invites.size())
                 {
-                    for (Alliance::stInviteList & invite : alliance->m_invites)
+                    for (Alliance::stInviteList & invite : alliance->invites)
                     {
                         if ((invite.client->accountid == client->accountid) && (invite.inviteperson.length() > 0))
                         {
                             amf3object invite = amf3object();
-                            invite["prestige"] = alliance->m_prestige;
-                            invite["rank"] = alliance->m_prestigerank;
-                            invite["allianceName"] = alliance->m_name;
-                            invite["memberCount"] = alliance->m_currentmembers;
+                            invite["prestige"] = alliance->prestige;
+                            invite["rank"] = alliance->prestigerank;
+                            invite["allianceName"] = alliance->name;
+                            invite["memberCount"] = alliance->currentmembers;
                             allianceinfo.Add(invite);
                         }
                     }
@@ -182,20 +182,20 @@ void palliance::process()
 
         std::string alliancename = data["allianceName"];
 
-        Alliance * alliance = gserver.m_alliances->AllianceByName(alliancename);
+        Alliance * alliance = gserver.alliances->AllianceByName(alliancename);
         if (alliance == (Alliance*)-1)
         {
             gserver.SendObject(client, gserver.CreateError("alliance.rejectComeinAlliance", -99, "Alliance no longer exists."));
             return;
         }
 
-        if (alliance->m_invites.size())
+        if (alliance->invites.size())
         {
-            for (Alliance::stInviteList & invite : alliance->m_invites)
+            for (Alliance::stInviteList & invite : alliance->invites)
             {
                 if (invite.client->accountid == client->accountid)
                 {
-                    alliance->m_invites.remove(invite);
+                    alliance->invites.remove(invite);
                     data2["ok"] = 1;
 
                     gserver.SendObject(client, obj2);
@@ -222,7 +222,7 @@ void palliance::process()
             return;
         }
 
-        Alliance * alliance = gserver.m_alliances->AllianceById(client->allianceid);
+        Alliance * alliance = gserver.alliances->AllianceById(client->allianceid);
 
         if (alliance == (Alliance*)-1)
         {
@@ -232,7 +232,7 @@ void palliance::process()
 
         amf3array allianceinfo = amf3array();
 
-        for (Alliance::stInviteList & invite : alliance->m_invites)
+        for (Alliance::stInviteList & invite : alliance->invites)
         {
             if (invite.inviteperson.length() == 0)
             {
@@ -264,7 +264,7 @@ void palliance::process()
             return;
         }
         Alliance * alliance = client->GetAlliance();
-        if ((client->alliancerank == DEF_ALLIANCEHOST) && (alliance->m_currentmembers > 1))
+        if ((client->alliancerank == DEF_ALLIANCEHOST) && (alliance->currentmembers > 1))
         {
             gserver.SendObject(client, gserver.CreateError("alliance.resignForAlliance", -99, "Resignation refused. Please transfer your host title to other before you resign."));
             return;
@@ -272,16 +272,16 @@ void palliance::process()
         else
         {
             //Only person left is host - disband alliance
-            if (!gserver.m_alliances->RemoveFromAlliance(client->allianceid, client))
+            if (!gserver.alliances->RemoveFromAlliance(client->allianceid, client))
             {
                 gserver.SendObject(client, gserver.CreateError("alliance.resignForAlliance", -99, "Unable to leave alliance. Please contact support."));
                 return;
             }
-            gserver.m_alliances->DeleteAlliance(alliance);
+            gserver.alliances->DeleteAlliance(alliance);
             return;
         }
 
-        if (!gserver.m_alliances->RemoveFromAlliance(client->allianceid, client))
+        if (!gserver.alliances->RemoveFromAlliance(client->allianceid, client))
         {
             gserver.SendObject(client, gserver.CreateError("alliance.resignForAlliance", -99, "Unable to leave alliance. Please contact support."));
             return;
@@ -304,7 +304,7 @@ void palliance::process()
             gserver.SendObject(client, gserver.CreateError("alliance.getAllianceMembers", -99, "Not a member of an alliance."));
             return;
         }
-        Alliance * alliance = gserver.m_alliances->AllianceById(client->allianceid);
+        Alliance * alliance = gserver.alliances->AllianceById(client->allianceid);
 
         if (alliance == (Alliance*)-1)
         {
@@ -314,20 +314,20 @@ void palliance::process()
 
         amf3array members = amf3array();
 
-        for (Alliance::stMember & member : alliance->m_members)
+        for (Alliance::stMember & member : alliance->members)
         {
-            Client * client = gserver.GetClient(member.clientid);
+            Client * client = gserver.get_client(member.clientid);
             if (client)
             {
                 amf3object temp = amf3object();
                 temp["createrTime"] = 0;
-                temp["alliance"] = alliance->m_name;
+                temp["alliance"] = alliance->name;
                 temp["office"] = client->office;
                 temp["allianceLevel"] = AllianceMgr::GetAllianceRank(client->alliancerank);
                 temp["sex"] = client->sex;
                 temp["levelId"] = client->alliancerank;
                 temp["honor"] = client->honor;
-                temp["bdenyotherplayer"] = client->m_bdenyotherplayer;
+                temp["bdenyotherplayer"] = client->bdenyotherplayer;
                 temp["id"] = client->accountid;
                 temp["accountName"] = "";
                 temp["prestige"] = client->Prestige();
@@ -371,7 +371,7 @@ void palliance::process()
 
         std::string alliancename = data["allianceName"];
 
-        Alliance * alliance = gserver.m_alliances->AllianceByName(alliancename);
+        Alliance * alliance = gserver.alliances->AllianceByName(alliancename);
 
         if (alliance == (Alliance*)-1)
         {
@@ -379,12 +379,12 @@ void palliance::process()
             return;
         }
 
-        data2["leader"] = alliance->m_owner;
-        data2["prestigeCount"] = alliance->m_prestige;
-        data2["ranking"] = alliance->m_prestigerank;
-        data2["memberCount"] = alliance->m_currentmembers;
-        data2["allinaceInfo"] = alliance->m_intro;
-        data2["creator"] = alliance->m_founder;
+        data2["leader"] = alliance->owner;
+        data2["prestigeCount"] = alliance->prestige;
+        data2["ranking"] = alliance->prestigerank;
+        data2["memberCount"] = alliance->currentmembers;
+        data2["allinaceInfo"] = alliance->intro;
+        data2["creator"] = alliance->founder;
 
 
         data2["ok"] = 1;
@@ -407,7 +407,7 @@ void palliance::process()
 
         std::string alliancename = data["allianceName"];
 
-        Alliance * alliance = gserver.m_alliances->AllianceByName(alliancename);
+        Alliance * alliance = gserver.alliances->AllianceByName(alliancename);
 
         if (alliance == (Alliance*)-1)
         {
@@ -417,7 +417,7 @@ void palliance::process()
 
         if (client->allianceapply.length() != 0)
         {
-            gserver.m_alliances->AllianceByName(client->allianceapply)->UnRequestJoin(client);
+            gserver.alliances->AllianceByName(client->allianceapply)->UnRequestJoin(client);
         }
 
         alliance->RequestJoin(client, timestamp);
@@ -450,7 +450,7 @@ void palliance::process()
             return;
         }
 
-        Alliance * alliance = gserver.m_alliances->AllianceByName(alliancename);
+        Alliance * alliance = gserver.alliances->AllianceByName(alliancename);
 
         if (alliance == (Alliance*)-1)
         {
@@ -501,7 +501,7 @@ void palliance::process()
 
         Alliance * alliance = client->GetAlliance();
 
-        for (Alliance::stInviteList & invite : alliance->m_invites)
+        for (Alliance::stInviteList & invite : alliance->invites)
         {
             if (invite.inviteperson.length() != 0)
             {
@@ -547,7 +547,7 @@ void palliance::process()
         */
 
         std::string username = data["userName"];
-        Client * invitee = gserver.GetClientByName(username);
+        Client * invitee = gserver.get_client_by_name(username);
 
         if (invitee == 0)
         {
@@ -575,9 +575,9 @@ void palliance::process()
         invite.invitetime = timestamp;
         invite.client = invitee;
 
-        alliance->m_invites.push_back(invite);
+        alliance->invites.push_back(invite);
 
-        gserver.SendMessage(invitee, "You have been invited to the alliance " + alliance->m_name);
+        gserver.SendMessage(invitee, "You have been invited to the alliance " + alliance->name);
 
         gserver.SendObject(client, obj2);
 
@@ -655,7 +655,7 @@ void palliance::process()
         int alliancetype = data["type"];
         std::string otheralliancename = data["targetAllianceName"];
 
-        Alliance * otheralliance = gserver.m_alliances->AllianceByName(otheralliancename);
+        Alliance * otheralliance = gserver.alliances->AllianceByName(otheralliancename);
         if (otheralliance == (Alliance*)-1)
         {
             //doesn't exist
@@ -667,27 +667,27 @@ void palliance::process()
 
         if (alliancetype == 1)
         {
-            if (alliance->IsAlly(otheralliance->m_allianceid))
+            if (alliance->IsAlly(otheralliance->allianceid))
             {
                 //already allied
                 gserver.SendObject(client, gserver.CreateError("alliance.setAllianceFriendship", -99, "Alliance is already an ally."));
                 return;
             }
-            alliance->Ally(otheralliance->m_allianceid);
+            alliance->Ally(otheralliance->allianceid);
         }
         else if (alliancetype == 2)
         {
-            if (alliance->IsNeutral(otheralliance->m_allianceid))
+            if (alliance->IsNeutral(otheralliance->allianceid))
             {
                 //already neutral
                 gserver.SendObject(client, gserver.CreateError("alliance.setAllianceFriendship", -99, "Alliance is already neutral."));
                 return;
             }
-            alliance->Neutral(otheralliance->m_allianceid);
+            alliance->Neutral(otheralliance->allianceid);
         }
         else //alliancetype = 3
         {
-            if (alliance->IsEnemy(otheralliance->m_allianceid))
+            if (alliance->IsEnemy(otheralliance->allianceid))
             {
                 //already enemy
                 gserver.SendObject(client, gserver.CreateError("alliance.setAllianceFriendship", -99, "Alliance is already an enemy."));
@@ -701,7 +701,7 @@ void palliance::process()
                 return;
             }
 
-            alliance->Enemy(otheralliance->m_allianceid);
+            alliance->Enemy(otheralliance->allianceid);
         }
         data2["ok"] = 1;
         gserver.SendObject(client, obj2);
@@ -731,53 +731,53 @@ void palliance::process()
         amf3array friendlyList = amf3array();
 
         std::vector<int64_t>::iterator iter;
-        if (alliance->m_neutral.size() > 0)
+        if (alliance->neutral.size() > 0)
         {
-            for (int64_t target : alliance->m_neutral)
+            for (int64_t target : alliance->neutral)
             {
-                tempalliance = gserver.m_alliances->AllianceById(target);
+                tempalliance = gserver.alliances->AllianceById(target);
                 if (tempalliance != (Alliance*)-1)
                 {
                     amf3object ta = amf3object();
-                    ta["rank"] = tempalliance->m_prestigerank;
-                    ta["honor"] = tempalliance->m_honor;// HACK might be 0 -- alliance.isHasAlliance
-                    ta["allianceName"] = tempalliance->m_name.c_str();
-                    ta["memberCount"] = tempalliance->m_currentmembers;
-                    ta["aPrestigeCount"] = tempalliance->m_prestige;// HACK might be 0 -- alliance.isHasAlliance
+                    ta["rank"] = tempalliance->prestigerank;
+                    ta["honor"] = tempalliance->honor;// HACK might be 0 -- alliance.isHasAlliance
+                    ta["allianceName"] = tempalliance->name.c_str();
+                    ta["memberCount"] = tempalliance->currentmembers;
+                    ta["aPrestigeCount"] = tempalliance->prestige;// HACK might be 0 -- alliance.isHasAlliance
                     middleList.Add(ta);
                 }
             }
         }
-        if (alliance->m_enemies.size() > 0)
+        if (alliance->enemies.size() > 0)
         {
-            for (int64_t target : alliance->m_enemies)
+            for (int64_t target : alliance->enemies)
             {
-                tempalliance = gserver.m_alliances->AllianceById(target);
+                tempalliance = gserver.alliances->AllianceById(target);
                 if (tempalliance != (Alliance*)-1)
                 {
                     amf3object ta = amf3object();
-                    ta["rank"] = tempalliance->m_prestigerank;
-                    ta["honor"] = tempalliance->m_honor;// HACK might be 0 -- alliance.isHasAlliance
-                    ta["allianceName"] = tempalliance->m_name.c_str();
-                    ta["memberCount"] = tempalliance->m_currentmembers;
-                    ta["aPrestigeCount"] = tempalliance->m_prestige;// HACK might be 0 -- alliance.isHasAlliance
+                    ta["rank"] = tempalliance->prestigerank;
+                    ta["honor"] = tempalliance->honor;// HACK might be 0 -- alliance.isHasAlliance
+                    ta["allianceName"] = tempalliance->name.c_str();
+                    ta["memberCount"] = tempalliance->currentmembers;
+                    ta["aPrestigeCount"] = tempalliance->prestige;// HACK might be 0 -- alliance.isHasAlliance
                     enemyList.Add(ta);
                 }
             }
         }
-        if (alliance->m_allies.size() > 0)
+        if (alliance->allies.size() > 0)
         {
-            for (int64_t target : alliance->m_allies)
+            for (int64_t target : alliance->allies)
             {
-                tempalliance = gserver.m_alliances->AllianceById(target);
+                tempalliance = gserver.alliances->AllianceById(target);
                 if (tempalliance != (Alliance*)-1)
                 {
                     amf3object ta = amf3object();
-                    ta["rank"] = tempalliance->m_prestigerank;
-                    ta["honor"] = tempalliance->m_honor;// HACK might be 0 -- alliance.isHasAlliance
-                    ta["allianceName"] = tempalliance->m_name.c_str();
-                    ta["memberCount"] = tempalliance->m_currentmembers;
-                    ta["aPrestigeCount"] = tempalliance->m_prestige;// HACK might be 0 -- alliance.isHasAlliance
+                    ta["rank"] = tempalliance->prestigerank;
+                    ta["honor"] = tempalliance->honor;// HACK might be 0 -- alliance.isHasAlliance
+                    ta["allianceName"] = tempalliance->name.c_str();
+                    ta["memberCount"] = tempalliance->currentmembers;
+                    ta["aPrestigeCount"] = tempalliance->prestige;// HACK might be 0 -- alliance.isHasAlliance
                     friendlyList.Add(ta);
                 }
             }
@@ -799,19 +799,19 @@ void palliance::process()
 
         std::string alliancename = data["allianceName"];
 
-        if (city->m_resources.gold < 10000)
+        if (city->resources.gold < 10000)
         {
             gserver.SendObject(client, gserver.CreateError("alliance.createAlliance", -99, "Not enough gold."));
             return;
         }
 
-        if (!gserver.m_alliances->CheckName(alliancename) || alliancename.size() < 2)
+        if (!gserver.alliances->CheckName(alliancename) || alliancename.size() < 2)
         {
             gserver.SendObject(client, gserver.CreateError("alliance.createAlliance", -99, "Illegal naming, please choose another name."));
             return;
         }
 
-        if (gserver.m_alliances->AllianceByName(alliancename) != (Alliance*)-1)
+        if (gserver.alliances->AllianceByName(alliancename) != (Alliance*)-1)
         {
             std::string error = "Alliance already existed: ";
             error += alliancename;
@@ -821,21 +821,21 @@ void palliance::process()
             return;
         }
         Alliance * alliance = 0;
-        if ((alliance = gserver.m_alliances->CreateAlliance(alliancename, client->playername)))
+        if ((alliance = gserver.alliances->CreateAlliance(alliancename, client->playername)))
         {
             data2["ok"] = 1;
 
-            alliance->m_owner = client->playername;
-            alliance->m_ownerid = client->accountid;
+            alliance->owner = client->playername;
+            alliance->ownerid = client->accountid;
 
             std::string error = "Establish alliance ";
             error += alliancename;
             error += " successfully.";
             data2["msg"] = error;
 
-            city->m_resources.gold -= 10000;
+            city->resources.gold -= 10000;
 
-            if (!gserver.m_alliances->JoinAlliance(alliance->m_allianceid, client))
+            if (!gserver.alliances->JoinAlliance(alliance->allianceid, client))
             {
                 client->PlayerUpdate();
                 city->ResourceUpdate();
@@ -843,7 +843,7 @@ void palliance::process()
                 gserver.SendObject(client, gserver.CreateError("alliance.createAlliance", -99, "Alliance created but cannot join. Please contact support."));
                 return;
             }
-            if (!gserver.m_alliances->SetRank(alliance->m_allianceid, client, DEF_ALLIANCEHOST))
+            if (!gserver.alliances->SetRank(alliance->allianceid, client, DEF_ALLIANCEHOST))
             {
                 client->PlayerUpdate();
                 city->ResourceUpdate();
@@ -859,7 +859,7 @@ void palliance::process()
             client->SaveToDB();
             alliance->SaveToDB();
 
-            gserver.m_alliances->SortAlliances();
+            gserver.alliances->SortAlliances();
 
             return;
         }
@@ -885,14 +885,14 @@ void palliance::process()
             return;
         }
         Alliance * alliance = client->GetAlliance();
-        if (alliance->m_name != alliancename)
+        if (alliance->name != alliancename)
         {
             gserver.SendObject(client, gserver.CreateError("alliance.setAllInfoForAlliance", -99, "Error."));
             return;
         }
 
-        alliance->m_note = Utils::makesafe(notetext);
-        alliance->m_intro = Utils::makesafe(infotext);
+        alliance->note = Utils::makesafe(notetext);
+        alliance->intro = Utils::makesafe(infotext);
 
 
         data2["ok"] = 1;
@@ -943,7 +943,7 @@ void palliance::process()
         if (alliance->HasMember(passtoname))
         {
             //member found
-            Client * tclient = gserver.GetClientByName(passtoname);
+            Client * tclient = gserver.get_client_by_name(passtoname);
             if (tclient->alliancerank != DEF_ALLIANCEVICEHOST)
             {
                 gserver.SendObject(client, gserver.CreateError("alliance.resetTopPowerForAlliance", -88, "The Host title of the Alliance can only be transferred to Vice Host. You need to promote this player first."));
@@ -954,8 +954,8 @@ void palliance::process()
             client->alliancerank = DEF_ALLIANCEVICEHOST;
             client->PlayerUpdate();
             tclient->PlayerUpdate();
-            alliance->m_ownerid = tclient->accountid;
-            alliance->m_owner = tclient->playername;
+            alliance->ownerid = tclient->accountid;
+            alliance->owner = tclient->playername;
 
             data2["ok"] = 1;
 
@@ -990,14 +990,14 @@ void palliance::process()
             return;
         }
 
-        Alliance * alliance = gserver.m_alliances->AllianceByName(data["allianceName"]);
+        Alliance * alliance = gserver.alliances->AllianceByName(data["allianceName"]);
         if (!alliance)
         {
             gserver.SendObject(client, gserver.CreateError("alliance.agreeComeinAllianceByUser", -99, "Alliance no longer exists."));
             return;
         }
 
-        for (Alliance::stInviteList & invite : alliance->m_invites)
+        for (Alliance::stInviteList & invite : alliance->invites)
         {
             if ((invite.client->playername == client->playername) && (invite.inviteperson.length() == 0))
             {
@@ -1008,7 +1008,7 @@ void palliance::process()
         }
 
         alliance->UnRequestJoin(client->playername);
-        gserver.m_alliances->JoinAlliance(alliance->m_allianceid, client);
+        gserver.alliances->JoinAlliance(alliance->allianceid, client);
 
         obj2["cmd"] = "alliance.agreeComeinAllianceByUser";
         data2["packageId"] = 0.0;
@@ -1041,7 +1041,7 @@ void palliance::process()
         }
 
         std::string username = data["userName"];
-        Client * invitee = gserver.GetClientByName(username);
+        Client * invitee = gserver.get_client_by_name(username);
 
         if (invitee == 0)
         {
@@ -1058,7 +1058,7 @@ void palliance::process()
         Alliance * alliance = client->GetAlliance();
 
         alliance->UnRequestJoin(username);
-        gserver.m_alliances->JoinAlliance(alliance->m_allianceid, invitee);
+        gserver.alliances->JoinAlliance(alliance->allianceid, invitee);
 
         gserver.SendObject(client, obj2);
 
@@ -1084,7 +1084,7 @@ void palliance::process()
 
         Alliance * alliance = client->GetAlliance();
 
-        Client * tar = gserver.GetClientByName(username);
+        Client * tar = gserver.get_client_by_name(username);
 
         if (!tar || !alliance->HasMember(username))
         {
@@ -1092,7 +1092,7 @@ void palliance::process()
             return;
         }
         //TODO: Set limits to rank counts? (aka, only x amount of vice hosts, etc)
-        gserver.m_alliances->SetRank(client->allianceid, tar, type);
+        gserver.alliances->SetRank(client->allianceid, tar, type);
 
         gserver.SendObject(client, obj2);
 
@@ -1121,7 +1121,7 @@ void palliance::process()
 
         Alliance * alliance = client->GetAlliance();
 
-        Client * tar = gserver.GetClientByName(username);
+        Client * tar = gserver.get_client_by_name(username);
 
         if (!tar || !alliance->HasMember(username))
         {
@@ -1141,7 +1141,7 @@ void palliance::process()
             return;
         }
 
-        if (!gserver.m_alliances->RemoveFromAlliance(client->allianceid, tar))
+        if (!gserver.alliances->RemoveFromAlliance(client->allianceid, tar))
         {
             gserver.SendObject(client, gserver.CreateError("alliance.kickOutMemberfromAlliance", -99, "Could not kick out member."));
             return;

@@ -15,25 +15,25 @@
 Map::Map(uint32_t size)
 {
     mapsize = size;
-    m_tile = new Tile[mapsize*mapsize];
+    tile = new Tile[mapsize*mapsize];
     for (int y = 0; y < mapsize; ++y)
     {
         for (int x = 0; x < mapsize; ++x)
         {
-//             m_tile[y*gserver->mapsize+x].x = x;
-//             m_tile[y*gserver->mapsize+x].y = y;
+//             tile[y*gserver->mapsize+x].x = x;
+//             tile[y*gserver->mapsize+x].y = y;
             GETIDFROMXY(x, y);
-            m_tile[y*mapsize + x].m_id = GETID;
-            m_tile[y*mapsize + x].m_zoneid = GetStateFromXY(x, y);
+            tile[y*mapsize + x].id = GETID;
+            tile[y*mapsize + x].zoneid = GetStateFromXY(x, y);
         }
     }
-    memset(&m_openflats, 0, sizeof(m_openflats));
-    memset(&m_totalflats, 0, sizeof(m_totalflats));
-    memset(&m_cities, 0, sizeof(m_cities));
-    memset(&m_occupiedtiles, 0, sizeof(m_occupiedtiles));
-    memset(&m_occupiabletiles, 0, sizeof(m_occupiabletiles));
-    memset(&m_npcs, 0, sizeof(m_npcs));
-    memset(&m_stats, 0, sizeof(m_stats));
+    memset(&openflats, 0, sizeof(openflats));
+    memset(&totalflats, 0, sizeof(totalflats));
+    memset(&cities, 0, sizeof(cities));
+    memset(&occupiedtiles, 0, sizeof(occupiedtiles));
+    memset(&occupiabletiles, 0, sizeof(occupiabletiles));
+    memset(&npcs, 0, sizeof(npcs));
+    memset(&stats, 0, sizeof(stats));
 
     //CalculateOpenTiles();
 }
@@ -41,7 +41,7 @@ Map::Map(uint32_t size)
 
 Map::~Map()
 {
-    delete[] m_tile;
+    delete[] tile;
 }
 
 bool Map::AddCity(int id, City * city)
@@ -54,15 +54,15 @@ void Map::CalculateOpenTiles()
 {
     int tempstate = 0;
     Tile * tile;
-    memset(&m_openflats, 0, sizeof(m_openflats));
-    memset(&m_totalflats, 0, sizeof(m_totalflats));
-    memset(&m_cities, 0, sizeof(m_cities));
-    memset(&m_occupiedtiles, 0, sizeof(m_occupiedtiles));
-    memset(&m_occupiabletiles, 0, sizeof(m_occupiabletiles));
-    memset(&m_npcs, 0, sizeof(m_npcs));
+    memset(&openflats, 0, sizeof(openflats));
+    memset(&totalflats, 0, sizeof(totalflats));
+    memset(&cities, 0, sizeof(cities));
+    memset(&occupiedtiles, 0, sizeof(occupiedtiles));
+    memset(&occupiabletiles, 0, sizeof(occupiabletiles));
+    memset(&npcs, 0, sizeof(npcs));
     for (int i = 0; i < DEF_STATES; ++i)
-        m_openflatlist[i].clear();
-    memset(&m_stats, 0, sizeof(m_stats));
+        openflatlist[i].clear();
+    memset(&stats, 0, sizeof(stats));
     for (int y = 0; y < spitfire::GetSingleton().mapsize; ++y)
     {
         for (int x = 0; x < spitfire::GetSingleton().mapsize; ++x)
@@ -70,36 +70,36 @@ void Map::CalculateOpenTiles()
             tempstate = GetStateFromXY(x, y);
 
 
-            tile = &(m_tile[y * spitfire::GetSingleton().mapsize + x]);
+            tile = &(tile[y * spitfire::GetSingleton().mapsize + x]);
 
-            if (tile->m_type >= FLAT)
+            if (tile->type >= FLAT)
             {
-                m_occupiabletiles[tempstate]++;
-                if (tile->m_type == FLAT)
+                occupiabletiles[tempstate]++;
+                if (tile->type == FLAT)
                 {
-                    m_totalflats[tempstate]++;
-                    if (tile->m_ownerid == -1)
+                    totalflats[tempstate]++;
+                    if (tile->ownerid == -1)
                     {
-                        m_openflats[tempstate]++;
+                        openflats[tempstate]++;
 
-                        m_openflatlist[tempstate].push_back(y * spitfire::GetSingleton().mapsize + x);
+                        openflatlist[tempstate].push_back(y * spitfire::GetSingleton().mapsize + x);
                     }
                     else
                     {
-                        m_occupiedtiles[tempstate]++;
+                        occupiedtiles[tempstate]++;
                     }
                 }
                 else
                 {
-                    m_occupiedtiles[tempstate]++;
+                    occupiedtiles[tempstate]++;
 
-                    if (tile->m_type == CASTLE)
+                    if (tile->type == CASTLE)
                     {
-                        m_cities[tempstate]++;
+                        cities[tempstate]++;
                     }
                     else
                     {
-                        m_npcs[tempstate]++;
+                        npcs[tempstate]++;
                     }
                 }
             }
@@ -107,22 +107,22 @@ void Map::CalculateOpenTiles()
     }
     for (int i = 0; i < DEF_STATES; ++i)
     {
-        m_stats[i].numbercities = m_cities[i] + m_npcs[i];
-        m_stats[i].playerrate = int((float(m_occupiedtiles[i]) / float(m_occupiabletiles[i])) * 100);
-        m_stats[i].players = m_cities[i];
+        stats[i].numbercities = cities[i] + npcs[i];
+        stats[i].playerrate = int((float(occupiedtiles[i]) / float(occupiabletiles[i])) * 100);
+        stats[i].players = cities[i];
     }
 }
 
 int Map::GetRandomOpenTile(int zone)
 {
-    if (m_openflats[zone] == 0 || m_openflatlist[zone].size() == 0)
+    if (openflats[zone] == 0 || openflatlist[zone].size() == 0)
         return -1;
-    int index = rand() % m_openflatlist[zone].size();
-    int randomid = m_openflatlist[zone].at(index);
+    int index = rand() % openflatlist[zone].size();
+    int randomid = openflatlist[zone].at(index);
     std::vector<int32_t>::iterator iter;
-    iter = m_openflatlist[zone].begin();
+    iter = openflatlist[zone].begin();
     iter += index;
-    m_openflatlist[zone].erase(iter);
+    openflatlist[zone].erase(iter);
     return randomid;
 }
 
@@ -215,7 +215,7 @@ int Map::GetStateFromID(int id)
 
 Tile * Map::GetTileFromID(int id) const
 {
-    return &m_tile[id];
+    return &tile[id];
 }
 
 amf3object Map::GetTileRangeObject(int32_t clientid, int x1, int x2, int y1, int y2)
@@ -345,19 +345,19 @@ amf3object Map::GetTileRangeObject(int32_t clientid, int x1, int x2, int y1, int
                 }
 
 
-                if (m_tile[idfromxy].m_type > 10)
+                if (tile[idfromxy].type > 10)
                 {
                     amf3object castleobject = amf3object();
-                    castleobject["id"] = m_tile[idfromxy].m_id;
-                    castleobject["name"] = m_tile[idfromxy].m_city->m_cityname.c_str();
-                    castleobject["state"] = m_tile[idfromxy].m_city->m_status;
-                    if (m_tile[idfromxy].m_npc)
+                    castleobject["id"] = tile[idfromxy].id;
+                    castleobject["name"] = tile[idfromxy].city->cityname.c_str();
+                    castleobject["state"] = tile[idfromxy].city->status;
+                    if (tile[idfromxy].npc)
                     {
                         castleobject["npc"] = true;
                     }
                     else
                     {
-                        Client * client = ((PlayerCity*)m_tile[idfromxy].m_city)->m_client;
+                        Client * client = ((PlayerCity*)tile[idfromxy].city)->client;
                         castleobject["prestige"] = client->Prestige();
                         castleobject["honor"] = client->honor;
                         castleobject["userName"] = client->playername.c_str();
@@ -367,7 +367,7 @@ amf3object Map::GetTileRangeObject(int32_t clientid, int x1, int x2, int y1, int
                         if (client->allianceid > 0)
                             castleobject["allianceName"] = client->alliancename.c_str();
 
-                        int relation = 0;// spitfire::GetSingleton().m_alliances->GetRelation(clientid, m_tile[idfromxy].m_ownerid);
+                        int relation = 0;// spitfire::GetSingleton().alliances->GetRelation(clientid, tile[idfromxy].ownerid);
                         switch (relation)
                         {
                         case DEF_SELFRELATION:
@@ -408,13 +408,13 @@ amf3object Map::GetTileRangeObject(int32_t clientid, int x1, int x2, int y1, int
                     }
                     castles.Add(castleobject);
 
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_type);
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_city->m_level);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].type);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].city->level);
                 }
                 else
                 {
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_type);
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_level);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].type);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].level);
                 }
             }
         }
@@ -437,19 +437,19 @@ amf3object Map::GetTileRangeObject(int32_t clientid, int x1, int x2, int y1, int
             for (int x = x1; x <= x2; ++x)
             {
                 GETIDFROMXY(x, y);
-                if (m_tile[idfromxy].m_type > 10)
+                if (tile[idfromxy].type > 10)
                 {
                     amf3object castleobject = amf3object();
-                    castleobject["id"] = m_tile[idfromxy].m_id;
-                    castleobject["name"] = m_tile[idfromxy].m_city->m_cityname.c_str();
-                    castleobject["state"] = m_tile[idfromxy].m_city->m_status;
-                    if (m_tile[idfromxy].m_npc)
+                    castleobject["id"] = tile[idfromxy].id;
+                    castleobject["name"] = tile[idfromxy].city->cityname.c_str();
+                    castleobject["state"] = tile[idfromxy].city->status;
+                    if (tile[idfromxy].npc)
                     {
                         castleobject["npc"] = true;
                     }
                     else
                     {
-                        Client * client = ((PlayerCity*)m_tile[idfromxy].m_city)->m_client;
+                        Client * client = ((PlayerCity*)tile[idfromxy].city)->client;
                         castleobject["prestige"] = client->Prestige();
                         castleobject["honor"] = client->honor;
                         castleobject["userName"] = client->playername.c_str();
@@ -458,7 +458,7 @@ amf3object Map::GetTileRangeObject(int32_t clientid, int x1, int x2, int y1, int
                         if (client->allianceid > 0)
                             castleobject["allianceName"] = client->alliancename.c_str();
 
-                        int relation = 0;// spitfire::GetSingleton().m_alliances->GetRelation(clientid, m_tile[idfromxy].m_ownerid);
+                        int relation = 0;// spitfire::GetSingleton().alliances->GetRelation(clientid, tile[idfromxy].ownerid);
                         switch (relation)
                         {
                         case DEF_SELFRELATION:
@@ -499,13 +499,13 @@ amf3object Map::GetTileRangeObject(int32_t clientid, int x1, int x2, int y1, int
                     }
                     castles.Add(castleobject);
 
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_type);
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_city->m_level);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].type);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].city->level);
                 }
                 else
                 {
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_type);
-                    mapStr += (char)Utils::itoh(m_tile[idfromxy].m_level);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].type);
+                    mapStr += (char)Utils::itoh(tile[idfromxy].level);
                 }
             }
         }
@@ -527,17 +527,17 @@ amf3object Map::GetMapCastle(int32_t fieldid, int32_t clientid)
 {
     amf3object field;
 
-    Tile * tile = &this->m_tile[fieldid];
+    Tile * tile = &this->tile[fieldid];
 
-    if (tile->m_ownerid > 0)
+    if (tile->ownerid > 0)
     {
-        Client * client = spitfire::GetSingleton().GetClient(tile->m_ownerid);
+        Client * client = spitfire::GetSingleton().GetClient(tile->ownerid);
 
         if (!client)
         {
             // field "had" a client.. but no longer does? should only trigger due to some sort of data loss - mostly test purposes
             // (also deleting a city from db without resetting tiles table row causes this)
-            tile->m_type = FLAT;
+            tile->type = FLAT;
 
             field["allianceName"] = "";
             field["npc"] = false;
@@ -551,15 +551,15 @@ amf3object Map::GetMapCastle(int32_t fieldid, int32_t clientid)
             return field;
         }
 
-        if (tile->m_type < 11)
+        if (tile->type < 11)
         {
             field["allianceName"] = client->alliancename;
             field["flag"] = client->flag;
             field["honor"] = client->honor;
             field["id"] = fieldid;
-            //field["name"] = tile->m_city->m_cityname;
+            //field["name"] = tile->city->cityname;
             field["prestige"] = client->Prestige();
-            int relation = 0;// spitfire::GetSingleton().m_alliances->GetRelation(clientid, client->accountid);
+            int relation = 0;// spitfire::GetSingleton().alliances->GetRelation(clientid, client->accountid);
             switch (relation)
             {
             case DEF_SELFRELATION:
@@ -600,10 +600,10 @@ amf3object Map::GetMapCastle(int32_t fieldid, int32_t clientid)
             field["flag"] = client->flag;
             field["honor"] = client->honor;
             field["id"] = fieldid;
-            field["name"] = tile->m_city->m_cityname;
+            field["name"] = tile->city->cityname;
             field["playerLogoUrl"] = client->faceurl;
             field["prestige"] = client->Prestige();
-            int relation = 0;// spitfire::GetSingleton().m_alliances->GetRelation(clientid, client->accountid);
+            int relation = 0;// spitfire::GetSingleton().alliances->GetRelation(clientid, client->accountid);
             switch (relation)
             {
             case DEF_SELFRELATION:
@@ -639,7 +639,7 @@ amf3object Map::GetMapCastle(int32_t fieldid, int32_t clientid)
             field["npc"] = false;
         }
     }
-    else if (tile->m_npc)
+    else if (tile->npc)
     {
         field["allianceName"] = "";
         field["npc"] = true;
@@ -650,7 +650,7 @@ amf3object Map::GetMapCastle(int32_t fieldid, int32_t clientid)
         field["canTrans"] = false;
         field["zoneName"] = states[GetStateFromID(fieldid)];
         field["id"] = fieldid;
-        field["name"] = tile->m_city->m_cityname;
+        field["name"] = tile->city->cityname;
     }
     else
     {

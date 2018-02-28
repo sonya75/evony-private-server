@@ -40,35 +40,35 @@ void pcastle::process()
 
         for (int i = 0; i < 35; ++i)
         {
-            if (gserver.m_buildingconfig[i][0].inside != 2)
+            if (gserver.buildingconfig[i][0].inside != 2)
                 continue;
-            if (gserver.m_buildingconfig[i][0].limit > 0 && gserver.m_buildingconfig[i][0].limit <= city->GetBuildingCount(i))
+            if (gserver.buildingconfig[i][0].limit > 0 && gserver.buildingconfig[i][0].limit <= city->GetBuildingCount(i))
                 continue;
-            if (gserver.m_buildingconfig[i][0].time > 0)
+            if (gserver.buildingconfig[i][0].time > 0)
             {
                 amf3object parent;
                 amf3object conditionbean;
 
-                double costtime = gserver.m_buildingconfig[i][0].time * 1000;
+                double costtime = gserver.buildingconfig[i][0].time * 1000;
                 double mayorinf = 1;
-                if (city->m_mayor)
-                    mayorinf = pow(0.995, city->m_mayor->GetManagement());
+                if (city->mayor)
+                    mayorinf = pow(0.995, city->mayor->GetManagement());
                 costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
 
                 conditionbean["time"] = floor(costtime);
-                conditionbean["destructTime"] = gserver.m_buildingconfig[i][0].destructtime;
-                conditionbean["wood"] = (uint32_t)gserver.m_buildingconfig[i][0].wood;
-                conditionbean["food"] = (uint32_t)gserver.m_buildingconfig[i][0].food;
-                conditionbean["iron"] = (uint32_t)gserver.m_buildingconfig[i][0].iron;
-                conditionbean["gold"] = (uint32_t)gserver.m_buildingconfig[i][0].gold;
-                conditionbean["stone"] = (uint32_t)gserver.m_buildingconfig[i][0].stone;
+                conditionbean["destructTime"] = gserver.buildingconfig[i][0].destructtime;
+                conditionbean["wood"] = (uint32_t)gserver.buildingconfig[i][0].wood;
+                conditionbean["food"] = (uint32_t)gserver.buildingconfig[i][0].food;
+                conditionbean["iron"] = (uint32_t)gserver.buildingconfig[i][0].iron;
+                conditionbean["gold"] = (uint32_t)gserver.buildingconfig[i][0].gold;
+                conditionbean["stone"] = (uint32_t)gserver.buildingconfig[i][0].stone;
 
                 amf3array buildings = amf3array();
                 amf3array items = amf3array();
                 amf3array techs = amf3array();
 
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].buildings)
+                for (stPrereq & req : gserver.buildingconfig[i][0].buildings)
                 {
                     if (req.id > 0)
                     {
@@ -81,7 +81,7 @@ void pcastle::process()
                         buildings.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].items)
+                for (stPrereq & req : gserver.buildingconfig[i][0].items)
                 {
                     if (req.id > 0)
                     {
@@ -90,11 +90,11 @@ void pcastle::process()
                         ta["curNum"] = temp;
                         ta["num"] = req.level;
                         ta["successFlag"] = temp >= req.level ? true : false;
-                        ta["id"] = gserver.m_items[req.id].name;
+                        ta["id"] = gserver.items[req.id].name;
                         items.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].techs)
+                for (stPrereq & req : gserver.buildingconfig[i][0].techs)
                 {
                     if (req.id > 0)
                     {
@@ -111,7 +111,7 @@ void pcastle::process()
                 conditionbean["buildings"] = buildings;
                 conditionbean["items"] = items;
                 conditionbean["techs"] = techs;
-                conditionbean["population"] = gserver.m_buildingconfig[i][0].population;
+                conditionbean["population"] = gserver.buildingconfig[i][0].population;
                 parent["conditionBean"] = conditionbean;
                 parent["typeId"] = i;
                 buildinglist.Add(parent);
@@ -136,35 +136,35 @@ void pcastle::process()
 
         for (int i = 0; i < 35; ++i)
         {
-            if (gserver.m_buildingconfig[i][0].inside != 1)
+            if (gserver.buildingconfig[i][0].inside != 1)
                 continue;
-            if (gserver.m_buildingconfig[i][0].limit > 0 && gserver.m_buildingconfig[i][0].limit <= city->GetBuildingCount(i))
+            if (gserver.buildingconfig[i][0].limit > 0 && gserver.buildingconfig[i][0].limit <= city->GetBuildingCount(i))
                 continue;
-            if (gserver.m_buildingconfig[i][0].time > 0)
+            if (gserver.buildingconfig[i][0].time > 0)
             {
                 amf3object parent;
                 amf3object conditionbean;
 
-                double costtime = gserver.m_buildingconfig[i][0].time;//*1000;
+                double costtime = gserver.buildingconfig[i][0].time;//*1000;
                 double mayorinf = 1;
-                if (city->m_mayor)
-                    mayorinf = pow(0.995, city->m_mayor->GetManagement());
+                if (city->mayor)
+                    mayorinf = pow(0.995, city->mayor->GetManagement());
                 costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
 
                 conditionbean["time"] = floor(costtime);
-                conditionbean["destructTime"] = gserver.m_buildingconfig[i][0].destructtime;
-                conditionbean["wood"] = gserver.m_buildingconfig[i][0].wood;
-                conditionbean["food"] = gserver.m_buildingconfig[i][0].food;
-                conditionbean["iron"] = gserver.m_buildingconfig[i][0].iron;
+                conditionbean["destructTime"] = gserver.buildingconfig[i][0].destructtime;
+                conditionbean["wood"] = gserver.buildingconfig[i][0].wood;
+                conditionbean["food"] = gserver.buildingconfig[i][0].food;
+                conditionbean["iron"] = gserver.buildingconfig[i][0].iron;
                 conditionbean["gold"] = 0;
-                conditionbean["stone"] = gserver.m_buildingconfig[i][0].stone;
+                conditionbean["stone"] = gserver.buildingconfig[i][0].stone;
 
                 amf3array buildings = amf3array();
                 amf3array items = amf3array();
                 amf3array techs = amf3array();
 
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].buildings)
+                for (stPrereq & req : gserver.buildingconfig[i][0].buildings)
                 {
                     if (req.id > 0)
                     {
@@ -177,7 +177,7 @@ void pcastle::process()
                         buildings.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].items)
+                for (stPrereq & req : gserver.buildingconfig[i][0].items)
                 {
                     if (req.id > 0)
                     {
@@ -186,11 +186,11 @@ void pcastle::process()
                         ta["curNum"] = temp;
                         ta["num"] = req.level;
                         ta["successFlag"] = temp >= req.level ? true : false;
-                        ta["id"] = gserver.m_items[req.id].name;
+                        ta["id"] = gserver.items[req.id].name;
                         items.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].techs)
+                for (stPrereq & req : gserver.buildingconfig[i][0].techs)
                 {
                     if (req.id > 0)
                     {
@@ -207,7 +207,7 @@ void pcastle::process()
                 conditionbean["buildings"] = buildings;
                 conditionbean["items"] = items;
                 conditionbean["techs"] = techs;
-                conditionbean["population"] = gserver.m_buildingconfig[i][0].population;
+                conditionbean["population"] = gserver.buildingconfig[i][0].population;
                 parent["conditionBean"] = conditionbean;
                 parent["typeId"] = i;
                 buildinglist.Add(parent);
@@ -246,33 +246,33 @@ void pcastle::process()
         // using a fixed building order, temporary fix so that buildings appear in proper order in client
         for (int i: {7,4,5,6})
         {
-            if (gserver.m_buildingconfig[i][0].limit > 0 && gserver.m_buildingconfig[i][0].limit <= city->GetBuildingCount(i))
+            if (gserver.buildingconfig[i][0].limit > 0 && gserver.buildingconfig[i][0].limit <= city->GetBuildingCount(i))
                 continue;
-            if (gserver.m_buildingconfig[i][0].time > 0)
+            if (gserver.buildingconfig[i][0].time > 0)
             {
                 amf3object parent;
                 amf3object conditionbean;
 
-                double costtime = gserver.m_buildingconfig[i][0].time * 1000;
+                double costtime = gserver.buildingconfig[i][0].time * 1000;
                 double mayorinf = 1;
-                if (city->m_mayor)
-                    mayorinf = pow(0.995, city->m_mayor->GetManagement());
+                if (city->mayor)
+                    mayorinf = pow(0.995, city->mayor->GetManagement());
                 costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
 
                 conditionbean["time"] = floor(costtime);
-                conditionbean["destructTime"] = gserver.m_buildingconfig[i][0].destructtime;
-                conditionbean["wood"] = (uint32_t)gserver.m_buildingconfig[i][0].wood;
-                conditionbean["food"] = (uint32_t)gserver.m_buildingconfig[i][0].food;
-                conditionbean["iron"] = (uint32_t)gserver.m_buildingconfig[i][0].iron;
-                conditionbean["gold"] = (uint32_t)gserver.m_buildingconfig[i][0].gold;
-                conditionbean["stone"] = (uint32_t)gserver.m_buildingconfig[i][0].stone;
+                conditionbean["destructTime"] = gserver.buildingconfig[i][0].destructtime;
+                conditionbean["wood"] = (uint32_t)gserver.buildingconfig[i][0].wood;
+                conditionbean["food"] = (uint32_t)gserver.buildingconfig[i][0].food;
+                conditionbean["iron"] = (uint32_t)gserver.buildingconfig[i][0].iron;
+                conditionbean["gold"] = (uint32_t)gserver.buildingconfig[i][0].gold;
+                conditionbean["stone"] = (uint32_t)gserver.buildingconfig[i][0].stone;
 
                 amf3array buildings = amf3array();
                 amf3array items = amf3array();
                 amf3array techs = amf3array();
 
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].buildings)
+                for (stPrereq & req : gserver.buildingconfig[i][0].buildings)
                 {
                     if (req.id > 0)
                     {
@@ -285,7 +285,7 @@ void pcastle::process()
                         buildings.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].items)
+                for (stPrereq & req : gserver.buildingconfig[i][0].items)
                 {
                     if (req.id > 0)
                     {
@@ -294,11 +294,11 @@ void pcastle::process()
                         ta["curNum"] = temp;
                         ta["num"] = req.level;
                         ta["successFlag"] = req.level ? true : false;
-                        ta["id"] = gserver.m_items[req.id].name;
+                        ta["id"] = gserver.items[req.id].name;
                         items.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_buildingconfig[i][0].techs)
+                for (stPrereq & req : gserver.buildingconfig[i][0].techs)
                 {
                     if (req.id > 0)
                     {
@@ -315,7 +315,7 @@ void pcastle::process()
                 conditionbean["buildings"] = buildings;
                 conditionbean["items"] = items;
                 conditionbean["techs"] = techs;
-                conditionbean["population"] = gserver.m_buildingconfig[i][0].population;
+                conditionbean["population"] = gserver.buildingconfig[i][0].population;
                 parent["conditionBean"] = conditionbean;
                 parent["typeId"] = i;
                 buildinglist.Add(parent);
@@ -363,7 +363,7 @@ void pcastle::process()
             return;
         }
 
-        if ((buildingtype > 34 || buildingtype <= 0) || city->GetBuilding(positionid)->type || ((gserver.m_buildingconfig[buildingtype][0].limit > 0) && (gserver.m_buildingconfig[buildingtype][0].limit <= city->GetBuildingCount(buildingtype))))
+        if ((buildingtype > 34 || buildingtype <= 0) || city->GetBuilding(positionid)->type || ((gserver.buildingconfig[buildingtype][0].limit > 0) && (gserver.buildingconfig[buildingtype][0].limit <= city->GetBuildingCount(buildingtype))))
         {
             gserver.SendObject(client, gserver.CreateError("castle.newBuilding", -99, "Can't build building."));
             return;
@@ -381,7 +381,7 @@ void pcastle::process()
 
         for (int i = 0; i < 35; ++i)
         {
-            if (city->m_innerbuildings[i].status != 0)
+            if (city->innerbuildings[i].status != 0)
             {
                 // TODO: Support hammer item for multiple constructions at once
                 gserver.SendObject(client, gserver.CreateError("castle.newBuilding", -48, "One building allowed to be built at a time."));
@@ -390,7 +390,7 @@ void pcastle::process()
         }
         for (int i = 0; i < 41; ++i)
         {
-            if (city->m_outerbuildings[i].status != 0)
+            if (city->outerbuildings[i].status != 0)
             {
                 // TODO: Support hammer item for multiple constructions at once
                 gserver.SendObject(client, gserver.CreateError("castle.newBuilding", -48, "One building allowed to be built at a time."));
@@ -404,11 +404,11 @@ void pcastle::process()
             return;
         }
 
-        if ((gserver.m_buildingconfig[buildingtype][0].food > city->m_resources.food)
-            || (gserver.m_buildingconfig[buildingtype][0].wood > city->m_resources.wood)
-            || (gserver.m_buildingconfig[buildingtype][0].stone > city->m_resources.stone)
-            || (gserver.m_buildingconfig[buildingtype][0].iron > city->m_resources.iron)
-            || (gserver.m_buildingconfig[buildingtype][0].gold > city->m_resources.gold))
+        if ((gserver.buildingconfig[buildingtype][0].food > city->resources.food)
+            || (gserver.buildingconfig[buildingtype][0].wood > city->resources.wood)
+            || (gserver.buildingconfig[buildingtype][0].stone > city->resources.stone)
+            || (gserver.buildingconfig[buildingtype][0].iron > city->resources.iron)
+            || (gserver.buildingconfig[buildingtype][0].gold > city->resources.gold))
         {
             gserver.SendObject(client, gserver.CreateError("castle.newBuilding", -1, "Not enough resources."));
             return;
@@ -418,19 +418,19 @@ void pcastle::process()
 
         gserver.SendObject(client, obj2);
 
-        city->m_resources.food -= gserver.m_buildingconfig[buildingtype][0].food;
-        city->m_resources.wood -= gserver.m_buildingconfig[buildingtype][0].wood;
-        city->m_resources.stone -= gserver.m_buildingconfig[buildingtype][0].stone;
-        city->m_resources.iron -= gserver.m_buildingconfig[buildingtype][0].iron;
-        city->m_resources.gold -= gserver.m_buildingconfig[buildingtype][0].gold;
+        city->resources.food -= gserver.buildingconfig[buildingtype][0].food;
+        city->resources.wood -= gserver.buildingconfig[buildingtype][0].wood;
+        city->resources.stone -= gserver.buildingconfig[buildingtype][0].stone;
+        city->resources.iron -= gserver.buildingconfig[buildingtype][0].iron;
+        city->resources.gold -= gserver.buildingconfig[buildingtype][0].gold;
 
 
         stBuildingAction * ba = new stBuildingAction;
 
-        double costtime = gserver.m_buildingconfig[buildingtype][0].time;
+        double costtime = gserver.buildingconfig[buildingtype][0].time;
         double mayorinf = 1;
-        if (city->m_mayor)
-            mayorinf = pow(0.995, city->m_mayor->GetManagement());
+        if (city->mayor)
+            mayorinf = pow(0.995, city->mayor->GetManagement());
         costtime = 1000 * (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
         city->SetBuilding(buildingtype, 0, positionid, 1, timestamp, timestamp + floor(costtime));
@@ -453,7 +453,7 @@ void pcastle::process()
         ba->positionid = positionid;
         te.data = ba;
         te.accountid = client->accountid;
-        te.castleid = city->m_castleid;
+        te.castleid = city->castleid;
         te.type = DEF_TIMEDBUILDING;
 
         gserver.AddTimedEvent(te);
@@ -483,7 +483,7 @@ void pcastle::process()
 
         for (int i = 0; i < 35; ++i)
         {
-            if (city->m_innerbuildings[i].status != 0)
+            if (city->innerbuildings[i].status != 0)
             {
                 gserver.SendObject(client, gserver.CreateError("castle.destructBuilding", -48, "One building allowed to be built at a time."));
                 return;
@@ -491,7 +491,7 @@ void pcastle::process()
         }
         for (int i = 0; i < 41; ++i)
         {
-            if (city->m_outerbuildings[i].status != 0)
+            if (city->outerbuildings[i].status != 0)
             {
                 gserver.SendObject(client, gserver.CreateError("castle.destructBuilding", -48, "One building allowed to be built at a time."));
                 return;
@@ -514,10 +514,10 @@ void pcastle::process()
 
         gserver.AddTimedEvent(te);
 
-        double costtime = gserver.m_buildingconfig[bldg->type][bldg->level - 1].destructtime * 1000;
+        double costtime = gserver.buildingconfig[bldg->type][bldg->level - 1].destructtime * 1000;
         double mayorinf = 1;
-        if (city->m_mayor)
-            mayorinf = pow(0.995, city->m_mayor->GetManagement());
+        if (city->mayor)
+            mayorinf = pow(0.995, city->mayor->GetManagement());
         costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
         ba->city->SetBuilding(bldg->type, bldg->level, positionid, 2, timestamp, timestamp + floor(costtime));
@@ -560,7 +560,7 @@ void pcastle::process()
 
         for (int i = 0; i < 35; ++i)
         {
-            if (city->m_innerbuildings[i].status != 0)
+            if (city->innerbuildings[i].status != 0)
             {
                 gserver.SendObject(client, gserver.CreateError("castle.upgradeBuilding", -48, "One building allowed to be built at a time."));
                 return;
@@ -568,7 +568,7 @@ void pcastle::process()
         }
         for (int i = 0; i < 41; ++i)
         {
-            if (city->m_outerbuildings[i].status != 0)
+            if (city->outerbuildings[i].status != 0)
             {
                 gserver.SendObject(client, gserver.CreateError("castle.upgradeBuilding", -48, "One building allowed to be built at a time."));
                 return;
@@ -581,31 +581,31 @@ void pcastle::process()
             return;
         }
 
-        if ((gserver.m_buildingconfig[buildingtype][buildinglevel].food > city->m_resources.food)
-            || (gserver.m_buildingconfig[buildingtype][buildinglevel].wood > city->m_resources.wood)
-            || (gserver.m_buildingconfig[buildingtype][buildinglevel].stone > city->m_resources.stone)
-            || (gserver.m_buildingconfig[buildingtype][buildinglevel].iron > city->m_resources.iron)
-            || (gserver.m_buildingconfig[buildingtype][buildinglevel].gold > city->m_resources.gold))
+        if ((gserver.buildingconfig[buildingtype][buildinglevel].food > city->resources.food)
+            || (gserver.buildingconfig[buildingtype][buildinglevel].wood > city->resources.wood)
+            || (gserver.buildingconfig[buildingtype][buildinglevel].stone > city->resources.stone)
+            || (gserver.buildingconfig[buildingtype][buildinglevel].iron > city->resources.iron)
+            || (gserver.buildingconfig[buildingtype][buildinglevel].gold > city->resources.gold))
         {
             gserver.SendObject(client, gserver.CreateError("castle.upgradeBuilding", -1, "Not enough resources."));
             return;
         }
 
-        for (stPrereq & req : gserver.m_buildingconfig[bldg->type][bldg->level].items)
+        for (stPrereq & req : gserver.buildingconfig[bldg->type][bldg->level].items)
         {
             if (req.id > 0)
             {
-                client->AddItem(gserver.m_items[req.id].name, -req.level);
+                client->AddItem(gserver.items[req.id].name, -req.level);
             }
         }
 
         gserver.SendObject(client, obj2);
 
-        city->m_resources.food -= gserver.m_buildingconfig[buildingtype][buildinglevel].food;
-        city->m_resources.wood -= gserver.m_buildingconfig[buildingtype][buildinglevel].wood;
-        city->m_resources.stone -= gserver.m_buildingconfig[buildingtype][buildinglevel].stone;
-        city->m_resources.iron -= gserver.m_buildingconfig[buildingtype][buildinglevel].iron;
-        city->m_resources.gold -= gserver.m_buildingconfig[buildingtype][buildinglevel].gold;
+        city->resources.food -= gserver.buildingconfig[buildingtype][buildinglevel].food;
+        city->resources.wood -= gserver.buildingconfig[buildingtype][buildinglevel].wood;
+        city->resources.stone -= gserver.buildingconfig[buildingtype][buildinglevel].stone;
+        city->resources.iron -= gserver.buildingconfig[buildingtype][buildinglevel].iron;
+        city->resources.gold -= gserver.buildingconfig[buildingtype][buildinglevel].gold;
 
         stBuildingAction * ba = new stBuildingAction;
 
@@ -618,10 +618,10 @@ void pcastle::process()
 
         gserver.AddTimedEvent(te);
 
-        double costtime = gserver.m_buildingconfig[buildingtype][buildinglevel].time;
+        double costtime = gserver.buildingconfig[buildingtype][buildinglevel].time;
         double mayorinf = 1;
-        if (city->m_mayor)
-            mayorinf = pow(0.995, city->m_mayor->GetManagement());
+        if (city->mayor)
+            mayorinf = pow(0.995, city->mayor->GetManagement());
         costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
         city->ResourceUpdate();
@@ -664,7 +664,7 @@ void pcastle::process()
             amf3object conditionbean;
 
             conditionbean["time"] = 31536000;
-            conditionbean["destructTime"] = gserver.m_buildingconfig[id][level].destructtime;
+            conditionbean["destructTime"] = gserver.buildingconfig[id][level].destructtime;
             conditionbean["wood"] = 50000000;
             conditionbean["food"] = 50000000;
             conditionbean["iron"] = 50000000;
@@ -679,32 +679,32 @@ void pcastle::process()
 
         amf3object conditionbean;
 
-        double costtime = gserver.m_buildingconfig[id][level].time;
+        double costtime = gserver.buildingconfig[id][level].time;
 
         double mayorinf = 1;
-        if (city->m_mayor)
-            mayorinf = pow(0.995, city->m_mayor->GetManagement());
+        if (city->mayor)
+            mayorinf = pow(0.995, city->mayor->GetManagement());
         costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
-        double desttime = gserver.m_buildingconfig[id][level].destructtime;
+        double desttime = gserver.buildingconfig[id][level].destructtime;
         mayorinf = 1;
-        if (city->m_mayor)
-            mayorinf = pow(0.995, city->m_mayor->GetManagement());
+        if (city->mayor)
+            mayorinf = pow(0.995, city->mayor->GetManagement());
         desttime = (desttime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
 
         conditionbean["time"] = floor(costtime);
         conditionbean["destructTime"] = desttime;
-        conditionbean["wood"] = (uint32_t)gserver.m_buildingconfig[id][level].wood;
-        conditionbean["food"] = (uint32_t)gserver.m_buildingconfig[id][level].food;
-        conditionbean["iron"] = (uint32_t)gserver.m_buildingconfig[id][level].iron;
-        conditionbean["gold"] = (uint32_t)gserver.m_buildingconfig[id][level].gold;
-        conditionbean["stone"] = (uint32_t)gserver.m_buildingconfig[id][level].stone;
+        conditionbean["wood"] = (uint32_t)gserver.buildingconfig[id][level].wood;
+        conditionbean["food"] = (uint32_t)gserver.buildingconfig[id][level].food;
+        conditionbean["iron"] = (uint32_t)gserver.buildingconfig[id][level].iron;
+        conditionbean["gold"] = (uint32_t)gserver.buildingconfig[id][level].gold;
+        conditionbean["stone"] = (uint32_t)gserver.buildingconfig[id][level].stone;
 
         amf3array buildings = amf3array();
         amf3array items = amf3array();
         amf3array techs = amf3array();
 
-        for (stPrereq & req : gserver.m_buildingconfig[id][level].buildings)
+        for (stPrereq & req : gserver.buildingconfig[id][level].buildings)
         {
             if (req.id > 0)
             {
@@ -717,7 +717,7 @@ void pcastle::process()
                 buildings.Add(ta);
             }
         }
-        for (stPrereq & req : gserver.m_buildingconfig[id][level].items)
+        for (stPrereq & req : gserver.buildingconfig[id][level].items)
         {
             if (req.id > 0)
             {
@@ -726,11 +726,11 @@ void pcastle::process()
                 ta["curNum"] = temp;
                 ta["num"] = req.level;
                 ta["successFlag"] = temp >= req.level ? true : false;
-                ta["id"] = gserver.m_items[req.id].name;
+                ta["id"] = gserver.items[req.id].name;
                 items.Add(ta);
             }
         }
-            for (stPrereq & req : gserver.m_buildingconfig[id][level].techs)
+            for (stPrereq & req : gserver.buildingconfig[id][level].techs)
         {
             if (req.id > 0)
             {
@@ -747,7 +747,7 @@ void pcastle::process()
         conditionbean["buildings"] = buildings;
         conditionbean["items"] = items;
         conditionbean["techs"] = techs;
-        conditionbean["population"] = gserver.m_buildingconfig[id][level].population;
+        conditionbean["population"] = gserver.buildingconfig[id][level].population;
 
 
         data2["conditionBean"] = conditionbean;
@@ -972,12 +972,12 @@ void pcastle::process()
                         if (bldg->status == 1)
                         {
                             stResources res;
-                            res.food = gserver.m_buildingconfig[bldg->type][bldg->level].food;
-                            res.wood = gserver.m_buildingconfig[bldg->type][bldg->level].wood;
-                            res.stone = gserver.m_buildingconfig[bldg->type][bldg->level].stone;
-                            res.iron = gserver.m_buildingconfig[bldg->type][bldg->level].iron;
-                            res.gold = gserver.m_buildingconfig[bldg->type][bldg->level].gold;
-                            city->m_resources += res;
+                            res.food = gserver.buildingconfig[bldg->type][bldg->level].food;
+                            res.wood = gserver.buildingconfig[bldg->type][bldg->level].wood;
+                            res.stone = gserver.buildingconfig[bldg->type][bldg->level].stone;
+                            res.iron = gserver.buildingconfig[bldg->type][bldg->level].iron;
+                            res.gold = gserver.buildingconfig[bldg->type][bldg->level].gold;
+                            city->resources += res;
                         }
 
                         gserver.buildinglist.erase(iter++);
@@ -1029,9 +1029,9 @@ void pcastle::process()
         cst.x = tx;
         cst.y = ty;
 
-        tile = gserver.map->GetTileFromID(tid);
+        tile = gserver.game_map->GetTileFromID(tid);
 
-        if (tile->m_type != CASTLE)
+        if (tile->type != CASTLE)
         {
             //need an error message
             gserver.CreateError("castle.saveCastleSignList", -99, "Invalid coordinates");

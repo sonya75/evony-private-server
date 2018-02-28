@@ -42,22 +42,22 @@ void prank::process()
         switch (sorttype)
         {
             case 1:
-                ranklist = &gserver.m_titlerank;
+                ranklist = &gserver.titlerank;
                 break;
             case 2:
-                ranklist = &gserver.m_prestigerank;
+                ranklist = &gserver.prestigerank;
                 break;
             case 3:
-                ranklist = &gserver.m_honorrank;
+                ranklist = &gserver.honorrank;
                 break;
             case 4:
-                ranklist = &gserver.m_citiesrank;
+                ranklist = &gserver.citiesrank;
                 break;
             case 5:
-                ranklist = &gserver.m_populationrank;
+                ranklist = &gserver.populationrank;
                 break;
             default:
-                ranklist = &gserver.m_prestigerank;
+                ranklist = &gserver.prestigerank;
                 break;
         }
         std::list<stClientRank>::iterator iter;
@@ -96,14 +96,14 @@ void prank::process()
             temp["createrTime"] = 0;
             if (iter->client->allianceid > 0)
             {
-                temp["alliance"] = iter->client->GetAlliance()->m_name;
+                temp["alliance"] = iter->client->GetAlliance()->name;
                 temp["allianceLevel"] = AllianceMgr::GetAllianceRank(iter->client->alliancerank);
                 temp["levelId"] = iter->client->alliancerank;
             }
             temp["office"] = iter->client->office;
             temp["sex"] = iter->client->sex;
             temp["honor"] = iter->client->honor;
-            temp["bdenyotherplayer"] = iter->client->m_bdenyotherplayer;
+            temp["bdenyotherplayer"] = iter->client->bdenyotherplayer;
             temp["id"] = iter->client->accountid;
             temp["accountName"] = "";
             temp["prestige"] = iter->client->prestige;
@@ -145,16 +145,16 @@ void prank::process()
             switch (sorttype)
             {
             case 1:
-                ranklist = &gserver.m_alliances->m_membersrank;
+                ranklist = &gserver.alliances->membersrank;
                 break;
             case 2:
-                ranklist = &gserver.m_alliances->m_prestigerank;
+                ranklist = &gserver.alliances->prestigerank;
                 break;
             case 3:
-                ranklist = &gserver.m_alliances->m_honorrank;
+                ranklist = &gserver.alliances->honorrank;
                 break;
             default:
-                ranklist = &gserver.m_alliances->m_membersrank;
+                ranklist = &gserver.alliances->membersrank;
                 break;
             }
             std::list<stAlliance>::iterator iter;
@@ -190,15 +190,15 @@ void prank::process()
             {
                 pagesize--;
                 amf3object temp = amf3object();
-                temp["member"] = iter->ref->m_currentmembers;
-                temp["prestige"] = iter->ref->m_prestige;
+                temp["member"] = iter->ref->currentmembers;
+                temp["prestige"] = iter->ref->prestige;
                 temp["rank"] = iter->rank;
-                temp["playerName"] = iter->ref->m_owner;
-                temp["honor"] = iter->ref->m_honor;
-                temp["description"] = iter->ref->m_intro;
-                temp["createrName"] = iter->ref->m_founder;
-                temp["name"] = iter->ref->m_name;
-                temp["city"] = iter->ref->m_citycount;
+                temp["playerName"] = iter->ref->owner;
+                temp["honor"] = iter->ref->honor;
+                temp["description"] = iter->ref->intro;
+                temp["createrName"] = iter->ref->founder;
+                temp["name"] = iter->ref->name;
+                temp["city"] = iter->ref->citycount;
                 beans.Add(temp);
             }
             data2["beans"] = beans;
@@ -229,19 +229,19 @@ void prank::process()
         switch (sorttype)
         {
             case 1:
-                ranklist = &gserver.m_herorankgrade;
+                ranklist = &gserver.herorankgrade;
                 break;
             case 2:
-                ranklist = &gserver.m_herorankmanagement;
+                ranklist = &gserver.herorankmanagement;
                 break;
             case 3:
-                ranklist = &gserver.m_herorankpower;
+                ranklist = &gserver.herorankpower;
                 break;
             case 4:
-                ranklist = &gserver.m_herorankstratagem;
+                ranklist = &gserver.herorankstratagem;
                 break;
             default:
-                ranklist = &gserver.m_herorankgrade;
+                ranklist = &gserver.herorankgrade;
                 break;
         }
         std::list<stHeroRank>::iterator iter;
@@ -305,13 +305,13 @@ void prank::process()
         switch (sorttype)
         {
             case 1:
-                ranklist = &gserver.m_castlerankpopulation;
+                ranklist = &gserver.castlerankpopulation;
                 break;
             case 2:
-                ranklist = &gserver.m_castleranklevel;
+                ranklist = &gserver.castleranklevel;
                 break;
             default:
-                ranklist = &gserver.m_castlerankpopulation;
+                ranklist = &gserver.castlerankpopulation;
                 break;
         }
         std::list<stCastleRank>::iterator iter;

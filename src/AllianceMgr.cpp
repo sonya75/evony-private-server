@@ -14,7 +14,7 @@ AllianceMgr::AllianceMgr()
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        m_alliances[i] = nullptr;
+        alliances[i] = nullptr;
     }
 }
 
@@ -22,8 +22,8 @@ AllianceMgr::~AllianceMgr()
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i])
-            delete m_alliances[i];
+        if (alliances[i])
+            delete alliances[i];
     }
 }
 
@@ -32,23 +32,23 @@ void AllianceMgr::DeleteAlliance(Alliance * alliance)
     int32_t found = -1;
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i])
+        if (alliances[i])
         {
-            if (m_alliances[i]->m_allianceid != alliance->m_allianceid)
+            if (alliances[i]->allianceid != alliance->allianceid)
             {
-                if (m_alliances[i]->IsAlly(alliance->m_allianceid))
-                    m_alliances[i]->UnAlly(alliance->m_allianceid);
-                if (m_alliances[i]->IsNeutral(alliance->m_allianceid))
-                    m_alliances[i]->UnNeutral(alliance->m_allianceid);
-                if (m_alliances[i]->IsEnemy(alliance->m_allianceid))
-                    m_alliances[i]->UnEnemy(alliance->m_allianceid);
+                if (alliances[i]->IsAlly(alliance->allianceid))
+                    alliances[i]->UnAlly(alliance->allianceid);
+                if (alliances[i]->IsNeutral(alliance->allianceid))
+                    alliances[i]->UnNeutral(alliance->allianceid);
+                if (alliances[i]->IsEnemy(alliance->allianceid))
+                    alliances[i]->UnEnemy(alliance->allianceid);
 
 
                 for (Client * client : spitfire::GetSingleton().players)
                 {
                     if (client)
                     {
-                        if ((client->allianceapply == alliance->m_name))
+                        if ((client->allianceapply == alliance->name))
                         {
                             client->allianceapply = "";
                             client->allianceapplytime = 0;
@@ -67,10 +67,10 @@ void AllianceMgr::DeleteAlliance(Alliance * alliance)
         //error point
         return;
     }
-    alliance->m_invites.clear();
+    alliance->invites.clear();
     alliance->DeleteFromDB();
-    delete m_alliances[found];
-    m_alliances[found] = nullptr;
+    delete alliances[found];
+    alliances[found] = nullptr;
     SortAlliances();
 }
 
@@ -78,12 +78,12 @@ void AllianceMgr::CheckAlliance(Alliance * alliance)
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i] != 0)
+        if (alliances[i] != 0)
         {
-            if (m_alliances[i]->m_members.size() == 0)
+            if (alliances[i]->members.size() == 0)
             {
                 //no more people left in alliance
-                DeleteAlliance(m_alliances[i]);
+                DeleteAlliance(alliances[i]);
             }
         }
     }
@@ -93,16 +93,16 @@ Alliance * AllianceMgr::CreateAlliance(std::string name, std::string founder, in
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i] == nullptr)
+        if (alliances[i] == nullptr)
         {
-            m_alliances[i] = new Alliance(name, founder);
+            alliances[i] = new Alliance(name, founder);
             if (allianceid == 0)
-                m_alliances[i]->m_allianceid = spitfire::GetSingleton().m_allianceid++;
+                alliances[i]->allianceid = spitfire::GetSingleton().allianceid++;
             else
-                m_alliances[i]->m_allianceid = allianceid;
+                alliances[i]->allianceid = allianceid;
             if (savetodb)
-                m_alliances[i]->InsertToDB();
-            return m_alliances[i];
+                alliances[i]->InsertToDB();
+            return alliances[i];
         }
     }
     return 0;
@@ -123,8 +123,8 @@ bool AllianceMgr::JoinAlliance(uint64_t allianceid, Client * client)
 
     if (alliance->AddMember(client->accountid, DEF_ALLIANCEMEMBER))
     {
-        client->allianceid = alliance->m_allianceid;
-        client->alliancename = alliance->m_name;
+        client->allianceid = alliance->allianceid;
+        client->alliancename = alliance->name;
         client->alliancerank = DEF_ALLIANCEMEMBER;
         client->PlayerUpdate();
         return true;
@@ -167,7 +167,7 @@ bool AllianceMgr::SetRank(uint64_t allianceid, Client * client, int8_t rank)
     }
 
 
-    for (Alliance::stMember & member : alliance->m_members)
+    for (Alliance::stMember & member : alliance->members)
     {
         if (member.clientid == client->accountid)
         {
@@ -278,62 +278,62 @@ bool comparehonor(stAlliance first, stAlliance second)
 
 void AllianceMgr::SortAlliances()
 {
-    m_membersrank.clear();
-    m_prestigerank.clear();
-    m_honorrank.clear();
+    membersrank.clear();
+    prestigerank.clear();
+    honorrank.clear();
 
     stAlliance stmem;
     stAlliance stpre;
     stAlliance sthon;
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i])
+        if (alliances[i])
         {
             sthon.honor = stpre.prestige = 0;
-            stmem.id = stpre.id = sthon.id = m_alliances[i]->m_allianceid;
-            stmem.members = m_alliances[i]->m_members.size();
-            m_alliances[i]->m_citycount = 0;
-            for (Alliance::stMember & member : m_alliances[i]->m_members)
+            stmem.id = stpre.id = sthon.id = alliances[i]->allianceid;
+            stmem.members = alliances[i]->members.size();
+            alliances[i]->citycount = 0;
+            for (Alliance::stMember & member : alliances[i]->members)
             {
                 Client * client = spitfire::GetSingleton().GetClient(member.clientid);
                 if (client)
                 {
                     sthon.honor += client->honor;
                     stpre.prestige += client->prestige;
-                    m_alliances[i]->m_citycount += client->citycount;
+                    alliances[i]->citycount += client->citycount;
                 }
             }
-            stmem.ref = m_alliances[i];
-            stpre.ref = m_alliances[i];
-            sthon.ref = m_alliances[i];
-            m_membersrank.push_back(stmem);
-            m_prestigerank.push_back(stpre);
-            m_honorrank.push_back(sthon);
+            stmem.ref = alliances[i];
+            stpre.ref = alliances[i];
+            sthon.ref = alliances[i];
+            membersrank.push_back(stmem);
+            prestigerank.push_back(stpre);
+            honorrank.push_back(sthon);
         }
     }
 
-    m_membersrank.sort(compareprestige);
-    m_membersrank.sort(comparemembers);
-    m_prestigerank.sort(compareprestige);
-    m_honorrank.sort(comparehonor);
+    membersrank.sort(compareprestige);
+    membersrank.sort(comparemembers);
+    prestigerank.sort(compareprestige);
+    honorrank.sort(comparehonor);
 
 
     int num = 1;
-    for (stAlliance & alliance : m_membersrank)
+    for (stAlliance & alliance : membersrank)
     {
-        alliance.rank = alliance.ref->m_membersrank = num++;
+        alliance.rank = alliance.ref->membersrank = num++;
     }
     num = 1;
-    for (stAlliance & alliance : m_prestigerank)
+    for (stAlliance & alliance : prestigerank)
     {
-        alliance.rank = alliance.ref->m_prestigerank = num++;
-        alliance.ref->m_prestige = alliance.prestige;
+        alliance.rank = alliance.ref->prestigerank = num++;
+        alliance.ref->prestige = alliance.prestige;
     }
     num = 1;
-    for (stAlliance & alliance : m_honorrank)
+    for (stAlliance & alliance : honorrank)
     {
-        alliance.rank = alliance.ref->m_honorrank = num++;
-        alliance.ref->m_honor = alliance.honor;
+        alliance.rank = alliance.ref->honorrank = num++;
+        alliance.ref->honor = alliance.honor;
     }
 }
 
@@ -341,9 +341,9 @@ Alliance * AllianceMgr::AllianceById(uint64_t id)
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i] && m_alliances[i]->m_allianceid == id)
+        if (alliances[i] && alliances[i]->allianceid == id)
         {
-            return m_alliances[i];
+            return alliances[i];
         }
     }
     return (Alliance*)-1;
@@ -353,9 +353,9 @@ Alliance * AllianceMgr::AllianceByName(std::string name)
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i] && m_alliances[i]->m_name == name)
+        if (alliances[i] && alliances[i]->name == name)
         {
-            return m_alliances[i];
+            return alliances[i];
         }
     }
     return (Alliance*)-1;
@@ -365,16 +365,16 @@ Alliance * AllianceMgr::AllianceByName(std::string name)
 /*
 struct stHero
 {
-int32_t m_id;
-int16_t m_level;
-int8_t m_loyalty;
-int16_t m_management;
-int16_t m_managementbuffadded;
-int16_t m_power;
-int16_t m_powerbuffadded;
-int16_t m_stratagem;
-int16_t m_stratagembuffadded;
-int8_t m_status;
+int32_t id;
+int16_t level;
+int8_t loyalty;
+int16_t management;
+int16_t managementbuffadded;
+int16_t power;
+int16_t powerbuffadded;
+int16_t stratagem;
+int16_t stratagembuffadded;
+int8_t status;
 
 };
 struct stResources
@@ -417,12 +417,12 @@ struct stBuff
 {
 string id;
 double endtime;
-} m_buffs;
+} buffs;
 struct stResearch
 {
 int16_t level;
 double endtime;
-} m_research;
+} research;
 struct stAttacker
 {
 stTroops troops;

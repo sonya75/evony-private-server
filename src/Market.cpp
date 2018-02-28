@@ -48,7 +48,7 @@ bool Market::addFoodBuy(stMarketEntry entry)
 
     queue_.foodbuy.push_back(entry);
 
-    entry.city->m_trades.push_back(trade);
+    entry.city->trades.push_back(trade);
     return true;
 }
 
@@ -72,7 +72,7 @@ bool Market::addFoodSell(stMarketEntry entry)
 
     queue_.foodsell.push_back(entry);
 
-    entry.city->m_trades.push_back(trade);
+    entry.city->trades.push_back(trade);
     return true;
 }
 
@@ -445,14 +445,14 @@ void Market::Process()
                     buy.amount -= entry.amount;
 
                     //send entry->city the gold
-                    entry.city->m_resources.gold += entry.amount*entry.price;
+                    entry.city->resources.gold += entry.amount*entry.price;
                     entry.city->ResourceUpdate();
                     entry.amount = 0;
-                    for (auto & trade : entry.city->m_trades)
+                    for (auto & trade : entry.city->trades)
                     {
                         if (trade.id == entry.tradeid)
                         {
-                            entry.city->m_trades.remove(trade);
+                            entry.city->trades.remove(trade);
                             break;
                         }
                     }
@@ -463,7 +463,7 @@ void Market::Process()
                     buy.client;
                     buy.city;
 
-                    //city->m_trades
+                    //city->trades
                 }
                 else
                 {

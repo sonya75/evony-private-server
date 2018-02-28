@@ -44,9 +44,9 @@ void phero::process()
         }
         else
         {
-            uint32_t goldcost = hero->m_level * 100;
+            uint32_t goldcost = hero->level * 100;
 
-            if (city->m_resources.gold < goldcost)
+            if (city->resources.gold < goldcost)
             {
                 obj2["cmd"] = "hero.awardGold";
                 data2["ok"] = -99;
@@ -57,11 +57,11 @@ void phero::process()
                 return;
             }
 
-            hero->m_loyalty += 5;
-            if (hero->m_loyalty > 100)
-                hero->m_loyalty = 100;
+            hero->loyalty += 5;
+            if (hero->loyalty > 100)
+                hero->loyalty = 100;
 
-            city->m_resources.gold -= goldcost;
+            city->resources.gold -= goldcost;
 
             city->ResourceUpdate();
             city->HeroUpdate(hero, 2);
@@ -105,8 +105,8 @@ void phero::process()
                 {
                     //exp 1000 or 8%
                     cents = 8;
-                    if ((hero->m_upgradeexp*0.08) > 1000)
-                        addexp = hero->m_upgradeexp*0.08;
+                    if ((hero->upgradeexp*0.08) > 1000)
+                        addexp = hero->upgradeexp*0.08;
                     else
                         addexp = 1000;
                 }
@@ -114,8 +114,8 @@ void phero::process()
                 {
                     //exp 10000 or 30%
                     cents = 30;
-                    if ((hero->m_upgradeexp*0.3) > 10000)
-                        addexp = hero->m_upgradeexp*0.3;
+                    if ((hero->upgradeexp*0.3) > 10000)
+                        addexp = hero->upgradeexp*0.3;
                     else
                         addexp = 10000;
                 }
@@ -123,8 +123,8 @@ void phero::process()
                 {
                     //exp 100000 or 100%
                     cents = 100;
-                    if (hero->m_upgradeexp > 100000)
-                        addexp = hero->m_upgradeexp;
+                    if (hero->upgradeexp > 100000)
+                        addexp = hero->upgradeexp;
                     else
                         addexp = 100000;
                 }
@@ -146,7 +146,7 @@ void phero::process()
                     client->AddItem(item, -1);
                 }
 
-                hero->m_experience += addexp;
+                hero->experience += addexp;
 
 
                 city->HeroUpdate(hero, 2);
@@ -193,7 +193,7 @@ void phero::process()
 
                 client->AddItem((std::string)item, -1);
 
-                hero->m_loyalty += addloyalty;
+                hero->loyalty += addloyalty;
 
                 city->HeroUpdate(hero, 2);
 
@@ -225,7 +225,7 @@ void phero::process()
             return;
         }
 
-        hero->m_name = newname;
+        hero->name = newname;
 
         city->HeroUpdate(hero, 2);
 
@@ -249,7 +249,7 @@ void phero::process()
             data2["packageId"] = 0.0;
             int tempnum = 0;
             for (int i = 0; i < 10; ++i)
-                if (city->m_heroes[i])
+                if (city->heroes[i])
                     tempnum++;
             data2["posCount"] = city->GetBuildingLevel(B_FEASTINGHALL) - tempnum;
 
@@ -257,12 +257,12 @@ void phero::process()
 
             for (int i = 0; i < innlevel; ++i)
             {
-                if (!city->m_innheroes[i])
+                if (!city->innheroes[i])
                 {
-                    city->m_innheroes[i] = gserver.CreateRandomHero(innlevel);
+                    city->innheroes[i] = gserver.CreateRandomHero(innlevel);
                 }
 
-                amf3object temphero = city->m_innheroes[i]->ToObject();
+                amf3object temphero = city->innheroes[i]->ToObject();
                 heroes.Add(temphero);
             }
 
@@ -294,10 +294,10 @@ void phero::process()
 
         for (int i = 0; i < 10; ++i)
         {
-            if (city->m_innheroes[i]->m_name == heroname)
+            if (city->innheroes[i]->name == heroname)
             {
-                int32_t hirecost = city->m_innheroes[i]->m_level * 1000;
-                if (hirecost > city->m_resources.gold)
+                int32_t hirecost = city->innheroes[i]->level * 1000;
+                if (hirecost > city->resources.gold)
                 {
                     // TODO Get proper not enough gold to hire error code - hero.hireHero
                     gserver.SendObject(client, gserver.CreateError("hero.hireHero", -99, "Not enough gold!"));
@@ -306,25 +306,25 @@ void phero::process()
 
                 for (int x = 0; x < 10; ++x)
                 {
-                    if (!city->m_heroes[x])
+                    if (!city->heroes[x])
                     {
-                        city->m_resources.gold -= hirecost;
+                        city->resources.gold -= hirecost;
                         city->CalculateResourceStats();
                         city->CalculateStats();
                         city->CalculateResources();
                         {
-                            city->m_innheroes[i]->m_id = gserver.m_heroid++;
+                            city->innheroes[i]->id = gserver.heroid++;
                         }
                         {
-                            city->HeroUpdate(city->m_innheroes[i], 0);
-                            city->m_heroes[x] = city->m_innheroes[i];
-                            city->m_innheroes[i] = nullptr;
+                            city->HeroUpdate(city->innheroes[i], 0);
+                            city->heroes[x] = city->innheroes[i];
+                            city->innheroes[i] = nullptr;
                         }
                         city->ResourceUpdate();
-                        city->m_heroes[x]->m_client = client;
-                        city->m_heroes[x]->m_ownerid = client->accountid;
-                        city->m_heroes[x]->m_castleid = city->m_castleid;
-                        city->m_heroes[x]->InsertToDB();
+                        city->heroes[x]->client = client;
+                        city->heroes[x]->ownerid = client->accountid;
+                        city->heroes[x]->castleid = city->castleid;
+                        city->heroes[x]->InsertToDB();
                         break;
                     }
                 }
@@ -350,9 +350,9 @@ void phero::process()
 
         for (int i = 0; i < 10; ++i)
         {
-            if (city->m_heroes[i] && city->m_heroes[i]->m_id == heroid)
+            if (city->heroes[i] && city->heroes[i]->id == heroid)
             {
-                if (city->m_heroes[i]->m_status != 0)
+                if (city->heroes[i]->status != 0)
                 {
                     gserver.SendObject(client, gserver.CreateError("hero.fireHero", -80, "Status of this hero is not Idle!"));
                     return;
@@ -361,14 +361,14 @@ void phero::process()
                 city->CalculateStats();
                 city->CalculateResources();
                 city->ResourceUpdate();
-                city->HeroUpdate(city->m_heroes[i], 1);
+                city->HeroUpdate(city->heroes[i], 1);
 
-                gserver.m_deletedhero.push_back(city->m_heroes[i]->m_id);
+                gserver.deletedhero.push_back(city->heroes[i]->id);
 
-                city->m_heroes[i]->DeleteFromDB();
+                city->heroes[i]->DeleteFromDB();
 
-                delete city->m_heroes[i];
-                city->m_heroes[i] = 0;
+                delete city->heroes[i];
+                city->heroes[i] = 0;
 
                 obj2["cmd"] = "hero.fireHero";
                 data2["ok"] = 1;
@@ -388,22 +388,22 @@ void phero::process()
 
         for (int i = 0; i < 10; ++i)
         {
-            if (city->m_heroes[i] && city->m_heroes[i]->m_id == heroid)
+            if (city->heroes[i] && city->heroes[i]->id == heroid)
             {
                 city->CalculateResourceStats();
                 city->CalculateStats();
                 city->CalculateResources();
                 Hero * oldhero = 0;
-                if (city->m_mayor)
+                if (city->mayor)
                 {
-                    oldhero = city->m_mayor;
-                    city->m_mayor->m_status = DEF_HEROIDLE;
-                    city->HeroUpdate(city->m_mayor, 2);
+                    oldhero = city->mayor;
+                    city->mayor->status = DEF_HEROIDLE;
+                    city->HeroUpdate(city->mayor, 2);
                 }
-                city->m_mayor = city->m_heroes[i];
-                city->m_heroes[i]->m_status = DEF_HEROMAYOR;
+                city->mayor = city->heroes[i];
+                city->heroes[i]->status = DEF_HEROMAYOR;
 
-                city->HeroUpdate(city->m_mayor, 2);
+                city->HeroUpdate(city->mayor, 2);
                 city->CalculateResourceStats();
                 city->CalculateResources();
                 city->ResourceUpdate();
@@ -416,7 +416,7 @@ void phero::process()
 
                 if (oldhero)
                     oldhero->SaveToDB();
-                city->m_mayor->SaveToDB();
+                city->mayor->SaveToDB();
 
                 city->SaveToDB();
 
@@ -429,20 +429,20 @@ void phero::process()
     }
     if ((command == "dischargeChief"))
     {
-        if (!city->m_mayor)
+        if (!city->mayor)
         {
             gserver.SendObject(client, gserver.CreateError("hero.dischargeChief", -99, "Castellan is not appointed yet."));
             return;
         }
 
-        Hero * oldhero = city->m_mayor;
+        Hero * oldhero = city->mayor;
 
         city->CalculateResourceStats();
         city->CalculateStats();
         city->CalculateResources();
-        city->m_mayor->m_status = 0;
-        city->HeroUpdate(city->m_mayor, 2);
-        city->m_mayor = 0;
+        city->mayor->status = 0;
+        city->HeroUpdate(city->mayor, 2);
+        city->mayor = 0;
         city->CalculateResourceStats();
         city->CalculateResources();
         city->ResourceUpdate();
@@ -466,9 +466,9 @@ void phero::process()
 
         for (int i = 0; i < 10; ++i)
         {
-            if (city->m_heroes[i] && city->m_heroes[i]->m_id == heroid)
+            if (city->heroes[i] && city->heroes[i]->id == heroid)
             {
-                if (city->m_heroes[i]->m_status > 1)
+                if (city->heroes[i]->status > 1)
                 {
                     gserver.SendObject(client, gserver.CreateError("hero.resetPoint", -80, "Status of this hero is not Idle!"));
                     return;
@@ -478,13 +478,13 @@ void phero::process()
                 city->CalculateResources();
                 city->ResourceUpdate();
 
-                Hero * hero = city->m_heroes[i];
-                hero->m_power = hero->m_basepower;
-                hero->m_management = hero->m_basemanagement;
-                hero->m_stratagem = hero->m_basestratagem;
-                hero->m_remainpoint = hero->m_level;
+                Hero * hero = city->heroes[i];
+                hero->power = hero->basepower;
+                hero->management = hero->basemanagement;
+                hero->stratagem = hero->basestratagem;
+                hero->remainpoint = hero->level;
 
-                city->HeroUpdate(city->m_heroes[i], 2);
+                city->HeroUpdate(city->heroes[i], 2);
                 city->CalculateResourceStats();
                 city->CalculateResources();
 
@@ -494,7 +494,7 @@ void phero::process()
 
                 gserver.SendObject(client, obj2);
 
-                city->m_heroes[i]->SaveToDB();
+                city->heroes[i]->SaveToDB();
 
                 return;
             }
@@ -514,26 +514,26 @@ void phero::process()
 
         for (int i = 0; i < 10; ++i)
         {
-            if (city->m_heroes[i] && city->m_heroes[i]->m_id == heroid)
+            if (city->heroes[i] && city->heroes[i]->id == heroid)
             {
                 city->CalculateResourceStats();
                 city->CalculateStats();
                 city->CalculateResources();
                 city->ResourceUpdate();
 
-                Hero * hero = city->m_heroes[i];
-                if (((stratagem + power + management) >(hero->m_basemanagement + hero->m_basepower + hero->m_basestratagem + hero->m_level))
-                    || (stratagem < hero->m_stratagem) || (power < hero->m_power) || (management < hero->m_management))
+                Hero * hero = city->heroes[i];
+                if (((stratagem + power + management) >(hero->basemanagement + hero->basepower + hero->basestratagem + hero->level))
+                    || (stratagem < hero->stratagem) || (power < hero->power) || (management < hero->management))
                 {
                     gserver.SendObject(client, gserver.CreateError("hero.addPoint", -99, "Invalid action."));
                     return;
                 }
-                hero->m_power = power;
-                hero->m_management = management;
-                hero->m_stratagem = stratagem;
-                hero->m_remainpoint = (hero->m_basemanagement + hero->m_basepower + hero->m_basestratagem + hero->m_level) - (stratagem + power + management);
+                hero->power = power;
+                hero->management = management;
+                hero->stratagem = stratagem;
+                hero->remainpoint = (hero->basemanagement + hero->basepower + hero->basestratagem + hero->level) - (stratagem + power + management);
 
-                city->HeroUpdate(city->m_heroes[i], 2);
+                city->HeroUpdate(city->heroes[i], 2);
                 city->CalculateResourceStats();
                 city->CalculateResources();
                 city->ResourceUpdate();
@@ -544,7 +544,7 @@ void phero::process()
 
                 gserver.SendObject(client, obj2);
 
-                city->m_heroes[i]->SaveToDB();
+                city->heroes[i]->SaveToDB();
 
                 return;
             }
@@ -562,20 +562,20 @@ void phero::process()
 
         for (int i = 0; i < 10; ++i)
         {
-            if (city->m_heroes[i] && city->m_heroes[i]->m_id == heroid)
+            if (city->heroes[i] && city->heroes[i]->id == heroid)
             {
-                Hero * hero = city->m_heroes[i];
-                if (hero->m_experience < hero->m_upgradeexp)
+                Hero * hero = city->heroes[i];
+                if (hero->experience < hero->upgradeexp)
                 {
                     gserver.SendObject(client, gserver.CreateError("hero.levelUp", -99, "Not enough experience."));
                     return;
                 }
 
-                hero->m_level++;
-                hero->m_remainpoint++;
+                hero->level++;
+                hero->remainpoint++;
 
-                hero->m_experience -= hero->m_upgradeexp;
-                hero->m_upgradeexp = hero->m_level * hero->m_level * 100;
+                hero->experience -= hero->upgradeexp;
+                hero->upgradeexp = hero->level * hero->level * 100;
 
                 city->HeroUpdate(hero, 2);
 
@@ -584,7 +584,7 @@ void phero::process()
 
                 gserver.SendObject(client, obj2);
 
-                city->m_heroes[i]->SaveToDB();
+                city->heroes[i]->SaveToDB();
 
                 return;
             }
@@ -614,7 +614,7 @@ void phero::process()
             data2["packageId"] = 0.0;
             int tempnum = 0;
             for (int i = 0; i < 10; ++i)
-                if (city->m_heroes[i])
+                if (city->heroes[i])
                     tempnum++;
             data2["posCount"] = city->GetBuildingLevel(B_FEASTINGHALL) - tempnum;
 
@@ -622,13 +622,13 @@ void phero::process()
 
             for (int i = 0; i < innlevel; ++i)
             {
-                if (city->m_innheroes[i])
+                if (city->innheroes[i])
                 {
-                    delete city->m_innheroes[i];
+                    delete city->innheroes[i];
                 }
 
-                city->m_innheroes[i] = gserver.CreateRandomHero(innlevel);
-                amf3object temphero = city->m_innheroes[i]->ToObject();
+                city->innheroes[i] = gserver.CreateRandomHero(innlevel);
+                amf3object temphero = city->innheroes[i]->ToObject();
                 heroes.Add(temphero);
             }
 

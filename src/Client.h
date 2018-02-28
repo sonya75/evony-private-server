@@ -108,7 +108,7 @@ public:
     uint32_t prestigerank;
     uint32_t honorrank;
     std::vector<PlayerCity*> citylist;// = new ArrayList();
-    int m_bdenyotherplayer;
+    int bdenyotherplayer;
     int tempvar;
     std::string allianceapply;
     int64_t allianceapplytime;

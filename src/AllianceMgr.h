@@ -86,10 +86,10 @@ public:
     Alliance * AllianceById(uint64_t id);
     Alliance * AllianceByName(std::string name);
 
-    Alliance * m_alliances[DEF_MAXALLIANCES];
+    Alliance * alliances[DEF_MAXALLIANCES];
 
-    std::list<stAlliance> m_membersrank;
-    std::list<stAlliance> m_prestigerank;
-    std::list<stAlliance> m_honorrank;
+    std::list<stAlliance> membersrank;
+    std::list<stAlliance> prestigerank;
+    std::list<stAlliance> honorrank;
 };
 

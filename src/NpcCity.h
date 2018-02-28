@@ -27,14 +27,14 @@ public:
         int32_t sword;
         int32_t archer;
         int32_t cavalry;
-    } m_troops, m_maxtroops;
+    } troops, maxtroops;
 
-    stForts m_maxforts;
+    stForts maxforts;
 
-    Hero * m_temphero;
+    Hero * temphero;
 
-    uint64_t m_calculatestuff;
+    uint64_t calculatestuff;
 
 
-    int32_t m_ownerid;
+    int32_t ownerid;
 };

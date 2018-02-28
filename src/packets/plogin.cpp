@@ -40,7 +40,7 @@ void plogin::process()
     std::string username = data["user"];
     std::string password = data["pwd"];
 
-    if (gserver.maxplayers <= gserver.currentplayersonline + 1)
+    if (gserver.maxplayers <= gserver.players_online + 1)
     {
         gserver.SendObject(req.conn, gserver.CreateError("server.LoginResponse", -99, "Servers are currently overloaded. Please try again later."));
         return;
@@ -125,7 +125,7 @@ void plogin::process()
             //client = gserver.GetClientByParent(parentid);
             if (client == nullptr)
             {
-                client = gserver.NewClient();
+                client = gserver.new_client();
                 client->masteraccountid = masteraccountid;
                 client->socknum = req.conn->uid;
                 client->socket = req.conn;
@@ -137,7 +137,7 @@ void plogin::process()
                 if (client->connected)
                 {
                     //player already logged on
-                    gserver.CloseClient(client, 3, "");//multiple people logging into the same account
+                    gserver.close_client(client, 3, "");//multiple people logging into the same account
                 }
                 //Login is valid
                 client->connected = true;
@@ -149,7 +149,7 @@ void plogin::process()
                     return;
                 }
                 client->lastlogin = logintime;
-                if (client->socket) gserver.CloseClient(client, 3, "");
+                if (client->socket) gserver.close_client(client, 3, "");
                 req.conn->client_ = client;
                 client->socket = req.conn;
                 client->socknum = req.conn->uid;
@@ -158,7 +158,7 @@ void plogin::process()
 
                 if (client->email == "Daisy")
                 {
-                    client->m_bdenyotherplayer = true;
+                    client->bdenyotherplayer = true;
                     client->icon = 7;
                 }
             }
@@ -223,7 +223,7 @@ void plogin::process()
                     client->cents = 5000;
 
                     data["player"] = client->ToObject();
-                    //UNLOCK(M_CLIENTLIST);
+                    //UNLOCK(CLIENTLIST);
 
                     if (client->citylist.size() == 0)
                     {
@@ -232,7 +232,7 @@ void plogin::process()
                         gserver.SendObject(client, gserver.CreateError("server.LoginResponse", -99, "Error with connecting. Please contact support."));
                         return;
                     }
-                    client->currentcityid = ((PlayerCity*)client->citylist.at(0))->m_castleid;
+                    client->currentcityid = ((PlayerCity*)client->citylist.at(0))->castleid;
                     client->currentcityindex = 0;
                     client->accountexists = true;
 
@@ -276,7 +276,7 @@ void plogin::process()
 
                     client->loggedin = true;
 
-                    gserver.currentplayersonline++;
+                    gserver.players_online++;
                     client->SaveToDB();
 
                     uint32_t tc = 0;

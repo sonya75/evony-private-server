@@ -62,7 +62,7 @@ Client::Client()
     population = 0;
     cents = 0;
     office = "Civilian";
-    m_bdenyotherplayer = false;
+    bdenyotherplayer = false;
     masteraccountid = 0;
     icon = 0;
     haschangedface = false;
@@ -71,30 +71,30 @@ Client::Client()
     allianceapplytime = 0;
 
     currentcityid = currentcityindex = -1;
-    //m_city;// = new ArrayList();
+    //city;// = new ArrayList();
 
-    //memset(&m_buffs, 0, sizeof(m_buffs));
+    //memset(&buffs, 0, sizeof(buffs));
 //     memset(&research, 0, sizeof(research));
-    //memset(&m_items, 0, sizeof(m_items));
+    //memset(&items, 0, sizeof(items));
 
 //     itemlist.resize(30);
     debugmode = false;
     //     for (int i = 0; i < 30; ++i)
     //     {
-    //         m_buffs[i].endtime = 0.0;
-    //         m_buffs[i].id = "";
+    //         buffs[i].endtime = 0.0;
+    //         buffs[i].id = "";
     //     }
 }
 
 Client::~Client(void)
 {
-    //    for (int i = 0; i < m_city.size(); ++i)
-    //        delete (City*)m_city.at(i);
+    //    for (int i = 0; i < city.size(); ++i)
+    //        delete (City*)city.at(i);
 }
 
 Alliance * Client::GetAlliance()
 {
-    return spitfire::GetSingleton().m_alliances->AllianceById(allianceid);
+    return spitfire::GetSingleton().alliances->AllianceById(allianceid);
     //return 0;//TODO: FIX
 };
 
@@ -237,31 +237,31 @@ amf3object  Client::ToObject()
         timeinfo = localtime(&ttime);
 
         std::stringstream ss;
-        ss << (timeinfo->tm_year + 1900) << ".";
-        if (timeinfo->tm_mon < 9)
-            ss << "0" << (timeinfo->tm_mon + 1);
+        ss << (timeinfo->tyear + 1900) << ".";
+        if (timeinfo->tmon < 9)
+            ss << "0" << (timeinfo->tmon + 1);
         else
-            ss << (timeinfo->tm_mon + 1);
+            ss << (timeinfo->tmon + 1);
         ss << ".";
-        if (timeinfo->tm_mday < 10)
-            ss << "0" << timeinfo->tm_mday;
+        if (timeinfo->tmday < 10)
+            ss << "0" << timeinfo->tmday;
         else
-            ss << timeinfo->tm_mday;
+            ss << timeinfo->tmday;
         ss << " ";
-        if (timeinfo->tm_hour < 10)
-            ss << "0" << timeinfo->tm_hour;
+        if (timeinfo->thour < 10)
+            ss << "0" << timeinfo->thour;
         else
-            ss << timeinfo->tm_hour;
+            ss << timeinfo->thour;
         ss << ".";
-        if (timeinfo->tm_min < 10)
-            ss << "0" << timeinfo->tm_min;
+        if (timeinfo->tmin < 10)
+            ss << "0" << timeinfo->tmin;
         else
-            ss << timeinfo->tm_min;
+            ss << timeinfo->tmin;
         ss << ".";
-        if (timeinfo->tm_sec < 10)
-            ss << "0" << timeinfo->tm_sec;
+        if (timeinfo->tsec < 10)
+            ss << "0" << timeinfo->tsec;
         else
-            ss << timeinfo->tm_sec;
+            ss << timeinfo->tsec;
 
         s = ss.str();
     }
@@ -350,34 +350,34 @@ amf3array Client::SaleTypeItems()
 
     for (int i = 0; i < DEF_MAXITEMS; ++i)
     {
-        if (spitfire::GetSingleton().m_items[i].buyable)
+        if (spitfire::GetSingleton().items[i].buyable)
         {
-            if (spitfire::GetSingleton().m_items[i].type == 1)//speed up tab
+            if (spitfire::GetSingleton().items[i].type == 1)//speed up tab
             {
                 if (count1)
                     ss1 << "#";
-                ss1 << spitfire::GetSingleton().m_items[i].name;
+                ss1 << spitfire::GetSingleton().items[i].name;
                 count1 = true;
             }
-            else if (spitfire::GetSingleton().m_items[i].type == 2)//chest tab
+            else if (spitfire::GetSingleton().items[i].type == 2)//chest tab
             {
                 if (count2)
                     ss2 << "#";
-                ss2 << spitfire::GetSingleton().m_items[i].name;
+                ss2 << spitfire::GetSingleton().items[i].name;
                 count2 = true;
             }
-            else if (spitfire::GetSingleton().m_items[i].type == 3)//produce tab
+            else if (spitfire::GetSingleton().items[i].type == 3)//produce tab
             {
                 if (count3)
                     ss3 << "#";
-                ss3 << spitfire::GetSingleton().m_items[i].name;
+                ss3 << spitfire::GetSingleton().items[i].name;
                 count3 = true;
             }
-            else if (spitfire::GetSingleton().m_items[i].type == 4)//items tab
+            else if (spitfire::GetSingleton().items[i].type == 4)//items tab
             {
                 if (count4)
                     ss4 << "#";
-                ss4 << spitfire::GetSingleton().m_items[i].name;
+                ss4 << spitfire::GetSingleton().items[i].name;
                 count4 = true;
             }
         }
@@ -466,8 +466,8 @@ amf3array Client::SaleItems()
 amf3array Client::CastleArray()
 {
     //     Amf3Array array = new Amf3Array();
-    //     for (int i = 0; i < m_citycount; ++i)
-    //         array.DenseArray.Add(((City)m_city[i]).ToObject());
+    //     for (int i = 0; i < citycount; ++i)
+    //         array.DenseArray.Add(((City)city[i]).ToObject());
     //     return array;
     amf3array array = amf3array();
     for (int32_t i = 0; i < citycount; ++i)
@@ -534,7 +534,7 @@ amf3object Client::PlayerInfo()
     amf3object obj = amf3object();
     if (allianceid > 0)
     {
-        obj["alliance"] = "";// spitfire::GetSingleton().m_alliances->AllianceById(allianceid)->m_name;
+        obj["alliance"] = "";// spitfire::GetSingleton().alliances->AllianceById(allianceid)->name;
         obj["allianceLevel"] = 0;// AllianceMgr::GetAllianceRank(alliancerank);
         obj["levelId"] = alliancerank;
     }
@@ -542,7 +542,7 @@ amf3object Client::PlayerInfo()
     obj["office"] = office;
     obj["sex"] = sex;
     obj["honor"] = honor;
-    obj["bdenyotherplayer"] = m_bdenyotherplayer;
+    obj["bdenyotherplayer"] = bdenyotherplayer;
     obj["id"] = accountid;
     obj["accountName"] = email;
     obj["prestige"] = prestige;
@@ -558,7 +558,7 @@ amf3object Client::PlayerInfo()
     population = 0;
 
     for (int i = 0; i < citycount; ++i)
-        population += ((PlayerCity*)citylist.at(i))->m_population;
+        population += ((PlayerCity*)citylist.at(i))->population;
 
     obj["population"] = population;
     return obj;
@@ -664,9 +664,9 @@ void Client::ParseCastleSign(std::string str)
         {
             stCastleSign cst;
             tile = spitfire::GetSingleton().map->GetTileFromID(atoi(t.c_str()));
-            if (tile->m_type == CASTLE)
+            if (tile->type == CASTLE)
             {
-                cst.id = tile->m_castleid;
+                cst.id = tile->castleid;
                 cst.name = tile->GetName();
                 short yfromid = short(atoi(t.c_str()) / spitfire::GetSingleton().map->mapsize);
                 short xfromid = short(atoi(t.c_str()) % spitfire::GetSingleton().map->mapsize);
@@ -722,7 +722,7 @@ PlayerCity * Client::GetCity(int64_t castleid)
 {
     for (int32_t i = 0; i < citycount; ++i)
     {
-        if (citylist[i]->m_castleid == castleid)
+        if (citylist[i]->castleid == castleid)
             return citylist[i];
     }
     return nullptr;
@@ -828,7 +828,7 @@ int64_t Client::GetItemCount(int16_t type)
 {
     if (type < 0 || type > DEF_MAXITEMS)
         return 0;
-    return GetItemCount(spitfire::GetSingleton().m_items[type].name);
+    return GetItemCount(spitfire::GetSingleton().items[type].name);
 }
  
 int16_t Client::GetResearchLevel(int16_t id)
@@ -840,7 +840,7 @@ void Client::CalculateResources()
 {
     population = 0;
     for (int i = 0; i < citycount; ++i)
-        population += ((PlayerCity*)citylist.at(i))->m_population;
+        population += ((PlayerCity*)citylist.at(i))->population;
 
     for (int i = 0; i < citylist.size(); ++i)
     {
@@ -960,9 +960,9 @@ void Client::HeroUpdate(int heroid, int castleid)
     {
         for (int k = 0; k < 10; ++k)
         {
-            if (citylist[i]->m_heroes[k]->m_id == heroid)
+            if (citylist[i]->heroes[k]->id == heroid)
             {
-                data["hero"] = citylist[i]->m_heroes[k]->ToObject();
+                data["hero"] = citylist[i]->heroes[k]->ToObject();
                 spitfire::GetSingleton().SendObject(this, obj);
                 return;
             }

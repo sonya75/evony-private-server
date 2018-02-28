@@ -50,7 +50,7 @@ void pcommon::process()
             data3["msg"] = "<font color=\"#FF0000\">" + (std::string)data["msg"] + "</font>";
         else
         {
-            if (client->HasAlliance() && client->GetAlliance()->m_prestigerank == 1)
+            if (client->HasAlliance() && client->GetAlliance()->prestigerank == 1)
                 data3["msg"] = "<font color=\"#0066FF\">" + (std::string)data["msg"] + "</font>";
             else
                 data3["msg"] = data["msg"];
@@ -75,7 +75,7 @@ void pcommon::process()
     }
     if (command == "privateChat")
     {
-        Client * clnt = gserver.GetClientByName(data["targetName"]);
+        Client * clnt = gserver.get_client_by_name(data["targetName"]);
         if (!clnt)
         {
             gserver.SendObject(client, gserver.CreateError("common.privateChat", -41, "Player " + (std::string)data["targetName"] + " doesn't exist."));
@@ -115,7 +115,7 @@ void pcommon::process()
             data3["msg"] = "<font color=\"#FF0000\">" + (std::string)data["sendMsg"] + "</font>";
         else
         {
-            if (client->HasAlliance() && client->GetAlliance()->m_prestigerank == 1)
+            if (client->HasAlliance() && client->GetAlliance()->prestigerank == 1)
                 data3["msg"] = "<font color=\"#0066FF\">" + (std::string)data["sendMsg"] + "</font>";
             else
                 data3["msg"] = data["sendMsg"];
@@ -169,9 +169,9 @@ void pcommon::process()
 
         if (gserver.ParseChat(client, data["msg"]))
         {
-            for (Alliance::stMember & member : alliance->m_members)
+            for (Alliance::stMember & member : alliance->members)
             {
-                gserver.SendObject(gserver.GetClient(member.clientid), obj3);
+                gserver.SendObject(gserver.get_client(member.clientid), obj3);
             }
         }
         return;
@@ -189,7 +189,7 @@ void pcommon::process()
         obj2["cmd"] = "common.mapInfoSimple";
         try
         {
-            obj2["data"] = gserver.map->GetTileRangeObject(req.conn->client_->accountid, x1, x2, y1, y2);
+            obj2["data"] = gserver.game_map->GetTileRangeObject(req.conn->client_->accountid, x1, x2, y1, y2);
         }
         catch (...)
         {
@@ -210,10 +210,10 @@ void pcommon::process()
         {
             amf3object zone = amf3object();
             zone["id"] = i;
-            zone["rate"] = gserver.map->m_stats[i].playerrate;
-            zone["name"] = gserver.map->states[i];
-            zone["playerCount"] = gserver.map->m_stats[i].players;
-            zone["castleCount"] = gserver.map->m_stats[i].numbercities;
+            zone["rate"] = gserver.game_map->stats[i].playerrate;
+            zone["name"] = gserver.game_map->states[i];
+            zone["playerCount"] = gserver.game_map->stats[i].players;
+            zone["castleCount"] = gserver.game_map->stats[i].numbercities;
             amfarray.Add(zone);
         }
         data2["zones"] = amfarray;
@@ -356,7 +356,7 @@ void pcommon::process()
         data2["itemXml"] = s;
 
 
-        //gserver.m_itemxml;
+        //gserver.itemxml;
 
         gserver.SendObject(client, obj2);
         return;
@@ -406,18 +406,18 @@ void pcommon::process()
         //else
         {
             //see if state can support a new city
-            if (gserver.map->m_openflats[zone] > 0)
+            if (gserver.game_map->openflats[zone] > 0)
             {
-                gserver.map->m_openflats[zone]--;
+                gserver.game_map->openflats[zone]--;
                 //create new account, create new city, then send account details
 
                 char tempc[50];
-                int randomid = gserver.map->GetRandomOpenTile(zone);
+                int randomid = gserver.game_map->GetRandomOpenTile(zone);
                 int mapsize = gserver.mapsize;
                 GETXYFROMID(randomid);
                 int x = xfromid;
                 int y = yfromid;
-                if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != -1)
+                if (gserver.game_map->tile[randomid].type != FLAT || gserver.game_map->tile[randomid].ownerid != -1)
                 {
                     gserver.log->error("Error. Flat not empty!");
                     gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -25, "Error with account creation. #-25"));
@@ -469,7 +469,7 @@ void pcommon::process()
 
                     //res2 = gserver.sql2->QueryRes("SELECT LAST_INSERT_ID()");
                     //res2->next();
-                    //client->m_accountid = res2->getInt(1);
+                    //client->accountid = res2->getInt(1);
                     //delete res2;
                 }
                 client->accountexists = true;
@@ -481,7 +481,7 @@ void pcommon::process()
 
                 //                     if (!gserver.sql2->Query("INSERT INTO `cities` (`accountid`,`misc`,`fieldid`,`name`,`buildings`,`gold`,`food`,`wood`,`iron`,`stone`,`creation`,`transingtrades`,`troop`,`fortification`,`trades`) \
                                                         //                                  VALUES ("XI64", '%s',%d, '%s', '%s',100000,100000,100000,100000,100000,"DBL",'','','','');",
-                //                                  client->m_accountid, (char*)temp.c_str(), randomid, castleName, "31,1,-1,0,0.000000,0.000000", (double)unixtime()))
+                //                                  client->accountid, (char*)temp.c_str(), randomid, castleName, "31,1,-1,0,0.000000,0.000000", (double)unixtime()))
                 Session ses(gserver.serverpool->get());
                 uint64_t nixtime = Utils::time();
                 int32_t zero = 0;
@@ -527,12 +527,12 @@ void pcommon::process()
                 //res->next();
 
                 city->ParseBuildings("31,1,-1,0,0.000000,0.000000");
-                city->m_logurl = "images/icon/cityLogo/citylogo_01.png";
-                //city->m_accountid = client->m_accountid;
-                city->m_cityname = castlename2;
-                //city->m_tileid = randomid;
-                client->currentcityid = city->m_castleid;
-                city->m_creation = Utils::time();
+                city->logurl = "images/icon/cityLogo/citylogo_01.png";
+                //city->accountid = client->accountid;
+                city->cityname = castlename2;
+                //city->tileid = randomid;
+                client->currentcityid = city->castleid;
+                city->creation = Utils::time();
                 client->currentcityindex = 0;
                 city->SetResources(100000, 100000, 100000, 100000, 100000);
                 city->CalculateResources();
@@ -567,7 +567,7 @@ void pcommon::process()
                     client->SetItem("consume.1.a", 10000);
 
 
-                gserver.map->CalculateOpenTiles();
+                gserver.game_map->CalculateOpenTiles();
 
                 client->SaveToDB();
                 city->SaveToDB();

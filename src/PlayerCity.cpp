@@ -15,46 +15,46 @@
 using namespace Poco::Data::Keywords;
 
 
-PlayerCity::PlayerCity(): m_availablepopulation(0)
+PlayerCity::PlayerCity(): availablepopulation(0)
 {
-    m_client = nullptr;
-    m_castleid = 0;
-    m_accountid = 0;
-    memset(&m_troops, 0, sizeof(m_troops));
-    memset(&m_injuredtroops, 0, sizeof(m_injuredtroops));
-    memset(&m_maxresources, 0, sizeof(m_maxresources));
-    memset(&m_production, 0, sizeof(m_production));
-    memset(&m_workpopulation, 0, sizeof(m_workpopulation));
-    memset(&m_workrate, 0, sizeof(m_workrate));
-    memset(&m_storepercent, 0, sizeof(m_storepercent));
+    client = nullptr;
+    castleid = 0;
+    accountid = 0;
+    memset(&troops, 0, sizeof(troops));
+    memset(&injuredtroops, 0, sizeof(injuredtroops));
+    memset(&maxresources, 0, sizeof(maxresources));
+    memset(&production, 0, sizeof(production));
+    memset(&workpopulation, 0, sizeof(workpopulation));
+    memset(&workrate, 0, sizeof(workrate));
+    memset(&storepercent, 0, sizeof(storepercent));
 
-    m_population = 0;
-    m_maxpopulation = 50;
-    m_allowalliance = false;
-    m_gooutforbattle = false;
-    m_hasenemy = false;
-    m_creation = 0;
-    m_troopconsume = 0;
-    m_productionefficiency = 100;
+    population = 0;
+    maxpopulation = 50;
+    allowalliance = false;
+    gooutforbattle = false;
+    hasenemy = false;
+    creation = 0;
+    troopconsume = 0;
+    productionefficiency = 100;
 
 
-    m_resourcebaseproduction = 100;
-    m_resourcemanagement = 0;
-    m_resourcetech = 0;
-    m_resourcevalley = 0;
+    resourcebaseproduction = 100;
+    resourcemanagement = 0;
+    resourcetech = 0;
+    resourcevalley = 0;
 
-    m_logurl = "images/icon/cityLogo/citylogo_01.png";
+    logurl = "images/icon/cityLogo/citylogo_01.png";
 
     for (auto i = 0; i < 10; ++i)
     {
-        m_heroes[i] = nullptr;
-        m_innheroes[i] = nullptr;
+        heroes[i] = nullptr;
+        innheroes[i] = nullptr;
     }
 
-    m_mayor = nullptr;
-    m_lastcomfort = 0;
-    m_lastlevy = 0;
-    m_researching = false;
+    mayor = nullptr;
+    lastcomfort = 0;
+    lastlevy = 0;
+    researching = false;
 }
 
 PlayerCity::~PlayerCity(void)
@@ -66,13 +66,13 @@ bool PlayerCity::SaveToDB()
     using CitySave = Poco::Tuple<std::string, int8_t, bool, std::string, int32_t, std::string, std::string, std::string, std::string, std::string, std::string, std::string, bool, bool, double, double, double, double, double>;
 
 
-    CitySave savedata(DBMisc(), m_status, m_allowalliance, m_logurl, m_tileid, DBTransingtrades(), DBTroops(), DBTroopQueues(), m_cityname, DBBuildings(), DBFortifications(), DBTrades(), m_gooutforbattle, m_hasenemy, m_resources.gold, m_resources.food, m_resources.wood, m_resources.iron, m_resources.stone);
+    CitySave savedata(DBMisc(), status, allowalliance, logurl, tileid, DBTransingtrades(), DBTroops(), DBTroopQueues(), cityname, DBBuildings(), DBFortifications(), DBTrades(), gooutforbattle, hasenemy, resources.gold, resources.food, resources.wood, resources.iron, resources.stone);
 
 
     try
     {
         auto ses(spitfire::GetSingleton().serverpool->get());
-        ses << "UPDATE `cities` SET misc=?,status=?,allowalliance=?,logurl=?,fieldid=?,transingtrades=?,troop=?,troopqueues=?,name=?,buildings=?,fortification=?,trades=?,gooutforbattle=?,hasenemy=?,gold=?,food=?,wood=?,iron=?,stone=? WHERE id=?;", use(savedata), use(this->m_castleid), now;
+        ses << "UPDATE `cities` SET misc=?,status=?,allowalliance=?,logurl=?,fieldid=?,transingtrades=?,troop=?,troopqueues=?,name=?,buildings=?,fortification=?,trades=?,gooutforbattle=?,hasenemy=?,gold=?,food=?,wood=?,iron=?,stone=? WHERE id=?;", use(savedata), use(this->castleid), now;
         return true;
     }
     SQLCATCH3(0, spitfire::GetSingleton());
@@ -85,7 +85,7 @@ std::string PlayerCity::DBTroopQueues() const
     std::stringstream ss;
     std::vector<Poco::Any> z;
     std::string res;
-    for (const stTroopQueue& x : m_troopqueue) {
+    for (const stTroopQueue& x : troopqueue) {
         if (x.queue.size() == 0) continue;
         ss << "%?d,%?f";
         z.emplace_back(x.positionid);
@@ -167,27 +167,27 @@ std::string PlayerCity::DBBuildings() const
 
     for (auto i = -2; i < 32; ++i)
     {
-        if (m_innerbuildings[i + 2].type > 0)
+        if (innerbuildings[i + 2].type > 0)
         {
-            args.emplace_back(m_innerbuildings[i + 2].type);
-            args.emplace_back(m_innerbuildings[i + 2].level);
-            args.emplace_back(m_innerbuildings[i + 2].id);
-            args.emplace_back(m_innerbuildings[i + 2].status);
-            args.emplace_back(m_innerbuildings[i + 2].starttime);
-            args.emplace_back(m_innerbuildings[i + 2].endtime);
+            args.emplace_back(innerbuildings[i + 2].type);
+            args.emplace_back(innerbuildings[i + 2].level);
+            args.emplace_back(innerbuildings[i + 2].id);
+            args.emplace_back(innerbuildings[i + 2].status);
+            args.emplace_back(innerbuildings[i + 2].starttime);
+            args.emplace_back(innerbuildings[i + 2].endtime);
             ss << "%?d,%?d,%?d,%?d,%f,%f|";
         }
     }
     for (auto i = 0; i < 41; ++i)
     {
-        if (m_outerbuildings[i].type > 0)
+        if (outerbuildings[i].type > 0)
         {
-            args.emplace_back(m_outerbuildings[i].type);
-            args.emplace_back(m_outerbuildings[i].level);
-            args.emplace_back(m_outerbuildings[i].id);
-            args.emplace_back(m_outerbuildings[i].status);
-            args.emplace_back(m_outerbuildings[i].starttime);
-            args.emplace_back(m_outerbuildings[i].endtime);
+            args.emplace_back(outerbuildings[i].type);
+            args.emplace_back(outerbuildings[i].level);
+            args.emplace_back(outerbuildings[i].id);
+            args.emplace_back(outerbuildings[i].status);
+            args.emplace_back(outerbuildings[i].starttime);
+            args.emplace_back(outerbuildings[i].endtime);
             ss << "%?d,%?d,%?d,%?d,%f,%f|";
         }
     }
@@ -211,27 +211,27 @@ std::string PlayerCity::DBTroops() const
     std::string res;
     std::vector<Poco::Any> args;
     args.emplace_back(TR_ARCHER);
-    args.emplace_back(m_troops.archer);
+    args.emplace_back(troops.archer);
     args.emplace_back(TR_WORKER);
-    args.emplace_back(m_troops.worker);
+    args.emplace_back(troops.worker);
     args.emplace_back(TR_WARRIOR);
-    args.emplace_back(m_troops.warrior);
+    args.emplace_back(troops.warrior);
     args.emplace_back(TR_SCOUT);
-    args.emplace_back(m_troops.scout);
+    args.emplace_back(troops.scout);
     args.emplace_back(TR_PIKE);
-    args.emplace_back(m_troops.pike);
+    args.emplace_back(troops.pike);
     args.emplace_back(TR_SWORDS);
-    args.emplace_back(m_troops.sword);
+    args.emplace_back(troops.sword);
     args.emplace_back(TR_TRANSPORTER);
-    args.emplace_back(m_troops.transporter);
+    args.emplace_back(troops.transporter);
     args.emplace_back(TR_RAM);
-    args.emplace_back(m_troops.ram);
+    args.emplace_back(troops.ram);
     args.emplace_back(TR_CATAPULT);
-    args.emplace_back(m_troops.catapult);
+    args.emplace_back(troops.catapult);
     args.emplace_back(TR_CAVALRY);
-    args.emplace_back(m_troops.cavalry);
+    args.emplace_back(troops.cavalry);
     args.emplace_back(TR_CATAPHRACT);
-    args.emplace_back(m_troops.cataphract);
+    args.emplace_back(troops.cataphract);
     Poco::format(res, "%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d|%?d,%?d", args);
     return res;
 }
@@ -240,11 +240,11 @@ std::string PlayerCity::DBFortifications() const
 {
     std::string res;
     std::vector<Poco::Any> args;
-    args.emplace_back(m_forts.traps);
-    args.emplace_back(m_forts.abatis);
-    args.emplace_back(m_forts.towers);
-    args.emplace_back(m_forts.logs);
-    args.emplace_back(m_forts.trebs);
+    args.emplace_back(forts.traps);
+    args.emplace_back(forts.abatis);
+    args.emplace_back(forts.towers);
+    args.emplace_back(forts.logs);
+    args.emplace_back(forts.trebs);
     Poco::format(res, "%?d,%?d,%?d,%?d,%?d", args);
     return res;
 }
@@ -253,15 +253,15 @@ std::string PlayerCity::DBMisc() const
 {
     std::string res;
     std::vector<Poco::Any> args;
-    args.emplace_back(m_population);
-    args.emplace_back(m_workrate.gold);
-    args.emplace_back(m_workrate.food);
-    args.emplace_back(m_workrate.wood);
-    args.emplace_back(m_workrate.iron);
-    args.emplace_back(m_workrate.stone);
-    args.emplace_back((int32_t)m_loyalty);
-    args.emplace_back((int32_t)m_grievance);
-    args.emplace_back(m_timers.updateresources);
+    args.emplace_back(population);
+    args.emplace_back(workrate.gold);
+    args.emplace_back(workrate.food);
+    args.emplace_back(workrate.wood);
+    args.emplace_back(workrate.iron);
+    args.emplace_back(workrate.stone);
+    args.emplace_back((int32_t)loyalty);
+    args.emplace_back((int32_t)grievance);
+    args.emplace_back(timers.updateresources);
     Poco::format(res, "%?d,%?f,%?f,%?f,%?f,%?f,%?d,%?d,%?f", args);
     return res;
 }
@@ -270,19 +270,19 @@ void PlayerCity::SetForts(int32_t type, int32_t count)
     switch (type)
     {
     case TR_TRAP:
-        m_forts.traps += count;
+        forts.traps += count;
         break;
     case TR_ABATIS:
-        m_forts.abatis += count;
+        forts.abatis += count;
         break;
     case TR_ARCHERTOWER:
-        m_forts.towers += count;
+        forts.towers += count;
         break;
     case TR_ROLLINGLOG:
-        m_forts.logs += count;
+        forts.logs += count;
         break;
     case TR_TREBUCHET:
-        m_forts.trebs += count;
+        forts.trebs += count;
         break;
     }
     FortUpdate();
@@ -293,16 +293,16 @@ amf3object PlayerCity::ToObject()
     //obj["heroes"] = HeroArray();
     obj["buildingQueues"] = amf3array();
     obj["heros"] = HeroArray();
-    obj["status"] = m_status;
+    obj["status"] = status;
     obj["allowAlliance"] = false;
     obj["resource"] = Resources();
-    obj["logUrl"] = m_logurl;
-    obj["fieldId"] = m_tileid;
+    obj["logUrl"] = logurl;
+    obj["fieldId"] = tileid;
     obj["usePACIFY_SUCCOUR_OR_PACIFY_PRAY"] = 1;//Unknown value (was set to 1)
     obj["transingTrades"] = amf3array();
     obj["troop"] = Troops();
-    obj["id"] = m_castleid;
-    obj["name"] = m_cityname;
+    obj["id"] = castleid;
+    obj["name"] = cityname;
     obj["buildings"] = Buildings();
     obj["fortification"] = Fortifications();
     obj["trades"] = amf3array();
@@ -315,7 +315,7 @@ amf3object PlayerCity::ToObject()
 amf3array PlayerCity::HeroArray()
 {
     amf3array array = amf3array();
-    for (auto & hero : m_heroes)
+    for (auto & hero : heroes)
     {
         if (hero)
         {
@@ -329,60 +329,60 @@ amf3array PlayerCity::HeroArray()
 amf3object PlayerCity::Resources()
 {
     amf3object obj = amf3object();
-    obj["maxPopulation"] = m_maxpopulation;
-    obj["taxIncome"] = m_production.gold;
-    obj["support"] = m_loyalty;
+    obj["maxPopulation"] = maxpopulation;
+    obj["taxIncome"] = production.gold;
+    obj["support"] = loyalty;
     //obj["wood"] = amf3object();
 
     amf3object wood = amf3object();
-    wood["amount"] = m_resources.wood;
-    wood["storeRercent"] = (int)m_storepercent.wood;
-    wood["workPeople"] = (int)m_workpopulation.wood;
-    wood["max"] = (int)m_maxresources.wood;
-    wood["increaseRate"] = (m_production.wood*(m_productionefficiency / 100)) * (1 + (m_resourcemanagement / 100)) + m_resourcebaseproduction;
+    wood["amount"] = resources.wood;
+    wood["storeRercent"] = (int)storepercent.wood;
+    wood["workPeople"] = (int)workpopulation.wood;
+    wood["max"] = (int)maxresources.wood;
+    wood["increaseRate"] = (production.wood*(productionefficiency / 100)) * (1 + (resourcemanagement / 100)) + resourcebaseproduction;
     obj["wood"] = wood;
 
     amf3object stone = amf3object();
-    stone["amount"] = m_resources.stone;
-    stone["storeRercent"] = (int)m_storepercent.stone;
-    stone["workPeople"] = (int)m_workpopulation.stone;
-    stone["max"] = (int)m_maxresources.stone;
-    stone["increaseRate"] = (m_production.stone*(m_productionefficiency / 100)) * (1 + (m_resourcemanagement / 100)) + m_resourcebaseproduction;
+    stone["amount"] = resources.stone;
+    stone["storeRercent"] = (int)storepercent.stone;
+    stone["workPeople"] = (int)workpopulation.stone;
+    stone["max"] = (int)maxresources.stone;
+    stone["increaseRate"] = (production.stone*(productionefficiency / 100)) * (1 + (resourcemanagement / 100)) + resourcebaseproduction;
     obj["stone"] = stone;
 
     amf3object iron = amf3object();
-    iron["amount"] = m_resources.iron;
-    iron["storeRercent"] = (int)m_storepercent.iron;
-    iron["workPeople"] = (int)m_workpopulation.iron;
-    iron["max"] = (int)m_maxresources.iron;
-    iron["increaseRate"] = (m_production.iron*(m_productionefficiency / 100)) * (1 + (m_resourcemanagement / 100)) + m_resourcebaseproduction;
+    iron["amount"] = resources.iron;
+    iron["storeRercent"] = (int)storepercent.iron;
+    iron["workPeople"] = (int)workpopulation.iron;
+    iron["max"] = (int)maxresources.iron;
+    iron["increaseRate"] = (production.iron*(productionefficiency / 100)) * (1 + (resourcemanagement / 100)) + resourcebaseproduction;
     obj["iron"] = iron;
 
     amf3object food = amf3object();
-    food["amount"] = m_resources.food;
-    food["storeRercent"] = (int)m_storepercent.food;
-    food["workPeople"] = (int)m_workpopulation.food;
-    food["max"] = (int)m_maxresources.food;
-    food["increaseRate"] = (m_production.food*(m_productionefficiency / 100)) * (1 + (m_resourcemanagement / 100)) - m_troopconsume + m_resourcebaseproduction;
+    food["amount"] = resources.food;
+    food["storeRercent"] = (int)storepercent.food;
+    food["workPeople"] = (int)workpopulation.food;
+    food["max"] = (int)maxresources.food;
+    food["increaseRate"] = (production.food*(productionefficiency / 100)) * (1 + (resourcemanagement / 100)) - troopconsume + resourcebaseproduction;
     obj["food"] = food;
 
     obj["buildPeople"] = 0;// TODO: what is this
-    obj["workPeople"] = int(m_workpopulation.food*m_workrate.food / 100 + m_workpopulation.wood*m_workrate.wood / 100 + m_workpopulation.stone*m_workrate.stone / 100 + m_workpopulation.iron*m_workrate.iron / 100);
-    obj["curPopulation"] = m_population;
+    obj["workPeople"] = int(workpopulation.food*workrate.food / 100 + workpopulation.wood*workrate.wood / 100 + workpopulation.stone*workrate.stone / 100 + workpopulation.iron*workrate.iron / 100);
+    obj["curPopulation"] = population;
     int32_t herosalary = 0;
-    for (auto & hero : m_heroes)
+    for (auto & hero : heroes)
         if (hero)
-            herosalary += hero->m_level * 20;
+            herosalary += hero->level * 20;
     obj["herosSalary"] = herosalary;
-    obj["troopCostFood"] = m_troopconsume;
-    obj["gold"] = m_resources.gold;
-    obj["texRate"] = (int32_t)m_workrate.gold;
-    obj["complaint"] = m_grievance;
-    int32_t targetpopulation = (m_maxpopulation * (double(((m_loyalty + m_grievance) > 100) ? 100 : (m_loyalty + m_grievance)) / 100));
-    //int targetpopulation = (m_maxpopulation * ((m_workrate.gold)/100));
-    if (m_population > targetpopulation)
+    obj["troopCostFood"] = troopconsume;
+    obj["gold"] = resources.gold;
+    obj["texRate"] = (int32_t)workrate.gold;
+    obj["complaint"] = grievance;
+    int32_t targetpopulation = (maxpopulation * (double(((loyalty + grievance) > 100) ? 100 : (loyalty + grievance)) / 100));
+    //int targetpopulation = (maxpopulation * ((workrate.gold)/100));
+    if (population > targetpopulation)
         obj["populationDirection"] = -1;
-    else if (m_population < targetpopulation)
+    else if (population < targetpopulation)
         obj["populationDirection"] = 1;
     else
         obj["populationDirection"] = 0;
@@ -393,50 +393,50 @@ amf3object PlayerCity::Resources()
 amf3object PlayerCity::Troops() const
 {
     amf3object obj = amf3object();
-    obj["peasants"] = m_troops.worker;
-    obj["archer"] = m_troops.archer;
-    obj["catapult"] = m_troops.catapult;
-    obj["ballista"] = m_troops.ballista;
-    obj["scouter"] = m_troops.scout;
-    obj["carriage"] = m_troops.transporter;
-    obj["heavyCavalry"] = m_troops.cataphract;
-    obj["militia"] = m_troops.warrior;
-    obj["lightCavalry"] = m_troops.cavalry;
-    obj["swordsmen"] = m_troops.sword;
-    obj["pikemen"] = m_troops.pike;
-    obj["batteringRam"] = m_troops.ram;
+    obj["peasants"] = troops.worker;
+    obj["archer"] = troops.archer;
+    obj["catapult"] = troops.catapult;
+    obj["ballista"] = troops.ballista;
+    obj["scouter"] = troops.scout;
+    obj["carriage"] = troops.transporter;
+    obj["heavyCavalry"] = troops.cataphract;
+    obj["militia"] = troops.warrior;
+    obj["lightCavalry"] = troops.cavalry;
+    obj["swordsmen"] = troops.sword;
+    obj["pikemen"] = troops.pike;
+    obj["batteringRam"] = troops.ram;
     return obj;
 }
 
 amf3object PlayerCity::InjuredTroops() const
 {
     amf3object obj = amf3object();
-    obj["peasants"] = m_injuredtroops.worker;
-    obj["archer"] = m_injuredtroops.archer;
-    obj["catapult"] = m_injuredtroops.catapult;
-    obj["ballista"] = m_injuredtroops.ballista;
-    obj["scouter"] = m_injuredtroops.scout;
-    obj["carriage"] = m_injuredtroops.transporter;
-    obj["heavyCavalry"] = m_injuredtroops.cataphract;
-    obj["militia"] = m_injuredtroops.warrior;
-    obj["lightCavalry"] = m_injuredtroops.cavalry;
-    obj["swordsmen"] = m_injuredtroops.sword;
-    obj["pikemen"] = m_injuredtroops.pike;
-    obj["batteringRam"] = m_injuredtroops.ram;
+    obj["peasants"] = injuredtroops.worker;
+    obj["archer"] = injuredtroops.archer;
+    obj["catapult"] = injuredtroops.catapult;
+    obj["ballista"] = injuredtroops.ballista;
+    obj["scouter"] = injuredtroops.scout;
+    obj["carriage"] = injuredtroops.transporter;
+    obj["heavyCavalry"] = injuredtroops.cataphract;
+    obj["militia"] = injuredtroops.warrior;
+    obj["lightCavalry"] = injuredtroops.cavalry;
+    obj["swordsmen"] = injuredtroops.sword;
+    obj["pikemen"] = injuredtroops.pike;
+    obj["batteringRam"] = injuredtroops.ram;
     return obj;
 }
 
 amf3array PlayerCity::Buildings() const
 {
     amf3array array = amf3array();
-    //for (int i = 0; i < m_buildings.Count; ++i)
+    //for (int i = 0; i < buildings.Count; ++i)
     {
         amf3object obj = amf3object();
         //age2?
         //obj["appearance"] = 96;
         //obj["help"] = 1;
 
-        for (const auto & innerbuilding : m_innerbuildings)
+        for (const auto & innerbuilding : innerbuildings)
         {
             if (innerbuilding.type > 0)
             {
@@ -451,7 +451,7 @@ amf3array PlayerCity::Buildings() const
                 array.Add(obj);
             }
         }
-        for (const auto & outerbuilding : m_outerbuildings)
+        for (const auto & outerbuilding : outerbuildings)
         {
             if (outerbuilding.type > 0)
             {
@@ -473,11 +473,11 @@ amf3array PlayerCity::Buildings() const
 amf3object PlayerCity::Fortifications() const
 {
     amf3object forts = amf3object();
-    forts["trap"] = m_forts.traps;
-    forts["rollingLogs"] = m_forts.logs;
-    forts["rockfall"] = m_forts.trebs;
-    forts["arrowTower"] = m_forts.towers;
-    forts["abatis"] = m_forts.abatis;
+    forts["trap"] = forts.traps;
+    forts["rollingLogs"] = forts.logs;
+    forts["rockfall"] = forts.trebs;
+    forts["arrowTower"] = forts.towers;
+    forts["abatis"] = forts.abatis;
 
     return forts;
 }
@@ -536,7 +536,7 @@ void PlayerCity::ParseBuildings(std::string str)
 
                 stTimedEvent te;
                 ba->city = this;
-                ba->client = this->m_client;
+                ba->client = this->client;
                 ba->positionid = position;
                 te.data = ba;
                 te.type = DEF_TIMEDBUILDING;
@@ -553,17 +553,17 @@ void PlayerCity::ParseBuildings(std::string str)
 
 void PlayerCity::CalculateStats()
 {
-    memset(&m_maxresources, 0, sizeof(m_maxresources));
-    memset(&m_production, 0, sizeof(m_production));
-    memset(&m_workpopulation, 0, sizeof(m_workpopulation));
+    memset(&maxresources, 0, sizeof(maxresources));
+    memset(&production, 0, sizeof(production));
+    memset(&workpopulation, 0, sizeof(workpopulation));
 
-    m_maxresources.food = 10000;
-    m_maxresources.wood = 10000;
-    m_maxresources.stone = 10000;
-    m_maxresources.iron = 10000;
-    m_maxpopulation = 50;
+    maxresources.food = 10000;
+    maxresources.wood = 10000;
+    maxresources.stone = 10000;
+    maxresources.iron = 10000;
+    maxpopulation = 50;
 
-    for (auto & innerbuilding : m_innerbuildings)
+    for (auto & innerbuilding : innerbuildings)
     {
         if (innerbuilding.type > 0)
         {
@@ -572,67 +572,67 @@ void PlayerCity::CalculateStats()
                 switch (innerbuilding.level)
                 {
                 case 1:
-                    m_maxpopulation += 100;
+                    maxpopulation += 100;
                     break;
                 case 2:
-                    m_maxpopulation += 300;
+                    maxpopulation += 300;
                     break;
                 case 3:
-                    m_maxpopulation += 600;
+                    maxpopulation += 600;
                     break;
                 case 4:
-                    m_maxpopulation += 1000;
+                    maxpopulation += 1000;
                     break;
                 case 5:
-                    m_maxpopulation += 1500;
+                    maxpopulation += 1500;
                     break;
                 case 6:
-                    m_maxpopulation += 2100;
+                    maxpopulation += 2100;
                     break;
                 case 7:
-                    m_maxpopulation += 2800;
+                    maxpopulation += 2800;
                     break;
                 case 8:
-                    m_maxpopulation += 3600;
+                    maxpopulation += 3600;
                     break;
                 case 9:
-                    m_maxpopulation += 4500;
+                    maxpopulation += 4500;
                     break;
                 case 10:
-                    m_maxpopulation += 5500;
+                    maxpopulation += 5500;
                     break;
                 }
             }
         }
     }
-    for (auto & outerbuilding : m_outerbuildings)
+    for (auto & outerbuilding : outerbuildings)
     {
         if (outerbuilding.type > 0)
         {
             double * pmax, *pprod, *pwork;
             if (outerbuilding.type == 7)
             {
-                pmax = &m_maxresources.food;
-                pprod = &m_production.food;
-                pwork = &m_workpopulation.food;
+                pmax = &maxresources.food;
+                pprod = &production.food;
+                pwork = &workpopulation.food;
             }
             else if (outerbuilding.type == 4)
             {
-                pmax = &m_maxresources.wood;
-                pprod = &m_production.wood;
-                pwork = &m_workpopulation.wood;
+                pmax = &maxresources.wood;
+                pprod = &production.wood;
+                pwork = &workpopulation.wood;
             }
             else if (outerbuilding.type == 5)
             {
-                pmax = &m_maxresources.stone;
-                pprod = &m_production.stone;
-                pwork = &m_workpopulation.stone;
+                pmax = &maxresources.stone;
+                pprod = &production.stone;
+                pwork = &workpopulation.stone;
             }
             else if (outerbuilding.type == 6)
             {
-                pmax = &m_maxresources.iron;
-                pprod = &m_production.iron;
-                pwork = &m_workpopulation.iron;
+                pmax = &maxresources.iron;
+                pprod = &production.iron;
+                pwork = &workpopulation.iron;
             }
             else
             {
@@ -694,24 +694,24 @@ void PlayerCity::CalculateStats()
         }
     }
 
-    m_production.food *= (m_workrate.food / 100);
-    m_production.wood *= (m_workrate.wood / 100);
-    m_production.stone *= (m_workrate.stone / 100);
-    m_production.iron *= (m_workrate.iron / 100);
+    production.food *= (workrate.food / 100);
+    production.wood *= (workrate.wood / 100);
+    production.stone *= (workrate.stone / 100);
+    production.iron *= (workrate.iron / 100);
 
-    int32_t workpop = (m_workrate.food*m_workpopulation.food / 100) + (m_workrate.stone*m_workpopulation.stone / 100) + (m_workrate.wood*m_workpopulation.wood / 100) + (m_workrate.iron*m_workpopulation.iron / 100);
-    m_availablepopulation = m_population - workpop;
-    m_productionefficiency = (m_population >= workpop) ? 100 : (float(m_population) / workpop * 100);
-    m_production.gold = double(m_population) * (m_workrate.gold / 100);
+    int32_t workpop = (workrate.food*workpopulation.food / 100) + (workrate.stone*workpopulation.stone / 100) + (workrate.wood*workpopulation.wood / 100) + (workrate.iron*workpopulation.iron / 100);
+    availablepopulation = population - workpop;
+    productionefficiency = (population >= workpop) ? 100 : (float(population) / workpop * 100);
+    production.gold = double(population) * (workrate.gold / 100);
 }
 
 void PlayerCity::CalculateResourceStats()
 {
     // TODO add resource production modifiers (tech and valley)
-    //     m_resourcebaseproduction = 100;
-    //     m_resourcemanagement = m_mayor!=0?(m_mayor->m_management+m_mayor->m_managementadded+m_mayor->m_managementbuffadded):0;
-    //     m_resourcetech = 0;
-    //     m_resourcevalley = 0;
+    //     resourcebaseproduction = 100;
+    //     resourcemanagement = mayor!=0?(mayor->management+mayor->managementadded+mayor->managementbuffadded):0;
+    //     resourcetech = 0;
+    //     resourcevalley = 0;
 }
 
 void PlayerCity::ParseMisc(std::string str)
@@ -725,39 +725,39 @@ void PlayerCity::ParseMisc(std::string str)
         char * tok;
         tok = strtok_s(str2, ",", &ch);
         assert(tok != 0);
-        m_population = (uint16_t)atoi(tok);
+        population = (uint16_t)atoi(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_workrate.gold = atof(tok);
+        workrate.gold = atof(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_workrate.food = atof(tok);
+        workrate.food = atof(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_workrate.wood = atof(tok);
+        workrate.wood = atof(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_workrate.iron = atof(tok);
+        workrate.iron = atof(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_workrate.stone = atof(tok);
+        workrate.stone = atof(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_loyalty = (int8_t)atoi(tok);
+        loyalty = (int8_t)atoi(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_grievance = (int8_t)atoi(tok);
+        grievance = (int8_t)atoi(tok);
 
         tok = strtok_s(0, ",", &ch);
         assert(tok != 0);
-        m_timers.updateresources = atof(tok);
+        timers.updateresources = atof(tok);
 
         delete[] str2;
     }
@@ -765,58 +765,58 @@ void PlayerCity::ParseMisc(std::string str)
 void PlayerCity::SetTroops(int8_t type, int64_t amount)
 {
     if (type == TR_ARCHER)
-        m_troops.archer += amount;
+        troops.archer += amount;
     else if (type == TR_WORKER)
-        m_troops.worker += amount;
+        troops.worker += amount;
     else if (type == TR_WARRIOR)
-        m_troops.warrior += amount;
+        troops.warrior += amount;
     else if (type == TR_SCOUT)
-        m_troops.scout += amount;
+        troops.scout += amount;
     else if (type == TR_PIKE)
-        m_troops.pike += amount;
+        troops.pike += amount;
     else if (type == TR_SWORDS)
-        m_troops.sword += amount;
+        troops.sword += amount;
     else if (type == TR_TRANSPORTER)
-        m_troops.transporter += amount;
+        troops.transporter += amount;
     else if (type == TR_RAM)
-        m_troops.ram += amount;
+        troops.ram += amount;
     else if (type == TR_CATAPULT)
-        m_troops.catapult += amount;
+        troops.catapult += amount;
     else if (type == TR_BALLISTA)
-        m_troops.ballista += amount;
+        troops.ballista += amount;
     else if (type == TR_CAVALRY)
-        m_troops.cavalry += amount;
+        troops.cavalry += amount;
     else if (type == TR_CATAPHRACT)
-        m_troops.cataphract += amount;
+        troops.cataphract += amount;
     TroopUpdate();
 }
 
 int64_t PlayerCity::GetTroops(int8_t type) const
 {
     if (type == TR_ARCHER)
-        return m_troops.archer;
+        return troops.archer;
     else if (type == TR_WORKER)
-        return m_troops.worker;
+        return troops.worker;
     else if (type == TR_WARRIOR)
-        return m_troops.warrior;
+        return troops.warrior;
     else if (type == TR_SCOUT)
-        return m_troops.scout;
+        return troops.scout;
     else if (type == TR_PIKE)
-        return m_troops.pike;
+        return troops.pike;
     else if (type == TR_SWORDS)
-        return m_troops.sword;
+        return troops.sword;
     else if (type == TR_TRANSPORTER)
-        return m_troops.transporter;
+        return troops.transporter;
     else if (type == TR_RAM)
-        return m_troops.ram;
+        return troops.ram;
     else if (type == TR_CATAPULT)
-        return m_troops.catapult;
+        return troops.catapult;
     else if (type == TR_CAVALRY)
-        return m_troops.cavalry;
+        return troops.cavalry;
     else if (type == TR_CATAPHRACT)
-        return m_troops.cataphract;
+        return troops.cataphract;
     else if (type==TR_BALLISTA)
-        return m_troops.ballista;
+        return troops.ballista;
     return 0;
 }
 /*
@@ -924,12 +924,12 @@ void PlayerCity::ParseFortifications(std::string str)
 int16_t PlayerCity::GetBuildingLevel(int16_t id)
 {
     int level = 0;
-    for (auto & innerbuilding : m_innerbuildings)
+    for (auto & innerbuilding : innerbuildings)
         if (innerbuilding.type > 0)
             if (innerbuilding.type == id)
                 if (level < innerbuilding.level)
                     level = innerbuilding.level;
-    for (auto & outerbuilding : m_outerbuildings)
+    for (auto & outerbuilding : outerbuildings)
         if (outerbuilding.type > 0)
             if (outerbuilding.type == id)
                 if (level < outerbuilding.level)
@@ -939,11 +939,11 @@ int16_t PlayerCity::GetBuildingLevel(int16_t id)
 int16_t PlayerCity::GetBuildingCount(int16_t id)
 {
     int32_t count = 0;
-    for (auto & innerbuilding : m_innerbuildings)
+    for (auto & innerbuilding : innerbuildings)
         if (innerbuilding.type > 0)
             if (innerbuilding.type == id)
                 count++;
-    for (auto & outerbuilding : m_outerbuildings)
+    for (auto & outerbuilding : outerbuildings)
         if (outerbuilding.type > 0)
             if (outerbuilding.type == id)
                 count++;
@@ -952,7 +952,7 @@ int16_t PlayerCity::GetBuildingCount(int16_t id)
 
 stTrade* PlayerCity::GetTrade(int64_t id)
 {
-    //     for (auto & trade : m_trades)
+    //     for (auto & trade : trades)
     //     {
     //         if (trade.id == id)
     //             return trade;
@@ -973,7 +973,7 @@ stBuilding * PlayerCity::GetBuilding(int16_t position)
         {
             throw std::out_of_range(fmt::format("Outer position [{}] out of range pos-1000>40", position));
         }
-        return &m_outerbuildings[position - 1000];
+        return &outerbuildings[position - 1000];
     }
     else
     {
@@ -984,13 +984,13 @@ stBuilding * PlayerCity::GetBuilding(int16_t position)
 
         position += 2;
 
-        return &m_innerbuildings[position];
+        return &innerbuildings[position];
     }
 }
 int16_t PlayerCity::GetEffectiveTechLevel(int16_t id)
 {
     int blevel = GetBuildingLevel(B_ACADEMY);//academy
-    int research = m_client->GetResearchLevel(id);
+    int research = client->GetResearchLevel(id);
     if (blevel != 0)
     {
         return blevel <= research ? blevel : research;
@@ -1005,76 +1005,76 @@ void PlayerCity::CalculateResources()
     uint64_t newtime, oldtime, diff;
     newtime = Utils::time();
 
-    oldtime = m_timers.updateresources;
+    oldtime = timers.updateresources;
     diff = newtime - oldtime;
 
-    m_timers.updateresources = newtime;
+    timers.updateresources = newtime;
 
     double add;
-    add = ((((m_production.food + m_resourcebaseproduction)*(m_productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (m_resourcemanagement / 100)) * diff) - m_troopconsume;
-    if (m_maxresources.food > m_resources.food)
+    add = ((((production.food + resourcebaseproduction)*(productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (resourcemanagement / 100)) * diff) - troopconsume;
+    if (maxresources.food > resources.food)
     {
-        if (m_maxresources.food < m_resources.food + add)
+        if (maxresources.food < resources.food + add)
         {
-            m_resources.food = m_maxresources.food;
+            resources.food = maxresources.food;
         }
         else
         {
-            m_resources.food += add;
+            resources.food += add;
         }
     }
-    add = ((((m_production.wood + m_resourcebaseproduction)*(m_productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (m_resourcemanagement / 100)) * diff);
-    if (m_maxresources.wood > m_resources.wood)
+    add = ((((production.wood + resourcebaseproduction)*(productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (resourcemanagement / 100)) * diff);
+    if (maxresources.wood > resources.wood)
     {
-        if (m_maxresources.wood < m_resources.wood + add)
+        if (maxresources.wood < resources.wood + add)
         {
-            m_resources.wood = m_maxresources.wood;
+            resources.wood = maxresources.wood;
         }
         else
         {
-            m_resources.wood += add;
+            resources.wood += add;
         }
     }
-    add = ((((m_production.stone + m_resourcebaseproduction)*(m_productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (m_resourcemanagement / 100)) * diff);
-    if (m_maxresources.stone > m_resources.stone)
+    add = ((((production.stone + resourcebaseproduction)*(productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (resourcemanagement / 100)) * diff);
+    if (maxresources.stone > resources.stone)
     {
-        if (m_maxresources.stone < m_resources.stone + add)
+        if (maxresources.stone < resources.stone + add)
         {
-            m_resources.stone = m_maxresources.stone;
+            resources.stone = maxresources.stone;
         }
         else
         {
-            m_resources.stone += add;
+            resources.stone += add;
         }
     }
-    add = ((((m_production.iron + m_resourcebaseproduction)*(m_productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (m_resourcemanagement / 100)) * diff);
-    if (m_maxresources.iron > m_resources.iron)
+    add = ((((production.iron + resourcebaseproduction)*(productionefficiency / 100)) / 60 / 60 / 1000) * (1 + (resourcemanagement / 100)) * diff);
+    if (maxresources.iron > resources.iron)
     {
-        if (m_maxresources.iron < m_resources.iron + add)
+        if (maxresources.iron < resources.iron + add)
         {
-            m_resources.iron = m_maxresources.iron;
+            resources.iron = maxresources.iron;
         }
         else
         {
-            m_resources.iron += add;
+            resources.iron += add;
         }
     }
 
     int32_t herosalary = 0;
-    for (auto & hero : m_heroes)
+    for (auto & hero : heroes)
         if (hero)
-            herosalary += hero->m_level * 20;
+            herosalary += hero->level * 20;
 
 
-    add = (m_production.gold - herosalary) * (double(diff) / 60 / 60 / 1000);
-    m_resources.gold += add;
-    if (m_resources.gold < 0)
-        m_resources.gold = 0;
+    add = (production.gold - herosalary) * (double(diff) / 60 / 60 / 1000);
+    resources.gold += add;
+    if (resources.gold < 0)
+        resources.gold = 0;
 }
 
 void PlayerCity::CastleUpdate()
 {
-    if (!m_client->connected)
+    if (!client->connected)
         return;
     amf3object obj = amf3object();
     obj["cmd"] = "server.CastleUpdate";
@@ -1083,32 +1083,32 @@ void PlayerCity::CastleUpdate()
     data["updateType"] = 2;
     data["castleBean"] = ToObject();
 
-    spitfire::GetSingleton().SendObject(m_client, obj);
+    spitfire::GetSingleton().SendObject(client, obj);
 }
 
 void PlayerCity::ResourceUpdate()
 {
-    if (!m_client->connected)
+    if (!client->connected)
         return;
     amf3object obj = amf3object();
     obj["cmd"] = "server.ResourceUpdate";
     obj["data"] = amf3object();
     amf3object & data = obj["data"];
-    data["castleId"] = m_castleid;
+    data["castleId"] = castleid;
     data["resource"] = Resources();
 
-    spitfire::GetSingleton().SendObject(m_client, obj);
+    spitfire::GetSingleton().SendObject(client, obj);
 }
 
 void PlayerCity::TradesUpdate(uint64_t amount, uint64_t id, int32_t tradetype, double price, std::string tradetypename, uint64_t dealedtotal, std::string resourcename, int32_t restype, int32_t updatetype) const
 {
-    if (!m_client->connected)
+    if (!client->connected)
         return;
     amf3object obj = amf3object();
     obj["cmd"] = "server.TradesUpdate";
     obj["data"] = amf3object();
     amf3object & data = obj["data"];
-    data["castleId"] = m_castleid;
+    data["castleId"] = castleid;
     amf3object bean = amf3object();
     bean["amount"] = amount;
     bean["id"] = id;
@@ -1121,18 +1121,18 @@ void PlayerCity::TradesUpdate(uint64_t amount, uint64_t id, int32_t tradetype, d
     data["tradeBean"] = bean;
     data["updateType"] = updatetype;
 
-    spitfire::GetSingleton().SendObject(m_client, obj);
+    spitfire::GetSingleton().SendObject(client, obj);
 }
 
 void PlayerCity::HeroUpdate(Hero * hero, int16_t updatetype) const
 {
-    if (!m_client->connected)
+    if (!client->connected)
         return;
     amf3object obj = amf3object();
     obj["cmd"] = "server.HeroUpdate";
     obj["data"] = amf3object();
     amf3object & data = obj["data"];
-    data["castleId"] = m_castleid;
+    data["castleId"] = castleid;
 
     if (updatetype == 0)//hire hero
     {
@@ -1150,7 +1150,7 @@ void PlayerCity::HeroUpdate(Hero * hero, int16_t updatetype) const
         data["updateType"] = updatetype;
     }
 
-    spitfire::GetSingleton().SendObject(m_client, obj);
+    spitfire::GetSingleton().SendObject(client, obj);
 }
 
 int16_t PlayerCity::GetReliefMultiplier()
@@ -1179,77 +1179,77 @@ int16_t PlayerCity::GetReliefMultiplier()
 
 void PlayerCity::TroopUpdate() const
 {
-    if (!m_client->connected)
+    if (!client->connected)
         return;
     amf3object obj = amf3object();
     obj["cmd"] = "server.TroopUpdate";
     obj["data"] = amf3object();
     amf3object & data = obj["data"];
-    data["caslteId"] = m_castleid;
+    data["caslteId"] = castleid;
     data["troop"] = Troops();
 
-    spitfire::GetSingleton().SendObject(m_client, obj);
+    spitfire::GetSingleton().SendObject(client, obj);
 }
 
 void PlayerCity::FortUpdate() const
 {
-    if (!m_client->connected)
+    if (!client->connected)
         return;
     amf3object obj = amf3object();
     obj["cmd"] = "server.FortificationsUpdate";
     obj["data"] = amf3object();
     amf3object & data = obj["data"];
-    data["castleId"] = m_castleid;
+    data["castleId"] = castleid;
     data["fortification"] = Fortifications();
 
-    spitfire::GetSingleton().SendObject(m_client, obj);
+    spitfire::GetSingleton().SendObject(client, obj);
 }
 
 void PlayerCity::RecalculateCityStats()
 {
-    int targetpopulation = (m_maxpopulation * (double(((m_loyalty + m_grievance) > 100) ? 100 : (m_loyalty + m_grievance)) / 100));
-    int add = m_maxpopulation * 0.05;
-    if (m_population > targetpopulation)
+    int targetpopulation = (maxpopulation * (double(((loyalty + grievance) > 100) ? 100 : (loyalty + grievance)) / 100));
+    int add = maxpopulation * 0.05;
+    if (population > targetpopulation)
     {
-        if (m_population - add < targetpopulation)
-            m_population = targetpopulation;
-        else if (m_population - add < 0)
-            m_population = m_maxpopulation;
+        if (population - add < targetpopulation)
+            population = targetpopulation;
+        else if (population - add < 0)
+            population = maxpopulation;
         else
-            m_population -= add;
+            population -= add;
     }
-    else if (m_population < targetpopulation)
+    else if (population < targetpopulation)
     {
-        if (m_population + add > targetpopulation)
-            m_population = targetpopulation;
-        else if (m_population + add > m_maxpopulation)
-            m_population = m_maxpopulation;
+        if (population + add > targetpopulation)
+            population = targetpopulation;
+        else if (population + add > maxpopulation)
+            population = maxpopulation;
         else
-            m_population += add;
+            population += add;
     }
     else
     {
         //nothing, pop is as it should be
     }
 
-    int32_t targetloyalty = 100 - (((m_workrate.gold + m_grievance) > 100) ? 100 : (m_workrate.gold + m_grievance));
-    if (m_loyalty > 1)
+    int32_t targetloyalty = 100 - (((workrate.gold + grievance) > 100) ? 100 : (workrate.gold + grievance));
+    if (loyalty > 1)
     {
-        if (targetloyalty < m_loyalty)
+        if (targetloyalty < loyalty)
         {
-            m_loyalty--;
+            loyalty--;
         }
-        else if (targetloyalty > m_loyalty)
+        else if (targetloyalty > loyalty)
         {
-            m_loyalty++;
+            loyalty++;
         }
-        else if (targetloyalty == m_loyalty)
+        else if (targetloyalty == loyalty)
         {
 
         }
     }
 
-    m_production.gold = m_population * (m_workrate.gold / 100);
+    production.gold = population * (workrate.gold / 100);
     ResourceUpdate();
 }
 
@@ -1258,68 +1258,68 @@ amf3array PlayerCity::ResourceProduceData() const
     amf3array bean;
     amf3object obj = amf3object();
 
-    obj["technologicalPercentage"] = m_resourcetech;
+    obj["technologicalPercentage"] = resourcetech;
     obj["totalOutput"] = 0;
-    obj["heroPercentage"] = (m_production.food*(m_productionefficiency / 100)) * (m_resourcemanagement / 100);
-    obj["maxLabour"] = m_workpopulation.food;
+    obj["heroPercentage"] = (production.food*(productionefficiency / 100)) * (resourcemanagement / 100);
+    obj["maxLabour"] = workpopulation.food;
     obj["commenceDemands"] = 0;
-    obj["fieldPercentage"] = m_resourcevalley;
-    obj["naturalPercentage"] = m_resourcebaseproduction;
-    obj["armyPercentage"] = m_troopconsume;
-    obj["productionCapacity"] = m_production.food;
+    obj["fieldPercentage"] = resourcevalley;
+    obj["naturalPercentage"] = resourcebaseproduction;
+    obj["armyPercentage"] = troopconsume;
+    obj["productionCapacity"] = production.food;
     obj["typeid"] = 1;
-    obj["commenceRate"] = m_workrate.food;
+    obj["commenceRate"] = workrate.food;
     obj["cimeliaPercentage"] = 0; //buff plus maybe?
     obj["basicOutput"] = 0;
 
     bean.Add(obj);
 
     obj = amf3object();
-    obj["technologicalPercentage"] = m_resourcetech;
+    obj["technologicalPercentage"] = resourcetech;
     obj["totalOutput"] = 0;
-    obj["heroPercentage"] = (m_production.wood*(m_productionefficiency / 100)) * (m_resourcemanagement / 100);
-    obj["maxLabour"] = m_workpopulation.wood;
+    obj["heroPercentage"] = (production.wood*(productionefficiency / 100)) * (resourcemanagement / 100);
+    obj["maxLabour"] = workpopulation.wood;
     obj["commenceDemands"] = 0;
-    obj["fieldPercentage"] = m_resourcevalley;
-    obj["naturalPercentage"] = m_resourcebaseproduction;
+    obj["fieldPercentage"] = resourcevalley;
+    obj["naturalPercentage"] = resourcebaseproduction;
     obj["armyPercentage"] = 0;
-    obj["productionCapacity"] = m_production.wood;
+    obj["productionCapacity"] = production.wood;
     obj["typeid"] = 2;
-    obj["commenceRate"] = m_workrate.wood;
+    obj["commenceRate"] = workrate.wood;
     obj["cimeliaPercentage"] = 0; //buff plus maybe?
     obj["basicOutput"] = 0;
 
     bean.Add(obj);
 
     obj = amf3object();
-    obj["technologicalPercentage"] = m_resourcetech;
+    obj["technologicalPercentage"] = resourcetech;
     obj["totalOutput"] = 0;
-    obj["heroPercentage"] = (m_production.stone*(m_productionefficiency / 100)) * (m_resourcemanagement / 100);
-    obj["maxLabour"] = m_workpopulation.stone;
+    obj["heroPercentage"] = (production.stone*(productionefficiency / 100)) * (resourcemanagement / 100);
+    obj["maxLabour"] = workpopulation.stone;
     obj["commenceDemands"] = 0;
-    obj["fieldPercentage"] = m_resourcevalley;
-    obj["naturalPercentage"] = m_resourcebaseproduction;
+    obj["fieldPercentage"] = resourcevalley;
+    obj["naturalPercentage"] = resourcebaseproduction;
     obj["armyPercentage"] = 0;
-    obj["productionCapacity"] = m_production.stone;
+    obj["productionCapacity"] = production.stone;
     obj["typeid"] = 3;
-    obj["commenceRate"] = m_workrate.stone;
+    obj["commenceRate"] = workrate.stone;
     obj["cimeliaPercentage"] = 0; //buff plus maybe?
     obj["basicOutput"] = 0;
 
     bean.Add(obj);
 
     obj = amf3object();
-    obj["technologicalPercentage"] = m_resourcetech;
+    obj["technologicalPercentage"] = resourcetech;
     obj["totalOutput"] = 0;
-    obj["heroPercentage"] = (m_production.iron*(m_productionefficiency / 100)) * (m_resourcemanagement / 100);
-    obj["maxLabour"] = m_workpopulation.iron;
+    obj["heroPercentage"] = (production.iron*(productionefficiency / 100)) * (resourcemanagement / 100);
+    obj["maxLabour"] = workpopulation.iron;
     obj["commenceDemands"] = 0;
-    obj["fieldPercentage"] = m_resourcevalley;
-    obj["naturalPercentage"] = m_resourcebaseproduction;
+    obj["fieldPercentage"] = resourcevalley;
+    obj["naturalPercentage"] = resourcebaseproduction;
     obj["armyPercentage"] = 0;
-    obj["productionCapacity"] = m_production.iron;
+    obj["productionCapacity"] = production.iron;
     obj["typeid"] = 4;
-    obj["commenceRate"] = m_workrate.iron;
+    obj["commenceRate"] = workrate.iron;
     obj["cimeliaPercentage"] = 0; //buff plus maybe?
     obj["basicOutput"] = 0;
 
@@ -1335,7 +1335,7 @@ int8_t PlayerCity::AddToBarracksQueue(int8_t position, int16_t troopid, int32_t 
      {
          return -1;
      }
-     stBuildingConfig * conf = &spitfire::GetSingleton().m_troopconfig[troopid];
+     stBuildingConfig * conf = &spitfire::GetSingleton().troopconfig[troopid];
      stTroopTrain troops;
      troops.troopid = troopid;
      troops.count = count;
@@ -1345,15 +1345,15 @@ int8_t PlayerCity::AddToBarracksQueue(int8_t position, int16_t troopid, int32_t 
  
      if (position == -2)
      {
-         if (m_mayor)
-             mayorinf = pow(0.995, m_mayor->GetManagement());
+         if (mayor)
+             mayorinf = pow(0.995, mayor->GetManagement());
  
-         costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_CONSTRUCTION)));
+         costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_CONSTRUCTION)));
      }
      else
      {
-         if (m_mayor)
-             mayorinf = pow(0.995, m_mayor->GetPower());
+         if (mayor)
+             mayorinf = pow(0.995, mayor->GetPower());
  
          switch (troopid)
          {
@@ -1361,9 +1361,9 @@ int8_t PlayerCity::AddToBarracksQueue(int8_t position, int16_t troopid, int32_t 
          case TR_RAM:
          case TR_TRANSPORTER:
          case TR_BALLISTA:
-             costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_METALCASTING)));
+             costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_METALCASTING)));
          default:
-             costtime = (costtime)* (mayorinf)* (pow(0.9, m_client->GetResearchLevel(T_MILITARYSCIENCE)));
+             costtime = (costtime)* (mayorinf)* (pow(0.9, client->GetResearchLevel(T_MILITARYSCIENCE)));
          }
      }
  
@@ -1381,7 +1381,7 @@ int8_t PlayerCity::AddToBarracksQueue(int8_t position, int16_t troopid, int32_t 
 int16_t PlayerCity::HeroCount()
 {
     int16_t cnt = 0;
-    for (auto & hero : m_heroes)
+    for (auto & hero : heroes)
         if (hero)
             ++cnt;
     return cnt;
@@ -1389,7 +1389,7 @@ int16_t PlayerCity::HeroCount()
 
 stTroopQueue * PlayerCity::GetBarracksQueue(int16_t position)
 {
-    for (auto & tq : m_troopqueue)
+    for (auto & tq : troopqueue)
     {
         if (tq.positionid == position)
         {
@@ -1403,7 +1403,7 @@ bool PlayerCity::CheckBuildingPrereqs(int16_t type, int16_t level)
 {
     if (type <= 0 || type > 35)
         return false;
-    stBuildingConfig * cfg = &spitfire::GetSingleton().m_buildingconfig[type][level];
+    stBuildingConfig * cfg = &spitfire::GetSingleton().buildingconfig[type][level];
 
     bool test = true;
 
@@ -1417,13 +1417,13 @@ bool PlayerCity::CheckBuildingPrereqs(int16_t type, int16_t level)
     for (stPrereq & req : cfg->items)
     {
         if (req.id)
-            if (m_client->GetItemCount(req.id) < req.level)
+            if (client->GetItemCount(req.id) < req.level)
                 test = false;
     }
     for (stPrereq & req : cfg->techs)
     {
         if (req.id)
-            if (m_client->GetResearchLevel(req.id) < req.level)
+            if (client->GetResearchLevel(req.id) < req.level)
                 test = false;
     }
     return test;
@@ -1431,37 +1431,37 @@ bool PlayerCity::CheckBuildingPrereqs(int16_t type, int16_t level)
 
 bool PlayerCity::HasTroops(stTroops & troops) const
 {
-    if (m_troops.worker - troops.worker < 0)
+    if (troops.worker - troops.worker < 0)
         return false;
-    if (m_troops.warrior - troops.warrior < 0)
+    if (troops.warrior - troops.warrior < 0)
         return false;
-    if (m_troops.scout - troops.scout < 0)
+    if (troops.scout - troops.scout < 0)
         return false;
-    if (m_troops.pike - troops.pike < 0)
+    if (troops.pike - troops.pike < 0)
         return false;
-    if (m_troops.sword - troops.sword < 0)
+    if (troops.sword - troops.sword < 0)
         return false;
-    if (m_troops.archer - troops.archer < 0)
+    if (troops.archer - troops.archer < 0)
         return false;
-    if (m_troops.cavalry - troops.cavalry < 0)
+    if (troops.cavalry - troops.cavalry < 0)
         return false;
-    if (m_troops.cataphract - troops.cataphract < 0)
+    if (troops.cataphract - troops.cataphract < 0)
         return false;
-    if (m_troops.transporter - troops.transporter < 0)
+    if (troops.transporter - troops.transporter < 0)
         return false;
-    if (m_troops.ballista - troops.ballista < 0)
+    if (troops.ballista - troops.ballista < 0)
         return false;
-    if (m_troops.ram - troops.ram < 0)
+    if (troops.ram - troops.ram < 0)
         return false;
-    if (m_troops.catapult - troops.catapult < 0)
+    if (troops.catapult - troops.catapult < 0)
         return false;
     return true;
 }
 Hero * PlayerCity::GetHero(uint64_t id)
 {
-    for (auto & hero : m_heroes)
+    for (auto & hero : heroes)
     {
-        if (hero && hero->m_id == id)
+        if (hero && hero->id == id)
             return hero;
     }
     return nullptr;

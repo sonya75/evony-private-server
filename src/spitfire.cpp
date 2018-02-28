@@ -10,34 +10,6 @@
 #include <fstream>
 #include <thread>
 
-// #include <boost/smart_ptr/shared_ptr.hpp>
-// #include <boost/smart_ptr/make_shared_object.hpp>
-// #include <boost/log/attributes.hpp>
-// #include <boost/log/attributes/scoped_attribute.hpp>
-// #include <boost/log/attributes/named_scope.hpp>
-// #include <boost/log/sinks/unbounded_ordering_queue.hpp>
-// #include <boost/log/sinks/text_file_backend.hpp>
-// #include <boost/log/utility/setup/common_attributes.hpp>
-// #include <boost/log/utility/record_ordering.hpp>
-// #include <boost/log/expressions.hpp>
-// #include <boost/log/sinks/sync_frontend.hpp>
-// #include <boost/log/sinks/async_frontend.hpp>
-// #include <boost/log/sinks/text_ostream_backend.hpp>
-// #include <boost/log/sources/record_ostream.hpp>
-// #include <boost/log/keywords/file_name.hpp>
-// #include <boost/log/keywords/rotation_size.hpp>
-// #include <boost/log/keywords/time_based_rotation.hpp>
-// #include <boost/log/keywords/target.hpp>
-// #include <boost/date_time/posix_time/posix_time.hpp>
-// #include <boost/date_time/posix_time/posix_time_types.hpp>
-// #include <boost/log/support/date_time.hpp>
-// #include <boost/core/null_deleter.hpp>
-// 
-// #include <boost/iostreams/filtering_streambuf.hpp>
-// #include <boost/iostreams/copy.hpp>
-// #include <boost/iostreams/filter/zlib.hpp>
-// #include <boost/iostreams/device/back_inserter.hpp>
-
 #include <Poco/Data/MySQL/Connector.h>
 #include <Poco/Data/MySQL/MySQLException.h>
 #include <Poco/Data/SessionPool.h>
@@ -59,8 +31,6 @@
 
 using namespace std::chrono_literals;
 
-spitfire * spitfire::_instance = nullptr;
-
 using Poco::Data::RecordSet;
 using namespace Poco::Data;
 using namespace Poco::Data::Keywords;
@@ -75,10 +45,10 @@ spitfire::spitfire()
     , acceptorpolicy_(io_service_)
     , socketpolicy_(io_service_)
     , request_handlerpolicy_()
-    , currentplayersonline(0)
-    , map(nullptr)
+    , players_online(0)
+    , game_map(nullptr)
 {
-    setupLogging();
+    start_logging();
     log->info("EPS Server starting.");
  
     MySQL::Connector::registerConnector();
@@ -91,16 +61,16 @@ spitfire::spitfire()
     servername = "";
 
     mapsize = 800;
-    m_heroid = 1000;
-    m_cityid = 100000;
-    m_allianceid = 100;
-    m_itemcount = 0;
+    heroid = 1000;
+    cityid = 100000;
+    allianceid = 100;
+    itemcount = 0;
 
     armycounter = 0;
     tecounter = 0;
-    currentplayersonline = 0;
+    players_online = 0;
     ltime = 0;
-//     m_alliances = nullptr;
+//     alliances = nullptr;
 
     TimerThreadRunning = false;
 
@@ -124,20 +94,14 @@ spitfire::spitfire()
 
 spitfire::~spitfire()
 {
-    if (map)
-        delete map;
+    if (game_map)
+        delete game_map;
     delete accountpool;
     delete serverpool;
     MySQL::Connector::unregisterConnector();
 }
 
-void spitfire::io_thread()
-{
-    srand(static_cast<int32_t>(Utils::time()));
-    io_service_.run();
-}
-
-void spitfire::run()
+void spitfire::run(size_t thread_pool_size)
 {
     printf("Start up procedure\n");
 
@@ -160,7 +124,7 @@ void spitfire::run()
     //     }
     //     fclose(itemxml);
     // 
-    //     this->m_itemxml = itemxmlbuff;
+    //     this->itemxml = itemxmlbuff;
     //     delete[] itemxmlbuff;
 
 
@@ -201,8 +165,8 @@ void spitfire::run()
 
 
 
-    map = new Map(mapsize);
-    m_alliances = new AllianceMgr();
+    game_map = new Map(mapsize);
+    alliances = new AllianceMgr();
 
     log->info("Loading configurations.");
 
@@ -227,14 +191,14 @@ void spitfire::run()
 
                 int32_t cfgid = rs.value("buildingid").convert<int32_t>();
                 int32_t level = rs.value("level").convert<int32_t>() - 1;
-                m_buildingconfig[cfgid][level].time = rs.value("buildtime").convert<double>();
-                m_buildingconfig[cfgid][level].destructtime = rs.value("buildtime").convert<double>() / 2;
-                m_buildingconfig[cfgid][level].food = rs.value("food").convert<int32_t>();
-                m_buildingconfig[cfgid][level].wood = rs.value("wood").convert<int32_t>();
-                m_buildingconfig[cfgid][level].stone = rs.value("stone").convert<int32_t>();
-                m_buildingconfig[cfgid][level].iron = rs.value("iron").convert<int32_t>();
-                m_buildingconfig[cfgid][level].gold = rs.value("gold").convert<int32_t>();
-                m_buildingconfig[cfgid][level].prestige = rs.value("gold").convert<int32_t>();
+                buildingconfig[cfgid][level].time = rs.value("buildtime").convert<double>();
+                buildingconfig[cfgid][level].destructtime = rs.value("buildtime").convert<double>() / 2;
+                buildingconfig[cfgid][level].food = rs.value("food").convert<int32_t>();
+                buildingconfig[cfgid][level].wood = rs.value("wood").convert<int32_t>();
+                buildingconfig[cfgid][level].stone = rs.value("stone").convert<int32_t>();
+                buildingconfig[cfgid][level].iron = rs.value("iron").convert<int32_t>();
+                buildingconfig[cfgid][level].gold = rs.value("gold").convert<int32_t>();
+                buildingconfig[cfgid][level].prestige = rs.value("gold").convert<int32_t>();
 
                 std::string strt = rs.value("prereqbuilding").convert<std::string>();
                 char * str = (char*)strt.c_str();
@@ -246,7 +210,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_buildingconfig[cfgid][level].buildings.push_back(prereq);
+                    buildingconfig[cfgid][level].buildings.push_back(prereq);
                     x++;
                 }
 
@@ -259,7 +223,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_buildingconfig[cfgid][level].techs.push_back(prereq);
+                    buildingconfig[cfgid][level].techs.push_back(prereq);
                     x++;
                 }
 
@@ -272,12 +236,12 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_buildingconfig[cfgid][level].items.push_back(prereq);
+                    buildingconfig[cfgid][level].items.push_back(prereq);
                     x++;
                 }
 
-                m_buildingconfig[cfgid][level].limit = rs.value("blimit").convert<int32_t>();
-                m_buildingconfig[cfgid][level].inside = rs.value("inside").convert<int32_t>();
+                buildingconfig[cfgid][level].limit = rs.value("blimit").convert<int32_t>();
+                buildingconfig[cfgid][level].inside = rs.value("inside").convert<int32_t>();
             }
         }
 
@@ -297,15 +261,15 @@ void spitfire::run()
                 char * ch = 0, *cr = 0;
 
                 int32_t cfgid = rs.value("troopid").convert<int32_t>();
-                m_troopconfig[cfgid].time = rs.value("buildtime").convert<double>();
-                m_troopconfig[cfgid].destructtime = 0.0;
-                m_troopconfig[cfgid].food = rs.value("food").convert<int32_t>();
-                m_troopconfig[cfgid].wood = rs.value("wood").convert<int32_t>();
-                m_troopconfig[cfgid].stone = rs.value("stone").convert<int32_t>();
-                m_troopconfig[cfgid].iron = rs.value("iron").convert<int32_t>();
-                m_troopconfig[cfgid].gold = rs.value("gold").convert<int32_t>();
-                m_troopconfig[cfgid].inside = rs.value("inside").convert<int32_t>();
-                m_troopconfig[cfgid].population = rs.value("population").convert<int32_t>();
+                troopconfig[cfgid].time = rs.value("buildtime").convert<double>();
+                troopconfig[cfgid].destructtime = 0.0;
+                troopconfig[cfgid].food = rs.value("food").convert<int32_t>();
+                troopconfig[cfgid].wood = rs.value("wood").convert<int32_t>();
+                troopconfig[cfgid].stone = rs.value("stone").convert<int32_t>();
+                troopconfig[cfgid].iron = rs.value("iron").convert<int32_t>();
+                troopconfig[cfgid].gold = rs.value("gold").convert<int32_t>();
+                troopconfig[cfgid].inside = rs.value("inside").convert<int32_t>();
+                troopconfig[cfgid].population = rs.value("population").convert<int32_t>();
 
                 std::string strt = rs.value("prereqbuilding").convert<std::string>();
                 char * str = (char*)strt.c_str();
@@ -316,7 +280,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_troopconfig[cfgid].buildings.push_back(prereq);
+                    troopconfig[cfgid].buildings.push_back(prereq);
                     x++;
                 }
 
@@ -329,7 +293,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_troopconfig[cfgid].techs.push_back(prereq);
+                    troopconfig[cfgid].techs.push_back(prereq);
                     x++;
                 }
 
@@ -342,7 +306,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_troopconfig[cfgid].items.push_back(prereq);
+                    troopconfig[cfgid].items.push_back(prereq);
                     x++;
                 }
             }
@@ -366,13 +330,13 @@ void spitfire::run()
 
                 int32_t cfgid = rs.value("researchid").convert<int32_t>();
                 int32_t level = rs.value("level").convert<int32_t>() - 1;
-                m_researchconfig[cfgid][level].time = rs.value("buildtime").convert<int32_t>();
-                m_researchconfig[cfgid][level].destructtime = rs.value("buildtime").convert<int32_t>() / 2;
-                m_researchconfig[cfgid][level].food = rs.value("food").convert<int32_t>();
-                m_researchconfig[cfgid][level].wood = rs.value("wood").convert<int32_t>();
-                m_researchconfig[cfgid][level].stone = rs.value("stone").convert<int32_t>();
-                m_researchconfig[cfgid][level].iron = rs.value("iron").convert<int32_t>();
-                m_researchconfig[cfgid][level].gold = rs.value("gold").convert<int32_t>();
+                researchconfig[cfgid][level].time = rs.value("buildtime").convert<int32_t>();
+                researchconfig[cfgid][level].destructtime = rs.value("buildtime").convert<int32_t>() / 2;
+                researchconfig[cfgid][level].food = rs.value("food").convert<int32_t>();
+                researchconfig[cfgid][level].wood = rs.value("wood").convert<int32_t>();
+                researchconfig[cfgid][level].stone = rs.value("stone").convert<int32_t>();
+                researchconfig[cfgid][level].iron = rs.value("iron").convert<int32_t>();
+                researchconfig[cfgid][level].gold = rs.value("gold").convert<int32_t>();
 
                 std::string strt = rs.value("prereqbuilding").convert<std::string>();
                 char * str = (char*)strt.c_str();
@@ -384,7 +348,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_researchconfig[cfgid][level].buildings.push_back(prereq);
+                    researchconfig[cfgid][level].buildings.push_back(prereq);
                     x++;
                 }
 
@@ -397,7 +361,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_researchconfig[cfgid][level].techs.push_back(prereq);
+                    researchconfig[cfgid][level].techs.push_back(prereq);
                     x++;
                 }
 
@@ -410,7 +374,7 @@ void spitfire::run()
                     stPrereq prereq;
                     tok = strtok_s(tok, ",", &cr); assert(tok != 0); prereq.id = atoi(tok);
                     tok = strtok_s(0, ",", &cr); assert(tok != 0); prereq.level = atoi(tok);
-                    m_researchconfig[cfgid][level].items.push_back(prereq);
+                    researchconfig[cfgid][level].items.push_back(prereq);
                     x++;
                 }
             }
@@ -430,36 +394,36 @@ void spitfire::run()
             for (int i = 0; i < rs.rowCount(); ++i, rs.moveNext())
             {
                 int32_t id = rs.value("id").convert<int32_t>();
-                m_items[id].name = rs.value("name").convert<std::string>();
-                m_items[id].desc = rs.value("description").convert<std::string>();
-                m_items[id].cost = rs.value("cost").convert<int32_t>();
-                m_items[id].saleprice = rs.value("cost").convert<int32_t>();
-                m_items[id].buyable = rs.value("buyable").convert<bool>();
-                m_items[id].cangamble = rs.value("cangamble").convert<bool>();
-                m_items[id].daylimit = rs.value("daylimit").convert<int32_t>();
-                m_items[id].type = rs.value("itemtype").convert<int32_t>();
-                m_items[id].rarity = rs.value("rarity").convert<int32_t>();
-                ++m_itemcount;
+                items[id].name = rs.value("name").convert<std::string>();
+                items[id].desc = rs.value("description").convert<std::string>();
+                items[id].cost = rs.value("cost").convert<int32_t>();
+                items[id].saleprice = rs.value("cost").convert<int32_t>();
+                items[id].buyable = rs.value("buyable").convert<bool>();
+                items[id].cangamble = rs.value("cangamble").convert<bool>();
+                items[id].daylimit = rs.value("daylimit").convert<int32_t>();
+                items[id].type = rs.value("itemtype").convert<int32_t>();
+                items[id].rarity = rs.value("rarity").convert<int32_t>();
+                ++itemcount;
 
-                if (m_items[id].cangamble)
+                if (items[id].cangamble)
                 {
-                    switch (m_items[id].rarity)
+                    switch (items[id].rarity)
                     {
                         default:
                         case 5:
-                            m_gambleitems.common.push_back(&m_items[id]);
+                            gambleitems.common.push_back(&items[id]);
                             break;
                         case 4:
-                            m_gambleitems.special.push_back(&m_items[id]);
+                            gambleitems.special.push_back(&items[id]);
                             break;
                         case 3:
-                            m_gambleitems.rare.push_back(&m_items[id]);
+                            gambleitems.rare.push_back(&items[id]);
                             break;
                         case 2:
-                            m_gambleitems.superrare.push_back(&m_items[id]);
+                            gambleitems.superrare.push_back(&items[id]);
                             break;
                         case 1:
-                            m_gambleitems.ultrarare.push_back(&m_items[id]);
+                            gambleitems.ultrarare.push_back(&items[id]);
                             break;
                     }
                 }
@@ -522,18 +486,18 @@ void spitfire::run()
             int64_t type = rs.value("type").convert<int64_t>();
             int64_t level = rs.value("level").convert<int64_t>();
 
-            map->m_tile[id].m_id = id;
-            map->m_tile[id].m_ownerid = ownerid;
-            map->m_tile[id].m_type = type;
-            map->m_tile[id].m_level = level;
+            game_map->tile[id].id = id;
+            game_map->tile[id].ownerid = ownerid;
+            game_map->tile[id].type = type;
+            game_map->tile[id].level = level;
 
             if (type == NPC)
             {
                 NpcCity * city = (NpcCity *)AddNpcCity(id);
                 city->Initialize(true, true);
-                city->m_level = level;
-                city->m_ownerid = ownerid;
-                map->m_tile[id].m_zoneid = map->GetStateFromID(id);
+                city->level = level;
+                city->ownerid = ownerid;
+                game_map->tile[id].zoneid = game_map->GetStateFromID(id);
             }
 
             if ((id + 1) % ((mapsize*mapsize) / 100) == 0)
@@ -546,24 +510,24 @@ void spitfire::run()
     //this fakes map data
     for (int x = 0; x < (mapsize*mapsize); x += 1/*(mapsize*mapsize)/10*/)
     {
-        map->m_tile[x].m_id = x;
-        map->m_tile[x].m_ownerid = -1;
+        game_map->tile[x].id = x;
+        game_map->tile[x].ownerid = -1;
         //make every tile an npc
-        //m_map->m_tile[x].m_type = NPC;
-        map->m_tile[x].m_type = rand() % 9 + 1;
-        map->m_tile[x].m_level = (rand() % 10) + 1;
+        //map->tile[x].type = NPC;
+        game_map->tile[x].type = rand() % 9 + 1;
+        game_map->tile[x].level = (rand() % 10) + 1;
 
-        if (map->m_tile[x].m_type > 6)
-            map->m_tile[x].m_type = 10;
+        if (game_map->tile[x].type > 6)
+            game_map->tile[x].type = 10;
 
-        if (map->m_tile[x].m_type == 6)
+        if (game_map->tile[x].type == 6)
         {
-            map->m_tile[x].m_type = NPC;
-            NpcCity * city = (NpcCity *)AddNpcCity(map->m_tile[x].m_id);
+            game_map->tile[x].type = NPC;
+            NpcCity * city = (NpcCity *)AddNpcCity(game_map->tile[x].id);
             city->Initialize(true, true);
-            city->m_level = map->m_tile[x].m_level;
-            city->m_ownerid = map->m_tile[x].m_ownerid;
-            map->m_tile[map->m_tile[x].m_id].m_zoneid = map->GetStateFromID(map->m_tile[x].m_id);
+            city->level = game_map->tile[x].level;
+            city->ownerid = game_map->tile[x].ownerid;
+            game_map->tile[game_map->tile[x].id].zoneid = game_map->GetStateFromID(game_map->tile[x].id);
         }
 
 
@@ -574,7 +538,7 @@ void spitfire::run()
     }
 #endif
 
-    map->CalculateOpenTiles();
+    game_map->CalculateOpenTiles();
 
     log->info("Loading account data.");
 
@@ -604,7 +568,7 @@ void spitfire::run()
         {
             count++;
 
-            Client * client = NewClient();
+            Client * client = new_client();
             client->accountexists = true;
             client->accountid = rs.value("accountid").convert<int64_t>();
             client->masteraccountid = rs.value("parentid").convert<int64_t>();
@@ -709,7 +673,7 @@ void spitfire::run()
             auto accountid = rs.value("accountid").convert<int64_t>();
             auto cityid = rs.value("id").convert<int64_t>();
             auto fieldid = rs.value("fieldid").convert<int32_t>();
-            auto * client = GetClient(accountid);
+            auto * client = get_client(accountid);
             GETXYFROMID(fieldid);
             if (client == nullptr)
             {
@@ -717,29 +681,29 @@ void spitfire::run()
                 continue;
             }
             auto * city = (PlayerCity *)AddPlayerCity(client, fieldid, cityid);
-            city->m_client = client;
-            city->m_resources.food = rs.value("food").convert<double>();
-            city->m_resources.wood = rs.value("wood").convert<double>();
-            city->m_resources.iron = rs.value("iron").convert<double>();
-            city->m_resources.stone = rs.value("stone").convert<double>();
-            city->m_resources.gold = rs.value("gold").convert<double>();
-            city->m_cityname = rs.value("name").convert<std::string>();
-            city->m_logurl = rs.value("logurl").convert<std::string>();
-            city->m_tileid = fieldid;
-            //        city->m_accountid = accountid;
-            //        city->m_client = client;
-            city->m_creation = rs.value("creation").convert<double>();
+            city->client = client;
+            city->resources.food = rs.value("food").convert<double>();
+            city->resources.wood = rs.value("wood").convert<double>();
+            city->resources.iron = rs.value("iron").convert<double>();
+            city->resources.stone = rs.value("stone").convert<double>();
+            city->resources.gold = rs.value("gold").convert<double>();
+            city->cityname = rs.value("name").convert<std::string>();
+            city->logurl = rs.value("logurl").convert<std::string>();
+            city->tileid = fieldid;
+            //        city->accountid = accountid;
+            //        city->client = client;
+            city->creation = rs.value("creation").convert<double>();
 
-            //        client->m_citycount++;
+            //        client->citycount++;
 
-            //         server->m_map->m_tile[fieldid].m_city = city;
-            //         server->m_map->m_tile[fieldid].m_npc = false;
-            //         server->m_map->m_tile[fieldid].m_ownerid = accountid;
-            //         server->m_map->m_tile[fieldid].m_type = CASTLE;
+            //         server->map->tile[fieldid].city = city;
+            //         server->map->tile[fieldid].npc = false;
+            //         server->map->tile[fieldid].ownerid = accountid;
+            //         server->map->tile[fieldid].type = CASTLE;
             // 
-            //         //server->m_map->m_tile[fieldid].m_zoneid = server->m_map->GetStateFromID(fieldid);
+            //         //server->map->tile[fieldid].zoneid = server->map->GetStateFromID(fieldid);
             // 
-            //         server->m_map->m_tile[fieldid].m_castleid = cityid;
+            //         server->map->tile[fieldid].castleid = cityid;
 
 
             city->ParseTroops(rs.value("troop").convert<std::string>());
@@ -755,7 +719,7 @@ void spitfire::run()
             {
                 Poco::Data::Session ses2(serverpool->get());
                 Statement select2(ses2);
-                select2 << "SELECT * FROM `heroes` WHERE `castleid`=?", use(city->m_castleid);
+                select2 << "SELECT * FROM `heroes` WHERE `castleid`=?", use(city->castleid);
                 select2.execute();
                 RecordSet rs2(select2);
 
@@ -765,49 +729,49 @@ void spitfire::run()
                 {
                     Hero * temphero;
                     temphero = new Hero();
-                    temphero->m_id = rs2.value("id").convert<uint64_t>();
-                    temphero->m_status = rs2.value("status").convert<int8_t>();
-                    temphero->m_itemid = rs2.value("itemid").convert<int32_t>();
-                    temphero->m_itemamount = rs2.value("itemamount").convert<int32_t>();
-                    temphero->m_castleid = cityid;
-                    temphero->m_ownerid = accountid;
+                    temphero->id = rs2.value("id").convert<uint64_t>();
+                    temphero->status = rs2.value("status").convert<int8_t>();
+                    temphero->itemid = rs2.value("itemid").convert<int32_t>();
+                    temphero->itemamount = rs2.value("itemamount").convert<int32_t>();
+                    temphero->castleid = cityid;
+                    temphero->ownerid = accountid;
 
-                    temphero->m_basestratagem = rs2.value("basestratagem").convert<uint32_t>();
-                    temphero->m_stratagem = rs2.value("stratagem").convert<uint32_t>();
-                    temphero->m_stratagemadded = rs2.value("stratagemadded").convert<uint32_t>();
-                    temphero->m_stratagembuffadded = rs2.value("stratagembuffadded").convert<uint32_t>();
-                    temphero->m_basepower = rs2.value("basepower").convert<uint32_t>();
-                    temphero->m_power = rs2.value("power").convert<uint32_t>();
-                    temphero->m_poweradded = rs2.value("poweradded").convert<uint32_t>();
-                    temphero->m_powerbuffadded = rs2.value("powerbuffadded").convert<uint32_t>();
-                    temphero->m_basemanagement = rs2.value("basemanagement").convert<uint32_t>();
-                    temphero->m_management = rs2.value("management").convert<uint32_t>();
-                    temphero->m_managementadded = rs2.value("managementadded").convert<uint32_t>();
-                    temphero->m_managementbuffadded = rs2.value("managementbuffadded").convert<uint32_t>();
-                    temphero->m_logourl = rs2.value("logurl").convert<std::string>();
-                    temphero->m_name = rs2.value("name").convert<std::string>();
-                    temphero->m_remainpoint = rs2.value("remainpoint").convert<uint32_t>();
-                    temphero->m_level = rs2.value("level").convert<uint32_t>();
-                    temphero->m_upgradeexp = rs2.value("upgradeexp").convert<double>();
-                    temphero->m_experience = rs2.value("experience").convert<double>();
-                    temphero->m_loyalty = rs2.value("loyalty").convert<int8_t>();
-                    city->m_heroes[a] = temphero;
-                    city->m_heroes[a]->m_client = client;
-                    if (temphero->m_status == DEF_HEROMAYOR && city->m_mayor)
+                    temphero->basestratagem = rs2.value("basestratagem").convert<uint32_t>();
+                    temphero->stratagem = rs2.value("stratagem").convert<uint32_t>();
+                    temphero->stratagemadded = rs2.value("stratagemadded").convert<uint32_t>();
+                    temphero->stratagembuffadded = rs2.value("stratagembuffadded").convert<uint32_t>();
+                    temphero->basepower = rs2.value("basepower").convert<uint32_t>();
+                    temphero->power = rs2.value("power").convert<uint32_t>();
+                    temphero->poweradded = rs2.value("poweradded").convert<uint32_t>();
+                    temphero->powerbuffadded = rs2.value("powerbuffadded").convert<uint32_t>();
+                    temphero->basemanagement = rs2.value("basemanagement").convert<uint32_t>();
+                    temphero->management = rs2.value("management").convert<uint32_t>();
+                    temphero->managementadded = rs2.value("managementadded").convert<uint32_t>();
+                    temphero->managementbuffadded = rs2.value("managementbuffadded").convert<uint32_t>();
+                    temphero->logourl = rs2.value("logurl").convert<std::string>();
+                    temphero->name = rs2.value("name").convert<std::string>();
+                    temphero->remainpoint = rs2.value("remainpoint").convert<uint32_t>();
+                    temphero->level = rs2.value("level").convert<uint32_t>();
+                    temphero->upgradeexp = rs2.value("upgradeexp").convert<double>();
+                    temphero->experience = rs2.value("experience").convert<double>();
+                    temphero->loyalty = rs2.value("loyalty").convert<int8_t>();
+                    city->heroes[a] = temphero;
+                    city->heroes[a]->client = client;
+                    if (temphero->status == DEF_HEROMAYOR && city->mayor)
                     {
-                        temphero->m_status = DEF_HEROIDLE;
+                        temphero->status = DEF_HEROIDLE;
                     }
-                    if (!city->m_mayor && temphero->m_status == DEF_HEROMAYOR)
+                    if (!city->mayor && temphero->status == DEF_HEROMAYOR)
                     {
-                        city->m_mayor = temphero;
+                        city->mayor = temphero;
                     }
-                    if (temphero->m_id >= m_heroid)
-                        m_heroid = temphero->m_id + 1;
+                    if (temphero->id >= heroid)
+                        heroid = temphero->id + 1;
                 }
             }
 
-            if (cityid >= m_cityid)
-                m_cityid = cityid + 1;
+            if (cityid >= cityid)
+                cityid = cityid + 1;
 
 
             client->CalculateResources();
@@ -839,7 +803,7 @@ void spitfire::run()
                     PlayerCity * pcity = client->GetCity(client->research[a].castleid);
                     if (pcity != 0)
                     {
-                        pcity->m_researching = true;
+                        pcity->researching = true;
 
                         if (client->research[a].castleid != 0)
                         {
@@ -847,7 +811,7 @@ void spitfire::run()
 
                             stTimedEvent te;
                             ra->city = pcity;
-                            ra->client = pcity->m_client;
+                            ra->client = pcity->client;
                             ra->researchid = a;
                             te.data = ra;
                             te.type = DEF_TIMEDRESEARCH;
@@ -902,29 +866,29 @@ void spitfire::run()
         for (int i = 0; i < rs.rowCount(); ++i, rs.moveNext())
         {
             count++;
-            alliance = m_alliances->CreateAlliance(rs.value("name").convert<std::string>(), rs.value("founder").convert<std::string>(), rs.value("id").convert<int64_t>(), false);
+            alliance = alliances->CreateAlliance(rs.value("name").convert<std::string>(), rs.value("founder").convert<std::string>(), rs.value("id").convert<int64_t>(), false);
             if (alliance == nullptr)
                 throw("Unable to create alliance : " + rs.value("name").convert<std::string>() + " ID : " + rs.value("id").convert<std::string>());
-            //alliance->m_allianceid = msql->GetInt(i, "id");
+            //alliance->allianceid = msql->GetInt(i, "id");
             alliance->ParseMembers(rs.value("members").convert<std::string>());
-            for (Alliance::stMember & member : alliance->m_members)
+            for (Alliance::stMember & member : alliance->members)
             {
                 if (member.rank == DEF_ALLIANCEHOST)
                 {
-                    alliance->m_ownerid = member.clientid;
-                    alliance->m_owner = GetClient(member.clientid)->playername;
+                    alliance->ownerid = member.clientid;
+                    alliance->owner = get_client(member.clientid)->playername;
                     break;
                 }
             }
-            alliance->ParseRelation(&alliance->m_enemies, rs.value("enemies").convert<std::string>());
-            alliance->ParseRelation(&alliance->m_allies, rs.value("allies").convert<std::string>());
-            alliance->ParseRelation(&alliance->m_neutral, rs.value("neutrals").convert<std::string>());
-            alliance->m_name = rs.value("name").convert<std::string>();
-            alliance->m_founder = rs.value("founder").convert<std::string>();
-            alliance->m_note = rs.value("note").convert<std::string>();
+            alliance->ParseRelation(&alliance->enemies, rs.value("enemies").convert<std::string>());
+            alliance->ParseRelation(&alliance->allies, rs.value("allies").convert<std::string>());
+            alliance->ParseRelation(&alliance->neutral, rs.value("neutrals").convert<std::string>());
+            alliance->name = rs.value("name").convert<std::string>();
+            alliance->founder = rs.value("founder").convert<std::string>();
+            alliance->note = rs.value("note").convert<std::string>();
 
-            if (alliance->m_allianceid >= m_allianceid)
-                m_allianceid = alliance->m_allianceid + 1;
+            if (alliance->allianceid >= allianceid)
+                allianceid = alliance->allianceid + 1;
 
 
             if (alliancecount > 101)
@@ -972,18 +936,18 @@ void spitfire::run()
     for (int i = 0; i < rs.rowCount(); ++i, rs.moveNext())
     {
     count++;
-    alliance = m_alliances->CreateAlliance(rs.value("name").convert<string>(), rs.value("leader").convert<int64_t>(), rs.value("id").convert<int64_t>());
-    //alliance->m_allianceid = msql->GetInt(i, "id");
+    alliance = alliances->CreateAlliance(rs.value("name").convert<string>(), rs.value("leader").convert<int64_t>(), rs.value("id").convert<int64_t>());
+    //alliance->allianceid = msql->GetInt(i, "id");
     alliance->ParseMembers(rs.value("members").convert<string>());
-    alliance->ParseRelation(&alliance->m_enemies, rs.value("enemies").convert<string>());
-    alliance->ParseRelation(&alliance->m_allies, rs.value("allies").convert<string>());
-    alliance->ParseRelation(&alliance->m_neutral, rs.value("neutrals").convert<string>());
-    alliance->m_name = rs.value("name").convert<string>();
-    alliance->m_founder = rs.value("founder").convert<string>();
-    alliance->m_note = rs.value("note").convert<string>();
+    alliance->ParseRelation(&alliance->enemies, rs.value("enemies").convert<string>());
+    alliance->ParseRelation(&alliance->allies, rs.value("allies").convert<string>());
+    alliance->ParseRelation(&alliance->neutral, rs.value("neutrals").convert<string>());
+    alliance->name = rs.value("name").convert<string>();
+    alliance->founder = rs.value("founder").convert<string>();
+    alliance->note = rs.value("note").convert<string>();
 
-    if (alliance->m_allianceid >= m_allianceid)
-    m_allianceid = alliance->m_allianceid + 1;
+    if (alliance->allianceid >= allianceid)
+    allianceid = alliance->allianceid + 1;
 
 
     if (alliancecount > 101)
@@ -1008,21 +972,21 @@ void spitfire::run()
     }
 
 
-//     for (Alliance * alliance : m_alliances->m_alliances)
+//     for (Alliance * alliance : alliances->alliances)
 //     {
 //         if (alliance == nullptr)
 //             continue;
-//         std::list<Alliance::stMember> tempmembers = alliance->m_members;
+//         std::list<Alliance::stMember> tempmembers = alliance->members;
 //         for (Alliance::stMember & member : tempmembers)
 //         {
 //             Client * client = GetClient(member.clientid);
-//             if (client->allianceid != alliance->m_allianceid)
+//             if (client->allianceid != alliance->allianceid)
 //             {
 //                 client->allianceid = -1;
 //                 client->alliancerank = 0;
 //                 client->alliancename = "";
-//                 alliance->m_members.remove(member);
-//                 alliance->m_currentmembers--;
+//                 alliance->members.remove(member);
+//                 alliance->currentmembers--;
 //                 continue;
 //             }
 //             if (client->alliancerank != member.rank)
@@ -1039,11 +1003,11 @@ void spitfire::run()
 
     for (int i = 0; i < mapsize*mapsize; ++i)
     {
-        if (map->m_tile[i].m_type < 11 && map->m_tile[i].m_ownerid < 0)
+        if (game_map->tile[i].type < 11 && game_map->tile[i].ownerid < 0)
         {
-            map->m_tile[i].m_level++;
-            if (map->m_tile[i].m_level > 10)
-                map->m_tile[i].m_level = 1;
+            game_map->tile[i].level++;
+            if (game_map->tile[i].level > 10)
+                game_map->tile[i].level = 1;
         }
     }
 #pragma endregion
@@ -1051,29 +1015,18 @@ void spitfire::run()
     SortPlayers();
     SortHeroes();
     SortCastles();
-    //m_alliances->SortAlliances();
-
-    TimerThreadRunning = true;
-    std::thread timerthread(std::bind(std::mem_fun(&spitfire::TimerThread), this));
-
-
-    //SOCKET THREADS
+    //alliances->SortAlliances();
 
     // Create a pool of threads to run all of the io_services.
-    std::vector<std::shared_ptr<std::thread> > threads;
-    for (std::size_t i = 0; i < /*thread_pool_size_*/1; ++i)
+    std::vector<std::thread> threads;
+    for (std::size_t i = 0; i < thread_pool_size; ++i)
     {
-        std::shared_ptr<std::thread> thread(new std::thread(
-            std::bind(&spitfire::io_thread, this)));
-        threads.push_back(thread);
+        threads.emplace_back([this]() { io_service_.run(); });
     }
 
     // Wait for all threads in the pool to exit.
-    for (std::size_t i = 0; i < threads.size(); ++i)
-        threads[i]->join();
-    //io_service_.run();
-
-    timerthread.join();
+    for (auto & thread : threads)
+        thread.join();
 }
 
 void spitfire::stop()
@@ -1103,7 +1056,7 @@ void spitfire::start(connection_ptr c)
     }
 }
 
-void spitfire::startpolicy(connection_ptr c)
+void spitfire::start_policy(connection_ptr c)
 {
     try
     {
@@ -1195,7 +1148,7 @@ void spitfire::do_acceptpolicy()
 
             if (!ec)
             {
-                startpolicy(std::make_shared<connection>(
+                start_policy(std::make_shared<connection>(
                     std::move(socketpolicy_), request_handlerpolicy_));
             }
         }
@@ -1208,80 +1161,10 @@ void spitfire::do_acceptpolicy()
     });
 }
 
-bool spitfire::ConnectSQL()
-{
-    try
-    {
-        accountpool = new SessionPool("MySQL", "host=" + sqlhost + ";port=3306;db=" + dbmaintable + ";user=" + sqluser + ";password=" + sqlpass + ";compress=true;auto-reconnect=true");
-        serverpool = new SessionPool("MySQL", "host=" + sqlhost + ";port=3306;db=" + dbservertable + ";user=" + sqluser + ";password=" + sqlpass + ";compress=true;auto-reconnect=true");
-    }
-    catch (Poco::Exception& exc)
-    {
-        std::cerr << exc.displayText() << std::endl;
-        return false;
-    }
-    return true;
-}
-
-bool spitfire::InitSockets()
-{
-//#ifdef WIN32
-//     {
-//         asio::ip::tcp::resolver resolver(io_service_);
-//         asio::ip::tcp::endpoint endpoint = *resolver.resolve({ bindaddress, std::string("843") });
-//         acceptorpolicy_.open(endpoint.protocol());
-//         acceptorpolicy_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-//         bool test = true;
-//         try
-//         {
-//             acceptorpolicy_.bind(endpoint);
-//         }
-//         catch (std::exception& e)
-//         {
-//             test = false;
-//         }
-//         if (test == false)
-//         {
-//             printf("Invalid bind address or port 843 already in use!\n");
-//         }
-//         else
-//         {
-//             // Finally listen on the socket and start accepting connections
-//             acceptorpolicy_.listen();
-//             do_acceptpolicy();
-//         }
-//     }
-//#endif
-
-    // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
-    asio::ip::tcp::resolver resolver(io_service_);
-    asio::ip::tcp::endpoint endpoint = *resolver.resolve({ bindaddress, bindport });
-    acceptor_.open(endpoint.protocol());
-    acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
-    bool test = true;
-    try
-    {
-        acceptor_.bind(endpoint);
-    }
-    catch (std::exception& e)
-    {
-        throw std::runtime_error(e.what());
-    }
-    if (test == false)
-    {
-        throw std::runtime_error("Invalid bind address or port 443 already in use! Exiting.");
-    }
-
-    // Finally listen on the socket and start accepting connections
-    acceptor_.listen();
-    do_accept();
-    return true;
-}
-
-Client * spitfire::NewClient()
+Client * spitfire::new_client()
 {
     static uint32_t clientnum;
-    if (currentplayersonline < maxplayers)
+    if (players_online < maxplayers)
     {
         Client * client = new Client();
         client->internalid = clientnum++;
@@ -1294,7 +1177,7 @@ Client * spitfire::NewClient()
 }
 
 //unused? potentially erroring
-int32_t  spitfire::GetClientIndex(int64_t accountid)
+int32_t  spitfire::get_client_index(int64_t accountid)
 {
     int32_t i = 0;
     for (Client * client : players)
@@ -1305,7 +1188,7 @@ int32_t  spitfire::GetClientIndex(int64_t accountid)
     }
     return -1;
 }
-Client * spitfire::GetClientByCastle(int64_t castleid)
+Client * spitfire::get_client_by_castle(int64_t castleid)
 {
 //     for (Client * client : players)
 //     {
@@ -1314,7 +1197,7 @@ Client * spitfire::GetClientByCastle(int64_t castleid)
 //     }
     return 0;
 }
-Client * spitfire::GetClient(int64_t accountid)
+Client * spitfire::get_client(int64_t accountid)
 {
     for (Client * client : players)
     {
@@ -1332,7 +1215,7 @@ Client * spitfire::GetClientByParent(int64_t accountid)
     }
     return 0;
 }
-Client * spitfire::GetClientByName(std::string name)
+Client * spitfire::get_client_by_name(std::string name)
 {
     for (Client * client : players)
     {
@@ -1342,7 +1225,7 @@ Client * spitfire::GetClientByName(std::string name)
     return 0;
 }
 
-void spitfire::CloseClient(Client* client, int typecode, std::string message) const
+void spitfire::close_client(Client* client, int typecode, std::string message) const
 {
     try
     {
@@ -1369,16 +1252,16 @@ void spitfire::CloseClient(Client* client, int typecode, std::string message) co
 City* spitfire::AddPlayerCity(Client* client, int tileid, uint64_t castleid)
 {
     PlayerCity * city = new PlayerCity();
-    city->m_type = CASTLE;
-    city->m_logurl = "";
-    city->m_status = 0;
-    city->m_tileid = tileid;
-    city->m_castleid = castleid;
-    city->m_accountid = client->accountid;
+    city->type = CASTLE;
+    city->logurl = "";
+    city->status = 0;
+    city->tileid = tileid;
+    city->castleid = castleid;
+    city->accountid = client->accountid;
 
     city->SetBuilding(31, 1, -1, 0, 0, 0);
     city->SetResources(0, 0, 0, 0, 0);
-    city->m_client = client;
+    city->client = client;
     std::string temp = "";
     std::stringstream ss;
     ss << "50,10.000000,100.000000,100.000000,100.000000,100.000000,90,0," << (double)Utils::time();
@@ -1389,15 +1272,15 @@ City* spitfire::AddPlayerCity(Client* client, int tileid, uint64_t castleid)
     client->citylist.push_back(city);
     client->citycount++;
 
-    map->m_tile[tileid].m_city = city;
-    m_city.push_back(city);
+    game_map->tile[tileid].city = city;
+    city.push_back(city);
 
 
-    map->m_tile[tileid].m_npc = false;
-    map->m_tile[tileid].m_ownerid = client->accountid;
-    map->m_tile[tileid].m_city = city;
-    map->m_tile[tileid].m_type = CASTLE;
-    map->m_tile[tileid].m_castleid = castleid;
+    game_map->tile[tileid].npc = false;
+    game_map->tile[tileid].ownerid = client->accountid;
+    game_map->tile[tileid].city = city;
+    game_map->tile[tileid].type = CASTLE;
+    game_map->tile[tileid].castleid = castleid;
 
     return city;
 }
@@ -1405,14 +1288,14 @@ City* spitfire::AddPlayerCity(Client* client, int tileid, uint64_t castleid)
 City * spitfire::AddNpcCity(int tileid)
 {
     NpcCity * city = new NpcCity();
-    city->m_tileid = tileid;
-    city->m_type = NPC;
-    city->m_cityname = "Barbarian City";
-    city->m_status = 0;
-    m_city.push_back(city);
-    map->m_tile[tileid].m_city = city;
-    map->m_tile[tileid].m_npc = true;
-    map->m_tile[tileid].m_type = NPC;
+    city->tileid = tileid;
+    city->type = NPC;
+    city->cityname = "Barbarian City";
+    city->status = 0;
+    city.push_back(city);
+    game_map->tile[tileid].city = city;
+    game_map->tile[tileid].npc = true;
+    game_map->tile[tileid].type = NPC;
     return city;
 }
 
@@ -1504,8 +1387,8 @@ int32_t spitfire::CalcTroopSpeed(PlayerCity * city, stTroops & troops, int32_t s
     else if (troops.scout) { fslowest = 3000; }
 
     double maxtechlevel = city->GetBuildingLevel(B_ACADEMY);
-    double compass = city->m_client->GetResearchLevel(T_COMPASS);//1.5x speed max
-    double hbr = city->m_client->GetResearchLevel(T_HORSEBACKRIDING);//2x speed max
+    double compass = city->client->GetResearchLevel(T_COMPASS);//1.5x speed max
+    double hbr = city->client->GetResearchLevel(T_HORSEBACKRIDING);//2x speed max
 
     hbr = (maxtechlevel >= hbr) ? hbr : maxtechlevel;
     compass = (maxtechlevel >= compass) ? compass : maxtechlevel;
@@ -1571,7 +1454,7 @@ bool spitfire::ParseChat(Client * client, std::string str)
                 {
                     std::list<Client*>::iterator playeriter;
                     for (playeriter = players.begin(); playeriter != players.end(); ++playeriter)
-                        CloseClient(*playeriter, 1, "");
+                        close_client(*playeriter, 1, "");
                     Shutdown();
                 }
                 //                 amf3object sobj;
@@ -1628,13 +1511,13 @@ bool spitfire::ParseChat(Client * client, std::string str)
             stringstream ss;
             ss << test << "prestige granted.";
             data["msg"] = ss.str().c_str();
-            client->m_prestige += test;
+            client->prestige += test;
             client->PlayerUpdate();
             }*/
             else if (!strcmp(command, "resources"))
             {
                 stResources res = { 10000000, 10000000, 10000000, 10000000, 10000000 };
-                client->GetFocusCity()->m_resources += res;
+                client->GetFocusCity()->resources += res;
                 client->GetFocusCity()->ResourceUpdate();
             }
             else if (!strcmp(command, "tempvar"))
@@ -1666,7 +1549,7 @@ bool spitfire::ParseChat(Client * client, std::string str)
                     return false;
                 }
                 std::string msg = command;
-                CloseClient(client, typecode, msg);
+                close_client(client, typecode, msg);
             }
             else if (!strcmp(command, "buff"))
             {
@@ -1730,7 +1613,7 @@ int16_t spitfire::GetRelation(int32_t client1, int32_t client2) const
 {
 //     if (client1 >= 0 && client2 >= 0)
 //     {
-//         return m_alliances->GetRelation(client1, client2);
+//         return alliances->GetRelation(client1, client2);
 //     }
     return 0;
 }
@@ -1773,20 +1656,20 @@ void spitfire::TimerThread()
                     {
                         PlayerCity * city = client->citylist[j];
                         std::vector<stTroopQueue>::iterator tqiter;
-                        for (tqiter = city->m_troopqueue.begin(); tqiter != city->m_troopqueue.end();)
+                        for (tqiter = city->troopqueue.begin(); tqiter != city->troopqueue.end();)
                         {
                             std::list<stTroopTrain>::iterator iter;
                             iter = tqiter->queue.begin();
                             if (iter != tqiter->queue.end() && iter->endtime <= ltime)
                             {
                                 //troops done training
-                                double gain = iter->count * GetPrestigeOfAction(DEF_TRAIN, iter->troopid, 1, city->m_level);
+                                double gain = iter->count * GetPrestigeOfAction(DEF_TRAIN, iter->troopid, 1, city->level);
                                 client->Prestige(gain);
                                 client->PlayerUpdate();
-                                if (city->m_mayor)
+                                if (city->mayor)
                                 {
-                                    city->m_mayor->m_experience += gain;
-                                    city->HeroUpdate(city->m_mayor, 2);
+                                    city->mayor->experience += gain;
+                                    city->HeroUpdate(city->mayor, 2);
                                 }
 
                                 if (tqiter->positionid == -2)
@@ -1831,22 +1714,22 @@ void spitfire::TimerThread()
                 amreturn->client = am->client;
 
                 amreturn->hero = am->hero;
-                amreturn->heroname = am->hero->m_name;
+                amreturn->heroname = am->hero->name;
                 amreturn->direction = 2;
                 amreturn->resources += fight.returned;
-                amreturn->startposname = am->city->m_cityname;
+                amreturn->startposname = am->city->cityname;
                 amreturn->king = am->client->playername;
                 amreturn->troops = am->troops;
                 amreturn->starttime = Utils::time();
                 amreturn->armyid = armycounter++;
                 amreturn->reachtime = amreturn->starttime + (am->reachtime - am->starttime - am->resttime);
-                amreturn->herolevel = am->hero->m_level;
+                amreturn->herolevel = am->hero->level;
                 amreturn->resttime = 0;
                 amreturn->missiontype = am->missiontype;
-                amreturn->startfieldid = am->city->m_tileid;
+                amreturn->startfieldid = am->city->tileid;
                 amreturn->targetfieldid = am->targetfieldid;
                 amreturn->targetposname = map->GetTileFromID(am->targetfieldid)->GetName();
-                amreturn->hero->m_status = DEF_HERORETURN;
+                amreturn->hero->status = DEF_HERORETURN;
 
                 te.data = amreturn;
                 te.type = DEF_TIMEDARMY;
@@ -1857,17 +1740,17 @@ void spitfire::TimerThread()
                 am->client->SelfArmyUpdate();
 
                 armylist.remove(*iter);
-                am->client->HeroUpdate(am->hero->m_id, am->hero->m_castleid);
+                am->client->HeroUpdate(am->hero->id, am->hero->castleid);
                 delete am;
                 }
                 else
                 {
                 //returning to city from attack/reinforce/etc
 
-                am->hero->m_status = DEF_HEROIDLE;
+                am->hero->status = DEF_HEROIDLE;
 
-                am->city->m_resources += am->resources;
-                ((PlayerCity*)am->city)->m_troops += am->troops;
+                am->city->resources += am->resources;
+                ((PlayerCity*)am->city)->troops += am->troops;
 
                 ((PlayerCity*)am->city)->HeroUpdate(am->hero, 2);
                 am->client->SelfArmyUpdate();
@@ -1936,10 +1819,10 @@ void spitfire::TimerThread()
                                 {
                                     for (int i = 0; i < 10; ++i)
                                     {
-                                        if (city->m_innheroes[i])
+                                        if (city->innheroes[i])
                                         {
-                                            delete city->m_innheroes[i];
-                                            city->m_innheroes[i] = 0;
+                                            delete city->innheroes[i];
+                                            city->innheroes[i] = 0;
                                         }
                                     }
                                 }
@@ -1966,21 +1849,21 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                                 amf3object & data = obj["data"];
 
                                 data["buildingBean"] = bldg->ToObject();
-                                data["castleId"] = city->m_castleid;
+                                data["castleId"] = city->castleid;
 
                                 buildinglist.erase(iter++);
 
-                                double gain = GetPrestigeOfAction(DEF_BUILDING, bldg->type, bldg->level, city->m_level);
+                                double gain = GetPrestigeOfAction(DEF_BUILDING, bldg->type, bldg->level, city->level);
                                 client->Prestige(gain);
 
                                 delete ba;
 
                                 client->CalculateResources();
                                 city->CalculateStats();
-                                if (city->m_mayor)
+                                if (city->mayor)
                                 {
-                                    city->m_mayor->m_experience += gain;
-                                    city->HeroUpdate(city->m_mayor, 2);
+                                    city->mayor->experience += gain;
+                                    city->HeroUpdate(city->mayor, 2);
                                 }
                                 //city->CastleUpdate();
                                 client->PlayerUpdate();
@@ -1998,12 +1881,12 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                                 bldg->level--;
 
                                 stResources res;
-                                res.food = m_buildingconfig[bldg->type][bldg->level].food / 3;
-                                res.wood = m_buildingconfig[bldg->type][bldg->level].wood / 3;
-                                res.stone = m_buildingconfig[bldg->type][bldg->level].stone / 3;
-                                res.iron = m_buildingconfig[bldg->type][bldg->level].iron / 3;
-                                res.gold = m_buildingconfig[bldg->type][bldg->level].gold / 3;
-                                ba->city->m_resources += res;
+                                res.food = buildingconfig[bldg->type][bldg->level].food / 3;
+                                res.wood = buildingconfig[bldg->type][bldg->level].wood / 3;
+                                res.stone = buildingconfig[bldg->type][bldg->level].stone / 3;
+                                res.iron = buildingconfig[bldg->type][bldg->level].iron / 3;
+                                res.gold = buildingconfig[bldg->type][bldg->level].gold / 3;
+                                ba->city->resources += res;
 
                                 if (bldg->level == 0)
                                     ba->city->SetBuilding(0, 0, ba->positionid, 0, 0.0, 0.0);
@@ -2023,7 +1906,7 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                                 amf3object & data = obj["data"];
 
                                 data["buildingBean"] = bldg->ToObject();
-                                data["castleId"] = city->m_castleid;
+                                data["castleId"] = city->castleid;
 
                                 SendObject(client, obj);
 
@@ -2055,7 +1938,7 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                         {
                             if (client->research[ra->researchid].endtime < ltime)
                             {
-                                city->m_researching = false;
+                                city->researching = false;
                                 client->research[ra->researchid].level++;
                                 client->research[ra->researchid].endtime = 0;
                                 client->research[ra->researchid].starttime = 0;
@@ -2067,21 +1950,21 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
 
                                 amf3object & data = obj["data"];
 
-                                data["castleId"] = city->m_castleid;
+                                data["castleId"] = city->castleid;
 
 
                                 researchlist.erase(iter++);
 
-                                double gain = GetPrestigeOfAction(DEF_RESEARCH, ra->researchid, client->research[ra->researchid].level, city->m_level);
+                                double gain = GetPrestigeOfAction(DEF_RESEARCH, ra->researchid, client->research[ra->researchid].level, city->level);
                                 client->Prestige(gain);
 
 
                                 client->CalculateResources();
                                 city->CalculateStats();
-                                if (city->m_mayor)
+                                if (city->mayor)
                                 {
-                                    city->m_mayor->m_experience += gain;
-                                    city->HeroUpdate(city->m_mayor, 2);
+                                    city->mayor->experience += gain;
+                                    city->HeroUpdate(city->mayor, 2);
                                 }
                                 //city->CastleUpdate();
                                 client->PlayerUpdate();
@@ -2113,7 +1996,7 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                 SortPlayers();
                 SortHeroes();
                 SortCastles();
-                m_alliances->SortAlliances();
+                alliances->SortAlliances();
                 for (playeriter = players.begin(); playeriter != players.end(); ++playeriter)
                 {
                     Client * client = *playeriter;
@@ -2155,8 +2038,8 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
             if (t3mintimer < ltime)
             {
                 //                if (!savethreadrunning)
-                //                    savethread = shared_ptr<thread>(new thread(std::bind(std::mem_fun(&Server::SaveData), this)));
-                //                std::thread timerthread(std::bind(std::mem_fun(&Server::TimerThread), gserver));
+                //                    savethread = shared_ptr<thread>(new thread(std::bind(std::mefun(&Server::SaveData), this)));
+                //                std::thread timerthread(std::bind(std::mefun(&Server::TimerThread), gserver));
                 //                 //hSaveThread = (HANDLE)_beginthreadex(0, 0, SaveData, 0, 0, &uAddr);
                 //t3mintimer += 180000;
                 t3mintimer += 180000;
@@ -2177,15 +2060,15 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
             {
                 try
                 {
-                    for (int i = 0; i < m_city.size(); ++i)
+                    for (int i = 0; i < city.size(); ++i)
                     {
-                        if (m_city.at(i)->m_type == NPC)
+                        if (city.at(i)->type == NPC)
                         {
-                            ((NpcCity*)m_city.at(i))->CalculateStats(true, true);
+                            ((NpcCity*)city.at(i))->CalculateStats(true, true);
                         }
-                        else if (m_city.at(i)->m_type == CASTLE)
+                        else if (city.at(i)->type == CASTLE)
                         {
-                            ((PlayerCity*)m_city.at(i))->RecalculateCityStats();
+                            ((PlayerCity*)city.at(i))->RecalculateCityStats();
                         }
                     }
                 }
@@ -2198,12 +2081,12 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
             }
             //             if (t30mintimer < ltime)
             //             {
-            //                 LOCK(M_RANKEDLIST);
+            //                 LOCK(RANKEDLIST);
             //                 gserver->SortPlayers();
             //                 gserver->SortHeroes();
             //                 gserver->SortCastles();
-            //                 gserver->m_alliances->SortAlliances();
-            //                 UNLOCK(M_RANKEDLIST);
+            //                 gserver->alliances->SortAlliances();
+            //                 UNLOCK(RANKEDLIST);
             //                 t30mintimer += 1800000;
             //             }
             if (t1htimer < ltime)
@@ -2254,8 +2137,8 @@ stItemConfig * spitfire::GetItem(std::string name)
 {
     for (int i = 0; i < DEF_MAXITEMS; ++i)
     {
-        if (m_items[i].name == name)
-            return &m_items[i];
+        if (items[i].name == name)
+            return &items[i];
     }
     return 0;
 }
@@ -2548,38 +2431,38 @@ Hero * spitfire::CreateRandomHero(int innlevel) const
 
     int maxherolevel = innlevel * 5;
 
-    hero->m_level = (rand() % maxherolevel) + 1;
-    hero->m_basemanagement = RandomStat();
-    hero->m_basestratagem = RandomStat();
-    hero->m_basepower = RandomStat();
+    hero->level = (rand() % maxherolevel) + 1;
+    hero->basemanagement = RandomStat();
+    hero->basestratagem = RandomStat();
+    hero->basepower = RandomStat();
 
-    int remainpoints = hero->m_level;
+    int remainpoints = hero->level;
 
-    hero->m_power = rand() % remainpoints;
-    remainpoints -= hero->m_power;
-    hero->m_power += hero->m_basepower;
+    hero->power = rand() % remainpoints;
+    remainpoints -= hero->power;
+    hero->power += hero->basepower;
     if (remainpoints > 0)
     {
-        hero->m_management = rand() % remainpoints;
-        remainpoints -= hero->m_management;
-        hero->m_management += hero->m_basemanagement;
+        hero->management = rand() % remainpoints;
+        remainpoints -= hero->management;
+        hero->management += hero->basemanagement;
     }
     if (remainpoints > 0)
     {
-        hero->m_stratagem = remainpoints;
-        remainpoints -= hero->m_stratagem;
-        hero->m_stratagem += hero->m_basestratagem;
+        hero->stratagem = remainpoints;
+        remainpoints -= hero->stratagem;
+        hero->stratagem += hero->basestratagem;
     }
 
 
-    hero->m_loyalty = 70;
-    hero->m_experience = 0;
-    hero->m_upgradeexp = hero->m_level * hero->m_level * 100;
-    hero->m_id = 0;
+    hero->loyalty = 70;
+    hero->experience = 0;
+    hero->upgradeexp = hero->level * hero->level * 100;
+    hero->id = 0;
     char tempstr[30];
-    sprintf(tempstr, "Test Name%d%d%d", hero->m_power, hero->m_management, hero->m_stratagem);
-    hero->m_name = tempstr;
-    hero->m_logourl = "images/icon/player/faceA20.jpg";
+    sprintf(tempstr, "Test Name%d%d%d", hero->power, hero->management, hero->stratagem);
+    hero->name = tempstr;
+    hero->logourl = "images/icon/player/faceA20.jpg";
 
     return hero;
 }
@@ -2622,11 +2505,11 @@ bool spitfire::comparecities(stClientRank first, stClientRank second)
 
 void spitfire::SortPlayers()
 {
-    m_prestigerank.clear();
-    m_honorrank.clear();
-    m_titlerank.clear();
-    m_populationrank.clear();
-    m_citiesrank.clear();
+    prestigerank.clear();
+    honorrank.clear();
+    titlerank.clear();
+    populationrank.clear();
+    citiesrank.clear();
 
 
     std::list<Client*>::iterator playeriter;
@@ -2638,22 +2521,22 @@ void spitfire::SortPlayers()
         rank.client = client;
         rank.rank = 0;
 
-        m_prestigerank.push_back(rank);
-        m_honorrank.push_back(rank);
-        m_titlerank.push_back(rank);
-        m_populationrank.push_back(rank);
-        m_citiesrank.push_back(rank);
+        prestigerank.push_back(rank);
+        honorrank.push_back(rank);
+        titlerank.push_back(rank);
+        populationrank.push_back(rank);
+        citiesrank.push_back(rank);
     }
 
-    m_prestigerank.sort(compareprestige);
-    m_honorrank.sort(comparehonor);
-    m_titlerank.sort(comparetitle);
-    m_populationrank.sort(comparepop);
-    m_citiesrank.sort(comparecities);
+    prestigerank.sort(compareprestige);
+    honorrank.sort(comparehonor);
+    titlerank.sort(comparetitle);
+    populationrank.sort(comparepop);
+    citiesrank.sort(comparecities);
 
 
     int num = 1;
-    for (stClientRank & ranklist : m_prestigerank)
+    for (stClientRank & ranklist : prestigerank)
     {
         ranklist.rank = num;
         ranklist.client->prestigerank = num++;
@@ -2661,22 +2544,22 @@ void spitfire::SortPlayers()
             ranklist.client->PlayerUpdate();
     }
     num = 1;
-    for (stClientRank & ranklist : m_honorrank)
+    for (stClientRank & ranklist : honorrank)
     {
         ranklist.rank = num++;
     }
     num = 1;
-    for (stClientRank & ranklist : m_titlerank)
+    for (stClientRank & ranklist : titlerank)
     {
         ranklist.rank = num++;
     }
     num = 1;
-    for (stClientRank & ranklist : m_populationrank)
+    for (stClientRank & ranklist : populationrank)
     {
         ranklist.rank = num++;
     }
     num = 1;
-    for (stClientRank & ranklist : m_citiesrank)
+    for (stClientRank & ranklist : citiesrank)
     {
         ranklist.rank = num++;
     }
@@ -2684,10 +2567,10 @@ void spitfire::SortPlayers()
 
 void spitfire::SortHeroes()
 {
-    m_herorankstratagem.clear();
-    m_herorankpower.clear();
-    m_herorankmanagement.clear();
-    m_herorankgrade.clear();
+    herorankstratagem.clear();
+    herorankpower.clear();
+    herorankmanagement.clear();
+    herorankgrade.clear();
 
 
     std::list<Client*>::iterator playeriter;
@@ -2700,54 +2583,54 @@ void spitfire::SortHeroes()
             {
                 for (uint32_t k = 0; k < 10; ++k)
                 {
-                    if (client->citylist[j]->m_heroes[k])
+                    if (client->citylist[j]->heroes[k])
                     {
-                        Hero * hero = client->citylist[j]->m_heroes[k];
+                        Hero * hero = client->citylist[j]->heroes[k];
                         stHeroRank rank = stHeroRank();
-                        assert(hero->m_level > 0);
-                        assert(hero->m_stratagem > 0);
-                        assert(hero->m_management > 0);
-                        assert(hero->m_power > 0);
-                        rank.grade = hero->m_level;
-                        rank.stratagem = hero->m_stratagem;
-                        rank.management = hero->m_management;
-                        rank.power = hero->m_power;
-                        rank.name = hero->m_name;
+                        assert(hero->level > 0);
+                        assert(hero->stratagem > 0);
+                        assert(hero->management > 0);
+                        assert(hero->power > 0);
+                        rank.grade = hero->level;
+                        rank.stratagem = hero->stratagem;
+                        rank.management = hero->management;
+                        rank.power = hero->power;
+                        rank.name = hero->name;
                         rank.kind = client->playername;
                         rank.rank = 0;
-                        m_herorankstratagem.push_back(rank);
-                        m_herorankpower.push_back(rank);
-                        m_herorankmanagement.push_back(rank);
-                        m_herorankgrade.push_back(rank);
+                        herorankstratagem.push_back(rank);
+                        herorankpower.push_back(rank);
+                        herorankmanagement.push_back(rank);
+                        herorankgrade.push_back(rank);
                     }
                 }
             }
         }
     }
 
-    m_herorankstratagem.sort(comparestratagem);
-    m_herorankpower.sort(comparepower);
-    m_herorankmanagement.sort(comparemanagement);
-    m_herorankgrade.sort(comparegrade);
+    herorankstratagem.sort(comparestratagem);
+    herorankpower.sort(comparepower);
+    herorankmanagement.sort(comparemanagement);
+    herorankgrade.sort(comparegrade);
 
     std::list<stHeroRank>::iterator iter;
     int num = 1;
-    for (iter = m_herorankstratagem.begin(); iter != m_herorankstratagem.end(); ++iter)
+    for (iter = herorankstratagem.begin(); iter != herorankstratagem.end(); ++iter)
     {
         iter->rank = num++;
     }
     num = 1;
-    for (iter = m_herorankpower.begin(); iter != m_herorankpower.end(); ++iter)
+    for (iter = herorankpower.begin(); iter != herorankpower.end(); ++iter)
     {
         iter->rank = num++;
     }
     num = 1;
-    for (iter = m_herorankmanagement.begin(); iter != m_herorankmanagement.end(); ++iter)
+    for (iter = herorankmanagement.begin(); iter != herorankmanagement.end(); ++iter)
     {
         iter->rank = num++;
     }
     num = 1;
-    for (iter = m_herorankgrade.begin(); iter != m_herorankgrade.end(); ++iter)
+    for (iter = herorankgrade.begin(); iter != herorankgrade.end(); ++iter)
     {
         iter->rank = num++;
     }
@@ -2784,8 +2667,8 @@ bool spitfire::comparegrade(stHeroRank first, stHeroRank second)
 
 void spitfire::SortCastles()
 {
-    m_castleranklevel.clear();
-    m_castlerankpopulation.clear();
+    castleranklevel.clear();
+    castlerankpopulation.clear();
 
     std::list<Client*>::iterator playeriter;
     for (playeriter = players.begin(); playeriter != players.end(); ++playeriter)
@@ -2803,32 +2686,32 @@ void spitfire::SortCastles()
                 ss << "Level " << level;
                 grade = ss.str();
                 if (client->HasAlliance())
-                    rank.alliance = client->GetAlliance()->m_name;
+                    rank.alliance = client->GetAlliance()->name;
                 else
                     rank.alliance = "";
                 rank.level = level;
-                rank.population = city->m_population;
-                rank.name = city->m_cityname;
+                rank.population = city->population;
+                rank.name = city->cityname;
                 rank.grade = grade;
                 rank.kind = client->playername;
                 rank.rank = 0;
-                m_castleranklevel.push_back(rank);
-                m_castlerankpopulation.push_back(rank);
+                castleranklevel.push_back(rank);
+                castlerankpopulation.push_back(rank);
             }
         }
     }
 
-    m_castleranklevel.sort(comparelevel);
-    m_castlerankpopulation.sort(comparepopulation);
+    castleranklevel.sort(comparelevel);
+    castlerankpopulation.sort(comparepopulation);
 
     std::list<stCastleRank>::iterator iter;
     int num = 1;
-    for (iter = m_castleranklevel.begin(); iter != m_castleranklevel.end(); ++iter)
+    for (iter = castleranklevel.begin(); iter != castleranklevel.end(); ++iter)
     {
         iter->rank = num++;
     }
     num = 1;
-    for (iter = m_castlerankpopulation.begin(); iter != m_castlerankpopulation.end(); ++iter)
+    for (iter = castlerankpopulation.begin(); iter != castlerankpopulation.end(); ++iter)
     {
         iter->rank = num++;
     }
@@ -2854,7 +2737,7 @@ void * spitfire::DoRankSearch(std::string key, int8_t type, void * subtype, int1
     if (type == 1)//client lists
     {
         std::list<stSearchClientRank>::iterator iter;
-        for (iter = m_searchclientranklist.begin(); iter != m_searchclientranklist.end();)
+        for (iter = searchclientranklist.begin(); iter != searchclientranklist.end();)
         {
             if (iter->rlist == subtype && iter->key == key)
                 return &iter->ranklist;
@@ -2879,13 +2762,13 @@ void * spitfire::DoRankSearch(std::string key, int8_t type, void * subtype, int1
             }
             ++iterclient;
         }
-        m_searchclientranklist.push_back(searchrank);
-        return &m_searchclientranklist.back();
+        searchclientranklist.push_back(searchrank);
+        return &searchclientranklist.back();
     }
     else if (type == 2)//hero lists
     {
         std::list<stSearchHeroRank>::iterator iter;
-        for (iter = m_searchheroranklist.begin(); iter != m_searchheroranklist.end();)
+        for (iter = searchheroranklist.begin(); iter != searchheroranklist.end();)
         {
             if (iter->rlist == subtype && iter->key == key)
                 return &iter->ranklist;
@@ -2915,13 +2798,13 @@ void * spitfire::DoRankSearch(std::string key, int8_t type, void * subtype, int1
             }
             ++iterhero;
         }
-        m_searchheroranklist.push_back(searchrank);
-        return &m_searchheroranklist.back();
+        searchheroranklist.push_back(searchrank);
+        return &searchheroranklist.back();
     }
     else if (type == 3)//castle lists
     {
         std::list<stSearchCastleRank>::iterator iter;
-        for (iter = m_searchcastleranklist.begin(); iter != m_searchcastleranklist.end();)
+        for (iter = searchcastleranklist.begin(); iter != searchcastleranklist.end();)
         {
             if (iter->rlist == subtype && iter->key == key)
                 return &iter->ranklist;
@@ -2951,13 +2834,13 @@ void * spitfire::DoRankSearch(std::string key, int8_t type, void * subtype, int1
             }
             ++itercastle;
         }
-        m_searchcastleranklist.push_back(searchrank);
-        return &m_searchcastleranklist.back();
+        searchcastleranklist.push_back(searchrank);
+        return &searchcastleranklist.back();
     }
     else// if (type == 4)//alliance lists
     {
         std::list<stSearchAllianceRank>::iterator iter;
-        for (iter = m_searchallianceranklist.begin(); iter != m_searchallianceranklist.end();)
+        for (iter = searchallianceranklist.begin(); iter != searchallianceranklist.end();)
         {
             if (iter->rlist == subtype && iter->key == key)
                 return &iter->ranklist;
@@ -2973,7 +2856,7 @@ void * spitfire::DoRankSearch(std::string key, int8_t type, void * subtype, int1
 
         for (iteralliance = ((std::list<stAlliance>*)subtype)->begin(); iteralliance != ((std::list<stAlliance>*)subtype)->end();)
         {
-            if (Utils::ci_find(iteralliance->ref->m_name, key) != std::string::npos)
+            if (Utils::ci_find(iteralliance->ref->name, key) != std::string::npos)
             {
                 stAlliance alliancerank;
                 alliancerank.ref = iteralliance->ref;
@@ -2982,8 +2865,8 @@ void * spitfire::DoRankSearch(std::string key, int8_t type, void * subtype, int1
             }
             ++iteralliance;
         }
-        m_searchallianceranklist.push_back(searchrank);
-        return &m_searchallianceranklist.back();
+        searchallianceranklist.push_back(searchrank);
+        return &searchallianceranklist.back();
     }
     return 0;
 }
@@ -2994,31 +2877,31 @@ void spitfire::CheckRankSearchTimeouts(uint64_t time)
     std::list<stSearchHeroRank>::iterator iterhero;
     std::list<stSearchCastleRank>::iterator itercastle;
 
-    for (iterclient = m_searchclientranklist.begin(); iterclient != m_searchclientranklist.end();)
+    for (iterclient = searchclientranklist.begin(); iterclient != searchclientranklist.end();)
     {
         if (iterclient->lastaccess + 30000 < time)
         {
-            m_searchclientranklist.erase(iterclient++);
+            searchclientranklist.erase(iterclient++);
             continue;
         }
         ++iterclient;
     }
 
-    for (iterhero = m_searchheroranklist.begin(); iterhero != m_searchheroranklist.end();)
+    for (iterhero = searchheroranklist.begin(); iterhero != searchheroranklist.end();)
     {
         if (iterhero->lastaccess + 30000 < time)
         {
-            m_searchheroranklist.erase(iterhero++);
+            searchheroranklist.erase(iterhero++);
             continue;
         }
         ++iterhero;
     }
 
-    for (itercastle = m_searchcastleranklist.begin(); itercastle != m_searchcastleranklist.end();)
+    for (itercastle = searchcastleranklist.begin(); itercastle != searchcastleranklist.end();)
     {
         if (itercastle->lastaccess + 30000 < time)
         {
-            m_searchcastleranklist.erase(itercastle++);
+            searchcastleranklist.erase(itercastle++);
             continue;
         }
         ++itercastle;
@@ -3027,8 +2910,8 @@ void spitfire::CheckRankSearchTimeouts(uint64_t time)
 
 bool spitfire::CreateMail(std::string sender, std::string receiver, std::string subject, std::string content, int8_t type)
 {
-    Client * snd = this->GetClientByName(sender);
-    Client * rcv = this->GetClientByName(receiver);
+    Client * snd = this->get_client_by_name(sender);
+    Client * rcv = this->get_client_by_name(receiver);
 
     if (((snd == nullptr) && (sender != "System")) || (rcv == nullptr))
     {
@@ -3103,7 +2986,7 @@ bool spitfire::CreateMail(std::string sender, std::string receiver, std::string 
     return true;
 }
 
-bool spitfire::Init()
+bool spitfire::initialize()
 {
     try
     {
@@ -3156,10 +3039,74 @@ bool spitfire::Init()
         log->error("Unspecified Init() Exception.");
         return false;
     }
+
+    try
+    {
+        accountpool = new SessionPool("MySQL", "host=" + sqlhost + ";port=3306;db=" + dbmaintable + ";user=" + sqluser + ";password=" + sqlpass + ";compress=true;auto-reconnect=true");
+        serverpool = new SessionPool("MySQL", "host=" + sqlhost + ";port=3306;db=" + dbservertable + ";user=" + sqluser + ";password=" + sqlpass + ";compress=true;auto-reconnect=true");
+    }
+    catch (Poco::Exception& exc)
+    {
+        std::cerr << exc.displayText() << std::endl;
+        return false;
+    }
+
+
+//#ifdef WIN32
+//     {
+//         asio::ip::tcp::resolver resolver(io_service_);
+//         asio::ip::tcp::endpoint endpoint = *resolver.resolve({ bindaddress, std::string("843") });
+//         acceptorpolicy_.open(endpoint.protocol());
+//         acceptorpolicy_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+//         bool test = true;
+//         try
+//         {
+//             acceptorpolicy_.bind(endpoint);
+//         }
+//         catch (std::exception& e)
+//         {
+//             test = false;
+//         }
+//         if (test == false)
+//         {
+//             printf("Invalid bind address or port 843 already in use!\n");
+//         }
+//         else
+//         {
+//             // Finally listen on the socket and start accepting connections
+//             acceptorpolicy_.listen();
+//             do_acceptpolicy();
+//         }
+//     }
+    //#endif
+
+    // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
+    asio::ip::tcp::resolver resolver(io_service_);
+    asio::ip::tcp::endpoint endpoint = *resolver.resolve({ bindaddress, bindport });
+    acceptor_.open(endpoint.protocol());
+    acceptor_.set_option(asio::ip::tcp::acceptor::reuse_address(true));
+    bool test = true;
+    try
+    {
+        acceptor_.bind(endpoint);
+    }
+    catch (std::exception& e)
+    {
+        throw std::runtime_error(e.what());
+    }
+    if (test == false)
+    {
+        throw std::runtime_error("Invalid bind address or port 443 already in use! Exiting.");
+    }
+
+    // Finally listen on the socket and start accepting connections
+    acceptor_.listen();
+    do_accept();
+
     return true;
 }
 
-void spitfire::setupLogging()
+void spitfire::start_logging()
 {
     spdlog::set_async_mode(32);
     log = spdlog::stdout_color_mt("spitfire");

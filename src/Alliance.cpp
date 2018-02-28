@@ -18,22 +18,22 @@ using namespace Poco::Data::Keywords;
 Alliance::Alliance(std::string name, std::string founder)
 {
     enemyactioncooldown = 0;
-    m_name = name;
-    m_members.clear();
-    m_enemies.clear();
-    m_allies.clear();
-    m_neutral.clear();
-    m_currentmembers = 0;
-    m_maxmembers = 500;
-    //m_members.push_back(ownerid);
-    m_prestige = 0;
-    m_honor = 0;
-    m_prestigerank = 0;
-    m_honorrank = 0;
-    m_membersrank = 0;
-    m_founder = founder;
-    m_owner = "";
-    m_citycount = 0;
+    name = name;
+    members.clear();
+    enemies.clear();
+    allies.clear();
+    neutral.clear();
+    currentmembers = 0;
+    maxmembers = 500;
+    //members.push_back(ownerid);
+    prestige = 0;
+    honor = 0;
+    prestigerank = 0;
+    honorrank = 0;
+    membersrank = 0;
+    founder = founder;
+    owner = "";
+    citycount = 0;
 }
 
 Alliance::~Alliance()
@@ -46,7 +46,7 @@ bool Alliance::InsertToDB()
     typedef Poco::Tuple<std::string, std::string, std::string, int64_t> AllianceSave;
     //name, founder, leader
 
-    AllianceSave savedata(m_name, m_founder, m_owner, Utils::time());
+    AllianceSave savedata(name, founder, owner, Utils::time());
 
     try
     {
@@ -60,7 +60,7 @@ bool Alliance::InsertToDB()
         int64_t lsiv = lsi.value(LAST_INSERT_ID).convert<int64_t>();
         if (lsiv > 0)
         {
-            m_allianceid = lsiv;
+            allianceid = lsiv;
         }
         else
         {
@@ -80,7 +80,7 @@ bool Alliance::DeleteFromDB()
     try
     {
         Poco::Data::Session ses(spitfire::GetSingleton().serverpool->get());
-        ses << "DELETE FROM `alliances` WHERE id=?;", use(m_allianceid), now;
+        ses << "DELETE FROM `alliances` WHERE id=?;", use(allianceid), now;
         return true;
     }
     SQLCATCH3(0, spitfire::GetSingleton());
@@ -102,28 +102,28 @@ bool Alliance::SaveToDB()
     std::string enemies = "";
     std::string members = "";
 
-    for (int64_t id : m_allies)
+    for (int64_t id : allies)
     {
         args.push_back(id);
         ss << "%?d|";
     }
     Poco::format(allies, ss.str(), args);
 
-    for (int64_t id : m_neutral)
+    for (int64_t id : neutral)
     {
         args.push_back(id);
         ss << "%?d|";
     }
     Poco::format(neutrals, ss.str(), args);
 
-    for (int64_t id : m_enemies)
+    for (int64_t id : enemies)
     {
         args.push_back(id);
         ss << "%?d|";
     }
     Poco::format(enemies, ss.str(), args);
 
-    for (stMember & member : m_members)
+    for (stMember & member : members)
     {
         args.push_back(member.clientid);
         args.push_back(member.rank);
@@ -131,14 +131,14 @@ bool Alliance::SaveToDB()
     }
     Poco::format(members, ss.str(), args);
 
-    AllianceSave savedata(m_name, m_founder, m_owner, m_note, m_intro, m_motd, allies, neutrals, enemies, members);
+    AllianceSave savedata(name, founder, owner, note, intro, motd, allies, neutrals, enemies, members);
 
 
     //name, founder, leader, note, intro, motd, allies, neutrals, enemies, members
     try
     {
         Poco::Data::Session ses(spitfire::GetSingleton().serverpool->get());
-        ses << "UPDATE `alliances` SET name=?,founder=?,leader=?,note=?,intro=?,motd=?,allies=?,neutrals=?,enemies=?,members=? WHERE id=?;", use(savedata), use(m_allianceid), now;
+        ses << "UPDATE `alliances` SET name=?,founder=?,leader=?,note=?,intro=?,motd=?,allies=?,neutrals=?,enemies=?,members=? WHERE id=?;", use(savedata), use(allianceid), now;
         return true;
     }
     SQLCATCH3(0, spitfire::GetSingleton());
@@ -155,7 +155,7 @@ amf3object Alliance::ToObject()
 
 bool Alliance::IsEnemy(int64_t allianceid)
 {
-    for (int64_t _id : m_enemies)
+    for (int64_t _id : enemies)
     {
         if (allianceid == _id)
         {
@@ -167,7 +167,7 @@ bool Alliance::IsEnemy(int64_t allianceid)
 
 bool Alliance::IsAlly(int64_t allianceid)
 {
-    for (int64_t _id : m_allies)
+    for (int64_t _id : allies)
     {
         if (allianceid == _id)
         {
@@ -179,7 +179,7 @@ bool Alliance::IsAlly(int64_t allianceid)
 
 bool Alliance::IsNeutral(int64_t allianceid)
 {
-    for (int64_t _id : m_neutral)
+    for (int64_t _id : neutral)
     {
         if (allianceid == _id)
         {
@@ -196,15 +196,15 @@ bool Alliance::AddMember(uint64_t clientid, uint8_t rank)
         //bug point - should never trigger but is in certain unknown circumstances
         return true;
     }
-    if (m_currentmembers >= m_maxmembers)
+    if (currentmembers >= maxmembers)
     {
         return false;
     }
     stMember member;
     member.clientid = clientid;
     member.rank = rank;
-    m_members.push_back(member);
-    m_currentmembers++;
+    members.push_back(member);
+    currentmembers++;
     return true;
 }
 
@@ -219,7 +219,7 @@ bool Alliance::HasMember(std::string username)
 bool Alliance::HasMember(uint64_t clientid)
 {
     std::list<Alliance::stMember>::iterator iter;
-    for (iter = m_members.begin(); iter != m_members.end(); ++iter)
+    for (iter = members.begin(); iter != members.end(); ++iter)
     {
         if (iter->clientid == clientid)
         {
@@ -232,12 +232,12 @@ bool Alliance::HasMember(uint64_t clientid)
 bool Alliance::RemoveMember(uint64_t clientid)
 {
     std::list<Alliance::stMember>::iterator iter;
-    for (iter = m_members.begin(); iter != m_members.end(); )
+    for (iter = members.begin(); iter != members.end(); )
     {
         if (iter->clientid == clientid)
         {
-            m_members.erase(iter);
-            m_currentmembers--;
+            members.erase(iter);
+            currentmembers--;
             return true;
         }
         ++iter;
@@ -250,29 +250,29 @@ void Alliance::RequestJoin(Client * client, uint64_t timestamp)
     stInviteList invite;
     invite.invitetime = timestamp;
     invite.client = client;
-    m_invites.push_back(invite);
+    invites.push_back(invite);
 }
 
 void Alliance::UnRequestJoin(Client * client)
 {
-    std::list<stInviteList> tempinvites = m_invites;
+    std::list<stInviteList> tempinvites = invites;
     for (stInviteList & invite : tempinvites)
     {
         if (invite.client->playername == client->playername)
         {
-            m_invites.remove(invite);
+            invites.remove(invite);
         }
     }
 }
 
 void Alliance::UnRequestJoin(std::string client)
 {
-    std::list<stInviteList> tempinvites = m_invites;
+    std::list<stInviteList> tempinvites = invites;
     for (stInviteList & invite : tempinvites)
     {
         if (invite.client->playername == client)
         {
-            m_invites.remove(invite);
+            invites.remove(invite);
         }
     }
 }
@@ -302,7 +302,7 @@ void Alliance::ParseMembers(std::string str)
                 if (client)
                 {
                     AddMember(clientid, rank);
-                    client->allianceid = this->m_allianceid;
+                    client->allianceid = this->allianceid;
                     client->alliancerank = rank;
                 }
             }
@@ -331,15 +331,15 @@ void Alliance::ParseRelation(std::list<int64_t> * list, std::string str)
 amf3object Alliance::indexAllianceInfoBean()
 {
     amf3object allianceinfo;
-    allianceinfo["prestige"] = m_prestige;
-    allianceinfo["rank"] = m_prestigerank;
-    allianceinfo["creatorName"] = m_founder.c_str();
-    allianceinfo["allianceNote"] = m_note.c_str();
-    allianceinfo["allianceInfo"] = m_intro.c_str();
-    allianceinfo["allianceName"] = m_name.c_str();
-    allianceinfo["memberCount"] = m_currentmembers;
-    allianceinfo["memberLimit"] = m_maxmembers;
-    allianceinfo["leaderName"] = m_owner.c_str();
+    allianceinfo["prestige"] = prestige;
+    allianceinfo["rank"] = prestigerank;
+    allianceinfo["creatorName"] = founder.c_str();
+    allianceinfo["allianceNote"] = note.c_str();
+    allianceinfo["allianceInfo"] = intro.c_str();
+    allianceinfo["allianceName"] = name.c_str();
+    allianceinfo["memberCount"] = currentmembers;
+    allianceinfo["memberLimit"] = maxmembers;
+    allianceinfo["leaderName"] = owner.c_str();
     return allianceinfo;
 };
 
@@ -351,9 +351,9 @@ void Alliance::Ally(int64_t allianceid)
         UnNeutral(allianceid);
     if (IsEnemy(allianceid))
         UnEnemy(allianceid);
-    m_allies.push_back(allianceid);
-    Alliance * temp = spitfire::GetSingleton().m_alliances->AllianceById(allianceid);
-    temp->SendAllianceMessage("Alliance [" + temp->m_name + "] recognizes Diplomatic Relationship with us as Ally.", false, false);
+    allies.push_back(allianceid);
+    Alliance * temp = spitfire::GetSingleton().alliances->AllianceById(allianceid);
+    temp->SendAllianceMessage("Alliance [" + temp->name + "] recognizes Diplomatic Relationship with us as Ally.", false, false);
 }
 void Alliance::Neutral(int64_t allianceid)
 {
@@ -363,9 +363,9 @@ void Alliance::Neutral(int64_t allianceid)
         UnAlly(allianceid);
     if (IsEnemy(allianceid))
         UnEnemy(allianceid);
-    m_neutral.push_back(allianceid);
-    Alliance * temp = spitfire::GetSingleton().m_alliances->AllianceById(allianceid);
-    temp->SendAllianceMessage("Alliance [" + temp->m_name + "] recognizes Diplomatic Relationship with us as Neutral.", false, false);
+    neutral.push_back(allianceid);
+    Alliance * temp = spitfire::GetSingleton().alliances->AllianceById(allianceid);
+    temp->SendAllianceMessage("Alliance [" + temp->name + "] recognizes Diplomatic Relationship with us as Neutral.", false, false);
 }
 void Alliance::Enemy(int64_t allianceid, bool skip /* = false*/)
 {
@@ -376,26 +376,26 @@ void Alliance::Enemy(int64_t allianceid, bool skip /* = false*/)
         UnNeutral(allianceid);
     if (IsAlly(allianceid))
         UnAlly(allianceid);
-    m_enemies.push_back(allianceid);
+    enemies.push_back(allianceid);
     if (skip)
         return;
     //send global message
-    Alliance * temp = spitfire::GetSingleton().m_alliances->AllianceById(allianceid);
-    spitfire::GetSingleton().MassMessage("Alliance " + this->m_name + " declares war against alliance " + temp->m_name + ". Diplomatic Relationship between each other alters to Hostile automatically.");
-    temp->Enemy(m_allianceid, true);
-    temp->SendAllianceMessage("Alliance [" + m_name + "] recognizes Diplomatic Relationship with us as Enemy.", false, false);
+    Alliance * temp = spitfire::GetSingleton().alliances->AllianceById(allianceid);
+    spitfire::GetSingleton().MassMessage("Alliance " + this->name + " declares war against alliance " + temp->name + ". Diplomatic Relationship between each other alters to Hostile automatically.");
+    temp->Enemy(allianceid, true);
+    temp->SendAllianceMessage("Alliance [" + name + "] recognizes Diplomatic Relationship with us as Enemy.", false, false);
 }
 void Alliance::UnAlly(int64_t allianceid)
 {
-    m_allies.remove(allianceid);
+    allies.remove(allianceid);
 }
 void Alliance::UnNeutral(int64_t allianceid)
 {
-    m_neutral.remove(allianceid);
+    neutral.remove(allianceid);
 }
 void Alliance::UnEnemy(int64_t allianceid)
 {
-    m_enemies.remove(allianceid);
+    enemies.remove(allianceid);
 }
 
 void Alliance::SendAllianceMessage(std::string msg, bool tv, bool nosender)
@@ -412,7 +412,7 @@ void Alliance::SendAllianceMessage(std::string msg, bool tv, bool nosender)
 
     obj["data"] = data;
 
-    for (Alliance::stMember & client : m_members)
+    for (Alliance::stMember & client : members)
     {
         spitfire::GetSingleton().SendObject(spitfire::GetSingleton().GetClient(client.clientid), obj);
     }

@@ -36,12 +36,12 @@ void pinterior::process()
         int temp = data["tax"];
         if (temp < 0 || temp > 100)
         {
-            city->m_workrate.gold = 0;
+            city->workrate.gold = 0;
             // TODO error reporting - interior.modifyTaxRate
         }
         else
         {
-            city->m_workrate.gold = data["tax"];
+            city->workrate.gold = data["tax"];
         }
 
         obj2["cmd"] = "interior.modifyTaxRate";
@@ -66,11 +66,11 @@ void pinterior::process()
 
         uint32_t castleid = data["castleId"];
 
-        if (timestamp - city->m_lastcomfort < 15 * 60 * 1000)
+        if (timestamp - city->lastcomfort < 15 * 60 * 1000)
         {
             {
                 std::stringstream ss;
-                double timediff = city->m_lastcomfort + 15 * 60 * 1000 - timestamp;
+                double timediff = city->lastcomfort + 15 * 60 * 1000 - timestamp;
                 int min = timediff / 1000 / 60;
                 int sec = int(((((timediff) / 1000) / 60) - min) * 60);
                 ss << min << "m ";
@@ -82,7 +82,7 @@ void pinterior::process()
         }
 
         int itypeid = data["typeId"];
-        city->m_lastcomfort = timestamp;
+        city->lastcomfort = timestamp;
 
         obj2["cmd"] = "interior.pacifyPeople";
         data2["packageId"] = 0.0;
@@ -91,48 +91,48 @@ void pinterior::process()
         switch (itypeid)
         {
             case 1://Disaster Relief 100% pop limit in food for cost, increases loyalty by 5 reduces grievance by 15
-                if (city->m_resources.food < city->m_maxpopulation)
+                if (city->resources.food < city->maxpopulation)
                 {
                     gserver.SendObject(client, gserver.CreateError("interior.pacifyPeople", -99, "Not enough food."));
                     return;
                 }
-                city->m_resources.food -= city->m_maxpopulation;
-                city->m_loyalty += 5;
-                city->m_grievance -= 15;
-                if (city->m_loyalty > 100)
-                    city->m_loyalty = 100;
-                if (city->m_grievance < 0)
-                    city->m_grievance = 0;
+                city->resources.food -= city->maxpopulation;
+                city->loyalty += 5;
+                city->grievance -= 15;
+                if (city->loyalty > 100)
+                    city->loyalty = 100;
+                if (city->grievance < 0)
+                    city->grievance = 0;
                 city->ResourceUpdate();
                 client->PlayerUpdate();
                 break;
             case 2://Praying 100% pop limit in food for cost, increases loyalty by 25 reduces grievance by 5
-                if (city->m_resources.food < city->m_maxpopulation)
+                if (city->resources.food < city->maxpopulation)
                 {
                     gserver.SendObject(client, gserver.CreateError("interior.pacifyPeople", -99, "Not enough food."));
                     return;
                 }
-                city->m_resources.food -= city->m_maxpopulation;
-                city->m_loyalty += 25;
-                city->m_grievance -= 5;
-                if (city->m_loyalty > 100)
-                    city->m_loyalty = 100;
-                if (city->m_grievance < 0)
-                    city->m_grievance = 0;
+                city->resources.food -= city->maxpopulation;
+                city->loyalty += 25;
+                city->grievance -= 5;
+                if (city->loyalty > 100)
+                    city->loyalty = 100;
+                if (city->grievance < 0)
+                    city->grievance = 0;
                 city->ResourceUpdate();
                 client->PlayerUpdate();
                 break;
             case 3://Blessing 10% pop limit in gold for cost, increases food by 100% pop limit - chance for escaping disaster?
-                if (city->m_resources.gold < (city->m_maxpopulation / 10))
+                if (city->resources.gold < (city->maxpopulation / 10))
                 {
                     gserver.SendObject(client, gserver.CreateError("interior.pacifyPeople", -99, "Not enough gold."));
                     return;
                 }
-                city->m_resources.gold -= (city->m_maxpopulation / 10);
-                city->m_resources.food += city->m_maxpopulation;
+                city->resources.gold -= (city->maxpopulation / 10);
+                city->resources.food += city->maxpopulation;
                 if (rand() % 10 == 1)
                 {
-                    city->m_resources.food += city->m_maxpopulation;
+                    city->resources.food += city->maxpopulation;
                     gserver.SendObject(client, gserver.CreateError("interior.pacifyPeople", -99, "Free blessing!"));
 
                     city->ResourceUpdate();
@@ -147,15 +147,15 @@ void pinterior::process()
                 client->PlayerUpdate();
                 break;
             case 4://Population Raising 500% pop limit in food for cost, increases population by 5%
-                if (city->m_resources.food < (city->m_maxpopulation * 5))
+                if (city->resources.food < (city->maxpopulation * 5))
                 {
                     gserver.SendObject(client, gserver.CreateError("interior.pacifyPeople", -99, "Not enough food."));
                     return;
                 }
-                city->m_resources.food -= (city->m_maxpopulation * 5);
-                city->m_population += double(city->m_maxpopulation) / 20;
-                if (city->m_population >= city->m_maxpopulation)
-                    city->m_population = city->m_maxpopulation;
+                city->resources.food -= (city->maxpopulation * 5);
+                city->population += double(city->maxpopulation) / 20;
+                if (city->population >= city->maxpopulation)
+                    city->population = city->maxpopulation;
                 city->ResourceUpdate();
                 client->PlayerUpdate();
                 break;
@@ -180,11 +180,11 @@ void pinterior::process()
 
         uint32_t castleid = data["castleId"];
 
-        if (timestamp - city->m_lastlevy < 15 * 60 * 1000)
+        if (timestamp - city->lastlevy < 15 * 60 * 1000)
         {
             {
                 std::stringstream ss;
-                double timediff = city->m_lastlevy + 15 * 60 * 1000 - timestamp;
+                double timediff = city->lastlevy + 15 * 60 * 1000 - timestamp;
                 int min = timediff / 1000 / 60;
                 int sec = int(((((timediff) / 1000) / 60) - min) * 60);
                 ss << min << "m ";
@@ -196,35 +196,35 @@ void pinterior::process()
         }
 
         int itypeid = data["typeId"];
-        city->m_lastlevy = timestamp;
+        city->lastlevy = timestamp;
 
         obj2["cmd"] = "interior.taxation";
         data2["packageId"] = 0.0;
         data2["ok"] = -99;
 
-        if (city->m_loyalty <= 20) //not enough loyalty to levy
+        if (city->loyalty <= 20) //not enough loyalty to levy
         {
             gserver.SendObject(client, gserver.CreateError("interior.taxation", -99, "Loyalty too low. Please comfort first."));
             return;
         }
-        city->m_loyalty -= 20;
+        city->loyalty -= 20;
 
         switch (itypeid)
         {
             case 1://Gold 10% current pop
-                city->m_resources.gold += (city->m_population / 10);
+                city->resources.gold += (city->population / 10);
                 break;
             case 2://Food 100% current pop
-                city->m_resources.food += city->m_population;
+                city->resources.food += city->population;
                 break;
             case 3://Wood 100% current pop 
-                city->m_resources.wood += city->m_population;
+                city->resources.wood += city->population;
                 break;
             case 4://Stone 50% current pop 
-                city->m_resources.stone += (city->m_population / 2);
+                city->resources.stone += (city->population / 2);
                 break;
             case 5://Iron 40% current pop 
-                city->m_resources.iron += (city->m_population*0.40);
+                city->resources.iron += (city->population*0.40);
                 break;
         }
         city->ResourceUpdate();
@@ -256,42 +256,42 @@ void pinterior::process()
 
         if (temp < 0 || temp > 100)
         {
-            city->m_workrate.food = 0;
+            city->workrate.food = 0;
             // TODO error reporting - interior.modifyCommenceRate
         }
         else
         {
-            city->m_workrate.food = data["foodrate"];
+            city->workrate.food = data["foodrate"];
         }
         temp = data["woodrate"];
         if (temp < 0 || temp > 100)
         {
-            city->m_workrate.wood = 0;
+            city->workrate.wood = 0;
             // TODO error reporting - interior.modifyCommenceRate
         }
         else
         {
-            city->m_workrate.wood = data["woodrate"];
+            city->workrate.wood = data["woodrate"];
         }
         temp = data["ironrate"];
         if (temp < 0 || temp > 100)
         {
-            city->m_workrate.iron = 0;
+            city->workrate.iron = 0;
             // TODO error reporting - interior.modifyCommenceRate
         }
         else
         {
-            city->m_workrate.iron = data["ironrate"];
+            city->workrate.iron = data["ironrate"];
         }
         temp = data["stonerate"];
         if (temp < 0 || temp > 100)
         {
-            city->m_workrate.stone = 0;
+            city->workrate.stone = 0;
             // TODO error reporting - interior.modifyCommenceRate
         }
         else
         {
-            city->m_workrate.stone = data["stonerate"];
+            city->workrate.stone = data["stonerate"];
         }
 
         obj2["cmd"] = "interior.modifyCommenceRate";

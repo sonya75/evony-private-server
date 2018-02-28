@@ -34,7 +34,7 @@ void parmy::process()
          VERIFYCASTLEID();
          CHECKCASTLEID();
  
-         client->GetFocusCity()->m_gooutforbattle = data["isArmyGoOut"];
+         client->GetFocusCity()->gooutforbattle = data["isArmyGoOut"];
          obj2["cmd"] = "army.setArmyGoOut";
          data2["packageId"] = 0.0;
          data2["ok"] = 1;
@@ -157,10 +157,10 @@ void parmy::process()
 //                 return;
 //             }
 //             // check if valid enemy
-//             if (tile->m_ownerid > 0)
+//             if (tile->ownerid > 0)
 //             {
 //                 //player owned
-//                 oclient = gserver.GetClient(tile->m_ownerid);
+//                 oclient = gserver.GetClient(tile->ownerid);
 //                 if (oclient == 0)
 //                 {
 //                     //error occurred
@@ -168,7 +168,7 @@ void parmy::process()
 //                     return;
 //                 }
 //                 //TODO: this will need changed for Age2 support (individual war status) (army.newArmy alliance checking)
-//                 int16_t relation = gserver.m_alliances->GetRelation(client->accountid, oclient->accountid);
+//                 int16_t relation = gserver.alliances->GetRelation(client->accountid, oclient->accountid);
 //                 if (oclient->Beginner())
 //                 {
 //                     //attacking beginner
@@ -198,7 +198,7 @@ void parmy::process()
 //                     gserver.SendObject(client, gserver.CreateError("army.newArmy", -80, "Hero does not exist."));
 //                     return;
 //                 }
-//                 if (hero->m_status != DEF_HEROIDLE)
+//                 if (hero->status != DEF_HEROIDLE)
 //                 {
 //                     //hero busy
 //                     gserver.SendObject(client, gserver.CreateError("army.newArmy", -80, "Status of this hero is not Idle."));
@@ -212,19 +212,19 @@ void parmy::process()
 //                 am->client = client;
 // 
 //                 am->hero = hero;
-//                 am->heroname = hero->m_name;
+//                 am->heroname = hero->name;
 //                 am->direction = 1;
 //                 am->resources += resources;
-//                 am->startposname = city->m_cityname;
+//                 am->startposname = city->cityname;
 //                 am->king = client->playername;
 //                 am->troops += troops;
 //                 am->starttime = Utils::time();
 //                 am->armyid = gserver.armycounter++;
-//                 am->reachtime = am->starttime + gserver.CalcTroopSpeed(city, troops, city->m_tileid, targettile) * 1000;
-//                 am->herolevel = hero->m_level;
+//                 am->reachtime = am->starttime + gserver.CalcTroopSpeed(city, troops, city->tileid, targettile) * 1000;
+//                 am->herolevel = hero->level;
 //                 am->resttime = resttime;
 //                 am->missiontype = missiontype;
-//                 am->startfieldid = city->m_tileid;
+//                 am->startfieldid = city->tileid;
 //                 am->targetfieldid = targettile;
 //                 am->targetposname = gserver.map->GetTileFromID(targettile)->GetName();
 // 
@@ -236,7 +236,7 @@ void parmy::process()
 //                 client->armymovement.push_back(am);
 // 
 //                 //timer made, remove troops from city
-//                 city->m_troops -= troops;
+//                 city->troops -= troops;
 //                 hero->movement = am;
 // 
 //                 city->HeroUpdate(hero, 2);
@@ -277,7 +277,7 @@ void parmy::process()
 //                     gserver.SendObject(client, gserver.CreateError("army.newArmy", -80, "Hero does not exist."));
 //                     return;
 //                 }
-//                 if (hero->m_status != DEF_HEROIDLE)
+//                 if (hero->status != DEF_HEROIDLE)
 //                 {
 //                     //hero busy
 //                     gserver.SendObject(client, gserver.CreateError("army.newArmy", -80, "Status of this hero is not Idle."));
@@ -291,19 +291,19 @@ void parmy::process()
 //                 am->client = client;
 // 
 //                 am->hero = hero;
-//                 am->heroname = hero->m_name;
+//                 am->heroname = hero->name;
 //                 am->direction = 1;
 //                 am->resources += resources;
-//                 am->startposname = city->m_cityname;
+//                 am->startposname = city->cityname;
 //                 am->king = client->playername;
 //                 am->troops += troops;
 //                 am->starttime = Utils::time();
 //                 am->armyid = gserver.armycounter++;
-//                 am->reachtime = am->starttime + gserver.CalcTroopSpeed(city, troops, city->m_tileid, targettile) * 1000;
-//                 am->herolevel = hero->m_level;
+//                 am->reachtime = am->starttime + gserver.CalcTroopSpeed(city, troops, city->tileid, targettile) * 1000;
+//                 am->herolevel = hero->level;
 //                 am->resttime = resttime;
 //                 am->missiontype = missiontype;
-//                 am->startfieldid = city->m_tileid;
+//                 am->startfieldid = city->tileid;
 //                 am->targetfieldid = targettile;
 //                 am->targetposname = gserver.map->GetTileFromID(targettile)->GetName();
 // 
@@ -315,10 +315,10 @@ void parmy::process()
 //                 client->armymovement.push_back(am);
 // 
 //                 //timer made, remove troops from city
-//                 city->m_troops -= troops;
+//                 city->troops -= troops;
 //                 hero->movement = am;
 // 
-//                 hero->m_status = DEF_HEROATTACK;
+//                 hero->status = DEF_HEROATTACK;
 // 
 //                 city->HeroUpdate(hero, 2);
 //                 city->TroopUpdate();

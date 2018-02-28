@@ -33,19 +33,19 @@ public:
 
     bool AddCity(int id, City * city);
 
-    Tile * m_tile;
-    uint16_t m_totalflats[DEF_STATES];
-    uint16_t m_openflats[DEF_STATES];
-    uint16_t m_npcs[DEF_STATES];
-    uint16_t m_cities[DEF_STATES];
-    uint16_t m_occupiedtiles[DEF_STATES];
-    uint16_t m_occupiabletiles[DEF_STATES];
+    Tile * tile;
+    uint16_t totalflats[DEF_STATES];
+    uint16_t openflats[DEF_STATES];
+    uint16_t npcs[DEF_STATES];
+    uint16_t cities[DEF_STATES];
+    uint16_t occupiedtiles[DEF_STATES];
+    uint16_t occupiabletiles[DEF_STATES];
     struct mapstats
     {
         int players;
         int numbercities;
         int playerrate;
-    } m_stats[DEF_STATES];
+    } stats[DEF_STATES];
 
-    std::vector<int32_t> m_openflatlist[DEF_STATES];
+    std::vector<int32_t> openflatlist[DEF_STATES];
 };

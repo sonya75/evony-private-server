@@ -22,18 +22,18 @@ public:
     amf3object ToObject() const;
     std::string GetName() const;
 
-    City * m_city;
-    char m_castleicon;
-    uint32_t m_castleid;
-    uint32_t m_id;
-    bool m_npc;
-    uint32_t m_ownerid;
-    char m_powerlevel;
-    char m_state;
-    char m_type;
-    char m_status;
-    char m_zoneid;
-    char m_level;
+    City * city;
+    char castleicon;
+    uint32_t castleid;
+    uint32_t id;
+    bool npc;
+    uint32_t ownerid;
+    char powerlevel;
+    char state;
+    char type;
+    char status;
+    char zoneid;
+    char level;
     /*    short x, y;*/
 
     /*

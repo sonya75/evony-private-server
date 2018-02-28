@@ -99,18 +99,18 @@ void pcity::process()
         PlayerCity * city = client->GetFocusCity();
 
 
-        if (gserver.map->m_openflats[zoneId] > 0)
+        if (gserver.game_map->openflats[zoneId] > 0)
         {
-            gserver.map->m_openflats[zoneId]--;
+            gserver.game_map->openflats[zoneId]--;
             //create new account, create new city, then send account details
 
             char tempc[50];
-            int randomid = gserver.map->GetRandomOpenTile(zoneId);
+            int randomid = gserver.game_map->GetRandomOpenTile(zoneId);
             int mapsize = gserver.mapsize;
             GETXYFROMID(randomid);
             int x = xfromid;
             int y = yfromid;
-            if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != -1)
+            if (gserver.game_map->tile[randomid].type != FLAT || gserver.game_map->tile[randomid].ownerid != -1)
             {
                 gserver.SendObject(client, gserver.CreateError("city.moveCastle", -25, "No open flats exist."));
                 return;
@@ -122,11 +122,11 @@ void pcity::process()
             {
                 //fail
             }
-            gserver.map->m_tile[city->m_tileid].m_type = FLAT;
-            city->m_tileid = randomid;
-            gserver.map->m_tile[randomid].m_type = CASTLE;
-            gserver.map->m_tile[randomid].m_city = city;
-            gserver.map->m_tile[randomid].m_castleid = city->m_castleid;
+            gserver.game_map->tile[city->tileid].type = FLAT;
+            city->tileid = randomid;
+            gserver.game_map->tile[randomid].type = CASTLE;
+            gserver.game_map->tile[randomid].city = city;
+            gserver.game_map->tile[randomid].castleid = city->castleid;
 
 
             //enemy armies continue to attack the flat left behind
@@ -138,7 +138,7 @@ void pcity::process()
             client->SelfArmyUpdate();
             client->AddItem("consume.move.1", -1);
 
-            gserver.map->CalculateOpenTiles();
+            gserver.game_map->CalculateOpenTiles();
 
             amf3object obj3;
             obj3["cmd"] = "city.moveCastle";
@@ -162,8 +162,8 @@ void pcity::process()
         std::string logurl = data["logUrl"];
         std::string name = data["name"];
 
-        city->m_cityname = name;
-        city->m_logurl = logurl;
+        city->cityname = name;
+        city->logurl = logurl;
         // TODO check valid name and error reporting - city.modifyCastleName
 
         obj2["cmd"] = "city.modifyCastleName";

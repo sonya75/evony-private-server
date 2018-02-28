@@ -41,7 +41,7 @@ void ptech::process()
 
         for (int i = 0; i < 25; ++i)
         {
-            if (gserver.m_researchconfig[i][0].time > 0)
+            if (gserver.researchconfig[i][0].time > 0)
             {
                 int level = client->GetResearchLevel(i);
 
@@ -49,26 +49,26 @@ void ptech::process()
                 amf3object parent;
                 amf3object conditionbean;
 
-                double costtime = gserver.m_researchconfig[i][level].time;
+                double costtime = gserver.researchconfig[i][level].time;
                 double mayorinf = 1;
-                if (city->m_mayor)
-                    mayorinf = pow(0.995, city->m_mayor->GetStratagem());
+                if (city->mayor)
+                    mayorinf = pow(0.995, city->mayor->GetStratagem());
 
                 costtime = (costtime)* (mayorinf);
 
                 conditionbean["time"] = floor(costtime);
                 conditionbean["destructTime"] = 0;
-                conditionbean["wood"] = gserver.m_researchconfig[i][level].wood;
-                conditionbean["food"] = gserver.m_researchconfig[i][level].food;
-                conditionbean["iron"] = gserver.m_researchconfig[i][level].iron;
-                conditionbean["gold"] = gserver.m_researchconfig[i][level].gold;
-                conditionbean["stone"] = gserver.m_researchconfig[i][level].stone;
+                conditionbean["wood"] = gserver.researchconfig[i][level].wood;
+                conditionbean["food"] = gserver.researchconfig[i][level].food;
+                conditionbean["iron"] = gserver.researchconfig[i][level].iron;
+                conditionbean["gold"] = gserver.researchconfig[i][level].gold;
+                conditionbean["stone"] = gserver.researchconfig[i][level].stone;
 
                 amf3array buildings = amf3array();
                 amf3array items = amf3array();
                 amf3array techs = amf3array();
 
-                for (stPrereq & req : gserver.m_researchconfig[i][0].buildings)
+                for (stPrereq & req : gserver.researchconfig[i][0].buildings)
                 {
                     if (req.id > 0)
                     {
@@ -81,7 +81,7 @@ void ptech::process()
                         buildings.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_researchconfig[i][0].items)
+                for (stPrereq & req : gserver.researchconfig[i][0].items)
                 {
                     if (req.id > 0)
                     {
@@ -90,11 +90,11 @@ void ptech::process()
                         ta["curNum"] = temp;
                         ta["num"] = req.level;
                         ta["successFlag"] = temp >= req.level ? true : false;
-                        ta["id"] = gserver.m_items[req.id].name;
+                        ta["id"] = gserver.items[req.id].name;
                         items.Add(ta);
                     }
                 }
-                for (stPrereq & req : gserver.m_researchconfig[i][0].techs)
+                for (stPrereq & req : gserver.researchconfig[i][0].techs)
                 {
                     if (req.id > 0)
                     {
@@ -111,7 +111,7 @@ void ptech::process()
                 conditionbean["buildings"] = buildings;
                 conditionbean["items"] = items;
                 conditionbean["techs"] = techs;
-                conditionbean["population"] = gserver.m_researchconfig[i][level].population;
+                conditionbean["population"] = gserver.researchconfig[i][level].population;
                 parent["startTime"] = (double)client->research[i].starttime;
                 parent["castleId"] = (double)client->research[i].castleid;
                 //TODO: verify if works with multiple academies
@@ -135,7 +135,7 @@ void ptech::process()
                     parent["upgradeing"] = ((client->research[i].endtime != 0) && (client->research[i].endtime > timestamp));
                     parent["endTime"] = (client->research[i].endtime > 0) ? (client->research[i].endtime - client->clientdelay) : (client->research[i].endtime);// HACK: attempt to fix "lag" issues
                     parent["avalevel"] = city->GetEffectiveTechLevel(i);
-                    parent["permition"] = !city->m_researching;
+                    parent["permition"] = !city->researching;
                 }
                 parent["conditionBean"] = conditionbean;
                 parent["typeId"] = i;
@@ -160,7 +160,7 @@ void ptech::process()
         uint32_t castleid = data["castleId"];
         int techid = data["techId"];
 
-        if (techid < 0 || techid > 25 || client->research[techid].level >= 10 || gserver.m_researchconfig[techid][client->research[techid].level].time == 0)
+        if (techid < 0 || techid > 25 || client->research[techid].level >= 10 || gserver.researchconfig[techid][client->research[techid].level].time == 0)
         {
             gserver.SendObject(client, gserver.CreateError("tech.research", -99, "Invalid technology."));
             return;
@@ -170,16 +170,16 @@ void ptech::process()
         stBuildingConfig * researchconfig;
 
         research = &client->research[techid];
-        researchconfig = &gserver.m_researchconfig[techid][research->level];
+        researchconfig = &gserver.researchconfig[techid][research->level];
 
 
-        if (!city->m_researching)
+        if (!city->researching)
         {
-            if ((researchconfig->food > city->m_resources.food)
-                || (researchconfig->wood > city->m_resources.wood)
-                || (researchconfig->stone > city->m_resources.stone)
-                || (researchconfig->iron > city->m_resources.iron)
-                || (researchconfig->gold > city->m_resources.gold))
+            if ((researchconfig->food > city->resources.food)
+                || (researchconfig->wood > city->resources.wood)
+                || (researchconfig->stone > city->resources.stone)
+                || (researchconfig->iron > city->resources.iron)
+                || (researchconfig->gold > city->resources.gold))
             {
                 gserver.SendObject(client, gserver.CreateError("tech.research", -99, "Not enough resources."));
                 return;
@@ -188,19 +188,19 @@ void ptech::process()
             data2["ok"] = 1;
             data2["packageId"] = 0.0;
 
-            city->m_resources.food -= researchconfig->food;
-            city->m_resources.wood -= researchconfig->wood;
-            city->m_resources.stone -= researchconfig->stone;
-            city->m_resources.iron -= researchconfig->iron;
-            city->m_resources.gold -= researchconfig->gold;
+            city->resources.food -= researchconfig->food;
+            city->resources.wood -= researchconfig->wood;
+            city->resources.stone -= researchconfig->stone;
+            city->resources.iron -= researchconfig->iron;
+            city->resources.gold -= researchconfig->gold;
 
             research->castleid = castleid;
 
 
             auto costtime = researchconfig->time;
             double mayorinf = 1.0f;
-            if (city->m_mayor)
-                mayorinf = pow(0.995, city->m_mayor->GetStratagem());
+            if (city->mayor)
+                mayorinf = pow(0.995, city->mayor->GetStratagem());
 
             costtime = (costtime)* (mayorinf);
 
@@ -216,7 +216,7 @@ void ptech::process()
             ra->researchid = techid;
             te.data = ra;
             te.type = DEF_TIMEDRESEARCH;
-            city->m_researching = true;
+            city->researching = true;
 
             gserver.AddTimedEvent(te);
 
@@ -258,7 +258,7 @@ void ptech::process()
                     ta["curNum"] = temp;
                     ta["num"] = req.level;
                     ta["successFlag"] = temp >= req.level ? true : false;
-                    ta["id"] = gserver.m_items[req.id].name;
+                    ta["id"] = gserver.items[req.id].name;
                     items.Add(ta);
                 }
             }
@@ -288,7 +288,7 @@ void ptech::process()
             parent["upgradeing"] = (bool)(research->starttime != 0);
             parent["endTime"] = (research->endtime > 0) ? (research->endtime - client->clientdelay) : (research->endtime);// HACK: attempt to fix "lag" issues
             parent["typeId"] = techid;
-            parent["permition"] = !city->m_researching;
+            parent["permition"] = !city->researching;
 
             data2["tech"] = parent;
 
@@ -324,7 +324,7 @@ void ptech::process()
             }
         }
 
-        if (!city || !city->m_researching || techid == 0)
+        if (!city || !city->researching || techid == 0)
         {
             gserver.SendObject(client, gserver.CreateError("tech.cancelResearch", -99, "Invalid city."));
             return;
@@ -335,20 +335,20 @@ void ptech::process()
 
 
         research = &client->research[techid];
-        researchconfig = &gserver.m_researchconfig[techid][research->level];
+        researchconfig = &gserver.researchconfig[techid][research->level];
 
 
-        if (city->m_researching)
+        if (city->researching)
         {
             obj2["cmd"] = "tech.cancelResearch";
             data2["ok"] = 1;
             data2["packageId"] = 0.0;
 
-            city->m_resources.food += double(researchconfig->food) / 3;
-            city->m_resources.wood += double(researchconfig->wood) / 3;
-            city->m_resources.stone += double(researchconfig->stone) / 3;
-            city->m_resources.iron += double(researchconfig->iron) / 3;
-            city->m_resources.gold += double(researchconfig->gold) / 3;
+            city->resources.food += double(researchconfig->food) / 3;
+            city->resources.wood += double(researchconfig->wood) / 3;
+            city->resources.stone += double(researchconfig->stone) / 3;
+            city->resources.iron += double(researchconfig->iron) / 3;
+            city->resources.gold += double(researchconfig->gold) / 3;
 
             std::list<stTimedEvent>::iterator iter;
 
@@ -356,7 +356,7 @@ void ptech::process()
             {
                 auto * ra = (stResearchAction *)iter->data;
                 auto * city = ra->city;
-                if (city->m_castleid == castleid)
+                if (city->castleid == castleid)
                 {
                     ra->researchid = 0;
                     break;
@@ -367,7 +367,7 @@ void ptech::process()
             research->endtime = 0.0;
             research->starttime = 0.0;
 
-            city->m_researching = false;
+            city->researching = false;
 
             gserver.SendObject(client, obj2);
 
@@ -391,7 +391,7 @@ void ptech::process()
         stResearch * research = nullptr;
         for (auto i = 0; i < 25; ++i)
         {
-            if (client->research[i].castleid == city->m_castleid)
+            if (client->research[i].castleid == city->castleid)
             {
                 research = &client->research[i];
                 break;

@@ -11,18 +11,18 @@
 
 Tile::Tile()
 {
-    m_city = nullptr;
-    m_castleicon = 0;
-    m_castleid = -1;
-    m_id = -1;
-    m_npc = false;
-    m_ownerid = -1;
-    m_powerlevel = -1;
-    m_state = -1;
-    m_type = FLAT;
-    m_status = -1;
-    m_zoneid = -1;
-    m_level = -1;
+    city = nullptr;
+    castleicon = 0;
+    castleid = -1;
+    id = -1;
+    npc = false;
+    ownerid = -1;
+    powerlevel = -1;
+    state = -1;
+    type = FLAT;
+    status = -1;
+    zoneid = -1;
+    level = -1;
     /*    x = y = -1;*/
 }
 
@@ -34,24 +34,24 @@ Tile::~Tile()
 
 amf3object Tile::ToObject() const
 {
-    PlayerCity & city = *(PlayerCity*)m_city;
+    PlayerCity & city = *(PlayerCity*)city;
     amf3object obj = amf3object();
-    obj["id"] = m_id;
-    obj["name"] = city.m_cityname;
-    obj["npc"] = m_npc;
-    obj["prestige"] = city.m_client->prestige;
-    obj["honor"] = city.m_client->honor;
-    obj["state"] = city.m_client->status;
-    obj["userName"] = city.m_client->playername;
-    obj["flag"] = city.m_client->flag;
-    obj["allianceName"] = city.m_client->alliancename;
+    obj["id"] = id;
+    obj["name"] = city.cityname;
+    obj["npc"] = npc;
+    obj["prestige"] = city.client->prestige;
+    obj["honor"] = city.client->honor;
+    obj["state"] = city.client->status;
+    obj["userName"] = city.client->playername;
+    obj["flag"] = city.client->flag;
+    obj["allianceName"] = city.client->alliancename;
     return obj;
 }
 
 std::string Tile::GetName() const
 {
-    //if (m_npc)
-    switch (m_type)
+    //if (npc)
+    switch (type)
     {
     case FOREST:
         return "Forest";
@@ -68,7 +68,7 @@ std::string Tile::GetName() const
     case FLAT:
         return "Flat";
     case CASTLE:
-        return (m_city) ? m_city->m_cityname : "Invalid City";
+        return (city) ? city->cityname : "Invalid City";
     case NPC:
         return "Barbarian's City";
     default:

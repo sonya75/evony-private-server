@@ -66,11 +66,11 @@ void connection::stop()
 
         spitfire::GetSingleton().log->info("Players online: {}", tc);
 
-        //         if (!client_->m_accountexists)
+        //         if (!client_->accountexists)
         //         {
-        //             int num = client_->m_clientnumber;
-        //             delete s->m_clients[num];
-        //             s->m_clients[num] = 0;
+        //             int num = client_->clientnumber;
+        //             delete s->clients[num];
+        //             s->clients[num] = 0;
         //             return;
         //         }
         client_->socket = 0;

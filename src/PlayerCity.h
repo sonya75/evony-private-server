@@ -19,46 +19,46 @@ public:
     PlayerCity();
     ~PlayerCity(void);
 
-    Client * m_client;
-    uint64_t m_castleid;
-    int64_t m_accountid;
-    std::string m_logurl;
-    int32_t m_population;
-    uint32_t m_availablepopulation;
-    uint32_t m_maxpopulation;
-    bool m_allowalliance;
-    bool m_gooutforbattle;
-    bool m_hasenemy;
-    double m_creation;
-    bool m_researching;
+    Client * client;
+    uint64_t castleid;
+    int64_t accountid;
+    std::string logurl;
+    int32_t population;
+    uint32_t availablepopulation;
+    uint32_t maxpopulation;
+    bool allowalliance;
+    bool gooutforbattle;
+    bool hasenemy;
+    double creation;
+    bool researching;
 
-    double m_lastcomfort;
-    double m_lastlevy;
+    double lastcomfort;
+    double lastlevy;
 
-    stTroops m_troops, m_injuredtroops; // size 44 bytes
+    stTroops troops, injuredtroops; // size 44 bytes
 
-    stResources m_production;
-    stResources m_workpopulation;
-    stResources m_workrate;
-    stResources m_storepercent;
+    stResources production;
+    stResources workpopulation;
+    stResources workrate;
+    stResources storepercent;
 
-    double m_productionefficiency;
-    int32_t m_resourcebaseproduction;
-    double m_resourcemanagement;
-    int32_t m_resourcetech;
-    int32_t m_resourcevalley;
+    double productionefficiency;
+    int32_t resourcebaseproduction;
+    double resourcemanagement;
+    int32_t resourcetech;
+    int32_t resourcevalley;
 
-    double m_troopconsume;
+    double troopconsume;
 
     struct stTimers
     {
         double updateresources;
-    } m_timers;
+    } timers;
 
-    Hero * m_heroes[10]; // 75 bytes * 10
-    Hero * m_innheroes[10]; // 75 bytes * 10
+    Hero * heroes[10]; // 75 bytes * 10
+    Hero * innheroes[10]; // 75 bytes * 10
 
-    Hero * m_mayor;
+    Hero * mayor;
 
     std::string DBFortifications() const;
     std::string DBBuildings() const;
@@ -113,7 +113,7 @@ public:
 
 
 
-    std::vector<stTroopQueue> m_troopqueue;
+    std::vector<stTroopQueue> troopqueue;
 
     std::list<stArmyMovement*> armymovement;
 
@@ -130,7 +130,7 @@ public:
     stTrade * GetTrade(int64_t id);
     stTransingTrade * GetTransingTrade(int64_t id);
 
-    std::list<stTrade> m_trades;
-    std::list<stTransingTrade> m_transingtrades;
+    std::list<stTrade> trades;
+    std::list<stTransingTrade> transingtrades;
 
 }; // 3,448 + base

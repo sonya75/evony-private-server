@@ -34,7 +34,7 @@ void pfield::process()
 
         amf3object bean;
 
-        data2["bean"] = gserver.map->GetMapCastle(fieldid, req.conn->client_->accountid);
+        data2["bean"] = gserver.game_map->GetMapCastle(fieldid, req.conn->client_->accountid);
 
         //data2["errorMsg"] = "";
         data2["ok"] = 1;

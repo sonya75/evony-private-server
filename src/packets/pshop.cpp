@@ -40,14 +40,14 @@ void pshop::process()
 
         for (int i = 0; i < DEF_MAXITEMS; ++i)
         {
-            if (itemid == gserver.m_items[i].name)
+            if (itemid == gserver.items[i].name)
             {
-                if (client->cents < gserver.m_items[i].cost*amount)
+                if (client->cents < gserver.items[i].cost*amount)
                 {
                     gserver.SendObject(client, gserver.CreateError("shop.buy", -28, "Insufficient game coins."));
                     return;
                 }
-                client->cents -= gserver.m_items[i].cost*amount;
+                client->cents -= gserver.items[i].cost*amount;
 
                 client->AddItem(itemid, amount);
 
@@ -112,10 +112,10 @@ void pshop::process()
         }
 
         client->cents -= fooduse + wooduse + stoneuse + ironuse;
-        city->m_resources.food += fooduse * 100000;
-        city->m_resources.wood += wooduse * 100000;
-        city->m_resources.stone += stoneuse * 50000;
-        city->m_resources.iron += ironuse * 40000;
+        city->resources.food += fooduse * 100000;
+        city->resources.wood += wooduse * 100000;
+        city->resources.stone += stoneuse * 50000;
+        city->resources.iron += ironuse * 40000;
 
         obj2["cmd"] = "shop.buyResource";
         data2["packageId"] = 0.0;
@@ -206,14 +206,14 @@ void pshop::ShopUseGoods(amf3object & data, Client * client)
 
     if (itemid == "player.level.hero.100")
     {
-        Hero * hero = client->GetFocusCity()->m_mayor;
+        Hero * hero = client->GetFocusCity()->mayor;
         if (hero == nullptr)
         {
             gserver.SendObject(client, gserver.CreateError("shop.useGoods", -99, "Mayor not set."));
             return;
         }
-        hero->m_level += 100;
-        hero->m_remainpoint += 100;
+        hero->level += 100;
+        hero->remainpoint += 100;
 
 
         city->HeroUpdate(hero, 2);
@@ -581,7 +581,7 @@ void pshop::ShopUseGoods(amf3object & data, Client * client)
         amf3array itembeans = amf3array();
         amf3array gamblingbeans = amf3array();
 
-        stItemConfig * randitem = &gserver.m_items[rand() % gserver.m_itemcount];
+        stItemConfig * randitem = &gserver.items[rand() % gserver.itemcount];
 
         amf3object item = amf3object();
         item["id"] = randitem->name;
@@ -591,7 +591,7 @@ void pshop::ShopUseGoods(amf3object & data, Client * client)
 
         itembeans.Add(item);
 
-        randitem = &gserver.m_items[rand() % gserver.m_itemcount];
+        randitem = &gserver.items[rand() % gserver.itemcount];
 
         obj2["data"] = GenerateGamble();
 
@@ -610,23 +610,23 @@ void pshop::ShopUseGoods(amf3object & data, Client * client)
         client->AddItem("player.box.gambling.3", -1);
         if (it->name == "player.box.gambling.gold")
         {
-            client->GetFocusCity()->m_resources += {(double)itemobj["count"], 0, 0, 0, 0};
+            client->GetFocusCity()->resources += {(double)itemobj["count"], 0, 0, 0, 0};
         }
         else if (it->name == "player.box.gambling.food")
         {
-            client->GetFocusCity()->m_resources += {0, (double)itemobj["count"], 0, 0, 0};
+            client->GetFocusCity()->resources += {0, (double)itemobj["count"], 0, 0, 0};
         }
         else if (it->name == "player.box.gambling.wood")
         {
-            client->GetFocusCity()->m_resources += {0, 0, (double)itemobj["count"], 0, 0};
+            client->GetFocusCity()->resources += {0, 0, (double)itemobj["count"], 0, 0};
         }
         else if (it->name == "player.box.gambling.stone")
         {
-            client->GetFocusCity()->m_resources += {0, 0, 0, (double)itemobj["count"], 0};
+            client->GetFocusCity()->resources += {0, 0, 0, (double)itemobj["count"], 0};
         }
         else if (it->name == "player.box.gambling.iron")
         {
-            client->GetFocusCity()->m_resources += {0, 0, 0, 0, (double)itemobj["count"]};
+            client->GetFocusCity()->resources += {0, 0, 0, 0, (double)itemobj["count"]};
         }
         else if (it->name == "player.box.gambling.medal.10")
         {
@@ -685,15 +685,15 @@ void pshop::ShopUseCastleGoods(amf3object & data, Client * client)
         int64_t cid = data["castleId"];
         for (PlayerCity * city : client->citylist)
         {
-            if (city->m_castleid == cid)
+            if (city->castleid == cid)
             {
                 client->AddItem(itemid, -1);
-                if ((double)city->m_maxpopulation * 0.20 < 100)
-                    city->m_population += 100;
+                if ((double)city->maxpopulation * 0.20 < 100)
+                    city->population += 100;
                 else
-                    city->m_population += int32_t(city->m_maxpopulation * 0.20);
-                if (city->m_population > city->m_maxpopulation)
-                    city->m_population = city->m_maxpopulation;
+                    city->population += int32_t(city->maxpopulation * 0.20);
+                if (city->population > city->maxpopulation)
+                    city->population = city->maxpopulation;
                 city->CalculateStats();
                 city->CastleUpdate();
                 city->ResourceUpdate();
@@ -712,11 +712,11 @@ void pshop::ShopUseCastleGoods(amf3object & data, Client * client)
         int64_t cid = data["castleId"];
         for (PlayerCity * city : client->citylist)
         {
-            if (city->m_castleid == cid)
+            if (city->castleid == cid)
             {
                 client->AddItem(itemid, -1);
-                city->m_loyalty = 100;
-                city->m_grievance = 0;
+                city->loyalty = 100;
+                city->grievance = 0;
                 city->CalculateStats();
                 city->CastleUpdate();
                 city->ResourceUpdate();
@@ -815,7 +815,7 @@ amf3object pshop::GenerateGamble()
     for (int i = 0; i < 16; ++i)
     {
         amf3object obj = amf3object();
-        stItemConfig * item = gserver.m_gambleitems.common.at(rand() % gserver.m_gambleitems.common.size());
+        stItemConfig * item = gserver.gambleitems.common.at(rand() % gserver.gambleitems.common.size());
         obj["id"] = item->name;
         obj["count"] = GetGambleCount(item->name);
         obj["kind"] = item->rarity - 1;
@@ -825,7 +825,7 @@ amf3object pshop::GenerateGamble()
     for (int i = 0; i < 4; ++i)
     {
         amf3object obj = amf3object();
-        stItemConfig * item = gserver.m_gambleitems.special.at(rand() % gserver.m_gambleitems.special.size());
+        stItemConfig * item = gserver.gambleitems.special.at(rand() % gserver.gambleitems.special.size());
         obj["id"] = item->name;
         obj["count"] = GetGambleCount(item->name);
         obj["kind"] = item->rarity - 1;
@@ -835,7 +835,7 @@ amf3object pshop::GenerateGamble()
     for (int i = 0; i < 3; ++i)
     {
         amf3object obj = amf3object();
-        stItemConfig * item = gserver.m_gambleitems.rare.at(rand() % gserver.m_gambleitems.rare.size());
+        stItemConfig * item = gserver.gambleitems.rare.at(rand() % gserver.gambleitems.rare.size());
         obj["id"] = item->name;
         obj["count"] = GetGambleCount(item->name);
         obj["kind"] = item->rarity - 1;
@@ -847,12 +847,12 @@ amf3object pshop::GenerateGamble()
         stItemConfig * item;
         if (rand() % 100 < 95)
         {
-            item = gserver.m_gambleitems.superrare.at(rand() % gserver.m_gambleitems.superrare.size());
+            item = gserver.gambleitems.superrare.at(rand() % gserver.gambleitems.superrare.size());
             obj["kind"] = item->rarity - 1;
         }
         else
         {
-            item = gserver.m_gambleitems.ultrarare.at(rand() % gserver.m_gambleitems.ultrarare.size());
+            item = gserver.gambleitems.ultrarare.at(rand() % gserver.gambleitems.ultrarare.size());
             obj["kind"] = item->rarity;
         }
 
