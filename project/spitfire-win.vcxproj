@@ -72,6 +72,7 @@
     <ClInclude Include="..\src\Client.h" />
     <ClInclude Include="..\src\connection.h" />
     <ClInclude Include="..\src\defines.h" />
+    <ClInclude Include="..\src\error.h" />
     <ClInclude Include="..\src\Hero.h" />
     <ClInclude Include="..\src\Map.h" />
     <ClInclude Include="..\src\Market.h" />

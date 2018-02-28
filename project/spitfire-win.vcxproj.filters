@@ -299,5 +299,8 @@
     <ClInclude Include="..\src\packets\phero.h">
       <Filter>Source Files\packets</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\error.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
