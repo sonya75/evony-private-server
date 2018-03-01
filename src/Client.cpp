@@ -1017,25 +1017,21 @@ void Client::ReportUpdate()
 
     for (stReport report : reportlist)
     {
-        if (!report.isread())
+        if (!report.isread)
         {
             totalreport++;
-            if (report.type_id == 1)
-                totalreport++;
-            else if (report.type_id == 2)
-                armycount++;
-            else if (report.type_id == 2)
+            if (report.type_id == 0)
                 tradecount++;
+            else if (report.type_id == 1)
+                armycount++;
             else if (report.type_id == 2)
                 othercount++;
         }
     }
     data["count"] = totalreport;
-    data["army_inbox"] = armycount;
+    data["army_count"] = armycount;
     data["trade_count"] = tradecount;
     data["other_count"] = othercount;
-
-    // TODO count reports properly - void Client::ReportUpdate()
 
     spitfire::GetSingleton().SendObject(this, obj);
 
