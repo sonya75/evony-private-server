@@ -796,6 +796,7 @@ void spitfire::run()
                     temphero->m_upgradeexp = rs2.value("upgradeexp").convert<double>();
                     temphero->m_experience = rs2.value("experience").convert<double>();
                     temphero->m_loyalty = rs2.value("loyalty").convert<int8_t>();
+                    if (temphero->m_loyalty>100) temphero->m_loyalty=100;
                     city->m_heroes[a] = temphero;
                     city->m_heroes[a]->m_client = client;
                     if (temphero->m_status == DEF_HEROMAYOR && city->m_mayor)

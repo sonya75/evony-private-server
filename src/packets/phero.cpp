@@ -194,6 +194,7 @@ void phero::process()
                 client->AddItem((std::string)item, -1);
 
                 hero->m_loyalty += addloyalty;
+                if (hero->m_loyalty > 100) hero->m_loyalty=100;
 
                 city->HeroUpdate(hero, 2);
 
