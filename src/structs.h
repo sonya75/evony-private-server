@@ -478,7 +478,7 @@ struct stMail
 
 struct stReport
 {
-    stReport() { reportid = 0; armytype = 0; back = false; attack = false; type_id = 0; eventtime = 0; receivetime = 0; }
+    stReport() { reportid = 0; armytype = 0; back = false; attack = false; type_id = 0; }
     uint32_t reportid;
     int8_t armytype;
     bool back;
@@ -487,10 +487,9 @@ struct stReport
     std::string startpos;
     std::string targetpos;
     std::string title;
-    std::string content;
+    std::string guid;
     uint64_t eventtime;
-    uint64_t receivetime;
-    bool isread() const { return (receivetime > 0) ? 1 : 0; };
+    bool isread;
 };
 
 struct stCastleSign
