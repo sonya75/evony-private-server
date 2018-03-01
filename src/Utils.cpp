@@ -202,3 +202,18 @@ char * Utils::strtolower(char * x)
     }
     return x;
 }
+
+int32_t Utils::TROOP_EXPS[12] = { 225, 305, 695, 900, 1350, 1350, 2975, 2850, 8750, 10000, 13750, 29000 };
+
+std::string Utils::generaterandomstring(int x)
+{
+    static const char characters[37] = "0123456789abcdefghijklmnopqrstuvwxyz";
+    char * y = new char[x+1];
+    y[x] = 0;
+    for (int i = 0; i < x; i++) {
+        y[i] = characters[rand() % 36];
+    }
+    std::string str(y);
+    delete[] y;
+    return str;
+}

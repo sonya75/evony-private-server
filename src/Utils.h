@@ -25,4 +25,6 @@ public:
     static size_t ci_find(const std::string& str1, const std::string& str2);
     static std::string makesafe(std::string in);
     static char * strtolower(char * x);
+    static int32_t TROOP_EXPS[12];
+    static std::string generaterandomstring(int x);
 };
