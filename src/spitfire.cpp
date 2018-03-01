@@ -54,6 +54,9 @@
 #include "NpcCity.h"
 #include "Client.h"
 #include "defines.h"
+#include "combatsimulator.h"
+#include "Valley.h"
+#include "xml_writer.hpp"
 
 #define DEF_NOMAPDATA
 
@@ -546,32 +549,32 @@ void spitfire::run()
     }
 #else
     //this fakes map data
-    for (int x = 0; x < (mapsize*mapsize); x += 1/*(mapsize*mapsize)/10*/)
+    int32_t maparea=mapsize*mapsize;
+    for (int x = 0; x < maparea; x += 1/*(mapsize*mapsize)/10*/)
     {
         map->m_tile[x].m_id = x;
-        map->m_tile[x].m_ownerid = -1;
+        map->m_tile[x].m_ownerid = 0;
         //make every tile an npc
         //m_map->m_tile[x].m_type = NPC;
-        map->m_tile[x].m_type = rand() % 9 + 1;
+        map->m_tile[x].m_type = rand() % 8 + 1;
         map->m_tile[x].m_level = (rand() % 10) + 1;
 
-        if (map->m_tile[x].m_type > 6)
+        if (map->m_tile[x].m_type == 7)
             map->m_tile[x].m_type = 10;
 
-        if (map->m_tile[x].m_type == 6)
+        if (map->m_tile[x].m_type == 8)
         {
             map->m_tile[x].m_type = NPC;
             NpcCity * city = (NpcCity *)AddNpcCity(map->m_tile[x].m_id);
-            city->Initialize(true, true);
             city->m_level = map->m_tile[x].m_level;
+            city->Initialize(true, true);
             city->m_ownerid = map->m_tile[x].m_ownerid;
             map->m_tile[map->m_tile[x].m_id].m_zoneid = map->GetStateFromID(map->m_tile[x].m_id);
         }
 
-
-        if ((x + 1) % ((mapsize*mapsize) / 100) == 0)
+        if ((x + 1) % (maparea / 100) == 0)
         {
-            log->info("{}%", int((double(double(x + 1) / (mapsize*mapsize)))*double(100)));
+            log->info("{}%", int((double(double(x + 1) / maparea))*double(100)));
         }
     }
 #endif
@@ -1151,19 +1154,22 @@ void spitfire::run()
 //     }
 
 
+#ifndef DEF_NOMAPDATA
 
     log->info("Incrementing valleys.");
 
 
     for (int i = 0; i < mapsize*mapsize; ++i)
     {
-        if (map->m_tile[i].m_type < 11 && map->m_tile[i].m_ownerid < 0)
+        if (map->m_tile[i].m_type < 11 && map->m_tile[i].m_ownerid == 0)
         {
             map->m_tile[i].m_level++;
             if (map->m_tile[i].m_level > 10)
                 map->m_tile[i].m_level = 1;
         }
     }
+
+#endif
 #pragma endregion
 
     SortPlayers();
@@ -2007,113 +2013,437 @@ void spitfire::TimerThread()
 //                    client->lists.unlock();
                 }
 
-                /*
                 if (armylist.size() > 0)
                 {
-                std::list<stTimedEvent> tarmylist = armylist;
-                for (iter = tarmylist.begin(); iter != tarmylist.end();)
-                {
-                //armylist.erase(iter++);
-                stArmyMovement * am = (stArmyMovement *)iter->data;
-                PlayerCity * fcity = (PlayerCity *)am->city;
-                Client * fclient = am->client;
-                Hero * fhero = am->hero;
-                Tile * tile = map->GetTileFromID(am->targetfieldid);
-                if (am->reachtime + am->resttime < ltime)
-                {
-                if (am->direction == 1)
-                {
-                //start combat, deposit resources, reinforce city, etc
-                combat fight(tile, *am);
-                fight.run();
-                stTimedEvent te;
-                stArmyMovement * amreturn = new stArmyMovement;
+                    std::list<stTimedEvent> tarmylist = armylist;
+                    Client* oclient=nullptr;
+                    uint32_t fieldid;
+                    std::vector<stArmyMovement*> campers;
+                    for (iter = tarmylist.begin(); iter != tarmylist.end(); iter++)
+                    {
+                        //armylist.erase(iter++);
+                        stArmyMovement * am = (stArmyMovement *)iter->data;
+                        //if the army is invalid, remove it
+                        if (am->client == 0) {
+                            delete am;
+                            armylist.erase(iter);
+                            continue;
+                        }
+                        if (am->direction == DIRECTION_STAY) continue;
+                        PlayerCity * fcity = (PlayerCity *)am->city;
+                        Client * fclient = am->client;
+                        Hero * fhero = am->hero;
+                        fieldid=am->targetfieldid;
+                        Tile * tile = map->GetTileFromID(fieldid);
+                        if (am->reachtime < ltime)
+                        {
+                            if (am->direction == DIRECTION_FORWARD)
+                            {
+                                //check if its still a valid target
+                                bool validTarget=true;
+                                if (fclient->Beginner() && tile->m_type > 10) validTarget=false;
+                                if (tile->m_ownerid > 0) {
+                                    oclient=GetClient(tile->m_ownerid);
+                                    if (oclient == 0) validTarget=false;
+                                    int16_t relation = m_alliances->GetRelation(fclient->accountid, oclient->accountid);
+                                    if (relation == DEF_SELFRELATION || relation == DEF_ALLIANCE || relation == DEF_ALLY) validTarget=false;
+                                    if (oclient->Beginner() && tile->m_type==CASTLE) validTarget=false;
+                                }
+                                if (validTarget) {
+                                    // scouting mission
+                                    if (am->missiontype==MISSION_SCOUT) {
+                                        // in case of scouting valleys no scouting battle
+                                        if (tile->m_type < CASTLE) {
+                                            // this is for saving memory only for now
+                                            if (tile->m_valley == nullptr) {
+                                                tile->m_valley = new ValleyData;
+                                                ((ValleyData*)tile->m_valley)->m_tile = tile;
+                                            }
+                                            ((ValleyData*)tile->m_valley)->Reset(false);
+                                            stReport r;
+                                            r.guid = Utils::generaterandomstring(28);
+                                            r.attack = true;
+                                            r.back = false;
+                                            r.armytype = MISSION_SCOUT;
+                                            r.isread = false;
+                                            r.reportid = fclient->currentreportid++;
+                                            int xid, yid;
+                                            GETXYFROMID4(xid,yid,am->startfieldid,mapsize);
+                                            std::stringstream ss;
+                                            ss << am->startposname << " (" << xid << "," << yid << ")";
+                                            r.startpos = ss.str();
+                                            std::stringstream ss1;
+                                            GETXYFROMID4(xid,yid,am->targetfieldid,mapsize);
+                                            ss1 << am->targetposname << " (" << xid << "," << yid << ")";
+                                            r.targetpos = ss1.str();
+                                            r.title = "Scout Report";
+                                            r.type_id = 1;
+                                            r.eventtime = Utils::time();
+                                            std::string path = reportbasepath + r.guid+".xml";
+                                            std::ofstream file;
+                                            file.open(path, std::ios::out);
+                                            ValleyData* valley = ((ValleyData*)tile->m_valley);
+                                            Writer writer(file);
 
-                amreturn->city = am->city;
-                amreturn->client = am->client;
+                                            writer.openElt("reportData").attr("reportUrl", reportbaseurl + r.guid + ".xml");
+                                            writer.openElt("scoutReport").attr("isFound", "false").attr("isSuccess", "true").attr("isAttack", "true");
+                                            writer.openElt("scoutInfo").attr("heroLevel",std::to_string(valley->m_temphero->m_level)).attr("heroName",valley->m_temphero->m_name).attr("heroUrl","");
+                                            writer.openElt("troops");
+                                            stTroops st = valley->m_troops;
+                                            int64_t* trc = (int64_t*)&st;
+                                            for (int ij = 0; ij < 12; ij++) {
+                                                if ((*(trc + ij)) > 0) writer.openElt("troopStrType").attr("typeId", std::to_string(ij + 2)).attr("count", std::to_string(*(trc + ij))).closeElt();
+                                            }
+                                            writer.closeElt();
+                                            writer.closeElt();
+                                            writer.openElt("battleInfo").attr("isAttack", "true").closeElt();
+                                            writer.closeAll();
+                                            file.close();
+                                            fclient->reportlist.push_back(r);
+                                            am->direction=DIRECTION_BACKWARD;
+                                            am->reachtime=Utils::time()+am->reachtime-am->starttime-am->resttime;
+                                            am->resttime=0;
+                                            am->starttime=Utils::time();
+                                            if (am->hero!=nullptr) am->hero->m_status=DEF_HERORETURN;
+                                            fclient->SelfArmyUpdate();
+                                            fclient->ReportUpdate();
+                                            continue;
+                                        }
+                                        // otherwise there will be a scouting battle
+                                        else if (tile->m_ownerid > 0) {
+                                            oclient=GetClient(tile->m_ownerid);
+                                            if (oclient!=0) {
+                                                campers.clear();
+                                                for (stArmyMovement* pq : oclient->armymovement) {
+                                                    if (pq->direction==DIRECTION_STAY && pq->targetfieldid==fieldid) campers.push_back(pq);
+                                                }
+                                                for (stArmyMovement* pq : oclient->friendarmymovement) {
+                                                    if (pq->direction==DIRECTION_STAY && pq->targetfieldid==fieldid) campers.push_back(pq);
+                                                }
+                                                attacker atk;
+                                                defender def;
+                                                if (am->hero!=nullptr) {
+                                                    atk.hero.attack=am->hero->GetPower();
+                                                    atk.hero.intel=am->hero->GetStratagem();
+                                                }
+                                                Hero* besthero=nullptr;
+                                                int16_t bestPower=-1;
+                                                if (campers.size()>0) {
+                                                    for (stArmyMovement* pu : campers) {
+                                                        def.troops[2]+=pu->troops.scout;
+                                                        if (pu->hero!=nullptr && pu->hero->GetPower()>bestPower) {
+                                                            besthero=pu->hero;
+                                                            bestPower=pu->hero->GetPower();
+                                                        }
+                                                    }
+                                                }
+                                                atk.troops[2]=am->troops.scout;
+                                                atk.research.military_tradition=fclient->research[T_MILITARYTRADITION].level;
+                                                atk.research.iron_working=fclient->research[T_IRONWORKING].level;
+                                                atk.research.medicine=fclient->research[T_MEDICINE].level;
+                                                atk.research.compass=fclient->research[T_COMPASS].level;
+                                                atk.research.horseback_riding=fclient->research[T_HORSEBACKRIDING].level;
+                                                atk.research.archery=fclient->research[T_ARCHERY].level;
+                                                atk.research.machinery=fclient->research[T_MACHINERY].level;
+                                                def.research.military_tradition=oclient->research[T_MILITARYTRADITION].level;
+                                                def.research.iron_working=oclient->research[T_IRONWORKING].level;
+                                                def.research.medicine=oclient->research[T_MEDICINE].level;
+                                                def.research.compass=oclient->research[T_COMPASS].level;
+                                                def.research.horseback_riding=oclient->research[T_HORSEBACKRIDING].level;
+                                                def.research.archery=oclient->research[T_ARCHERY].level;
+                                                def.research.machinery=oclient->research[T_MACHINERY].level;
+                                                PlayerCity* defenderCity=(PlayerCity*)tile->m_city;
+                                                //also update the hero for a castle
+                                                for (Hero* hh : defenderCity->m_heroes) {
+                                                    if (hh==0) continue;
+                                                    if (hh->GetPower()>bestPower) {
+                                                        besthero=hh;
+                                                        bestPower=hh->GetPower();
+                                                    }
+                                                }
+                                                int64_t mainScouts=0;
+                                                if (defenderCity->m_gooutforbattle) {
+                                                    mainScouts=defenderCity->m_troops.scout;
+                                                    def.troops[2]+=mainScouts;
+                                                }
+                                                if (besthero!=nullptr) {
+                                                    def.hero.attack=besthero->GetPower();
+                                                    def.hero.intel=besthero->GetStratagem();
+                                                }
+                                                battleResult result;
+                                                CombatSimulator::fight(atk,def,&result);
+                                                // send info for scout report generation :: TODO
 
-                amreturn->hero = am->hero;
-                amreturn->heroname = am->hero->m_name;
-                amreturn->direction = 2;
-                amreturn->resources += fight.returned;
-                amreturn->startposname = am->city->m_cityname;
-                amreturn->king = am->client->playername;
-                amreturn->troops = am->troops;
-                amreturn->starttime = Utils::time();
-                amreturn->armyid = armycounter++;
-                amreturn->reachtime = amreturn->starttime + (am->reachtime - am->starttime - am->resttime);
-                amreturn->herolevel = am->hero->m_level;
-                amreturn->resttime = 0;
-                amreturn->missiontype = am->missiontype;
-                amreturn->startfieldid = am->city->m_tileid;
-                amreturn->targetfieldid = am->targetfieldid;
-                amreturn->targetposname = map->GetTileFromID(am->targetfieldid)->GetName();
-                amreturn->hero->m_status = DEF_HERORETURN;
+                                                // distribute the damage between all campers
+                                                int64_t damage=def.troops[2]-result.defenderTroops[2];
+                                                if (campers.size() > 0 &&  damage > 0) {
+                                                    for (stArmyMovement* il : campers) {
+                                                        int64_t dmg=ceil(il->troops.scout*damage/def.troops[2]);
+                                                        if (il->troops.scout > dmg) il->troops.scout-=dmg;
+                                                        else il->troops.scout=0;
+                                                        // if all the troops are dead, send the hero back
+                                                        if (!memcmp(&testMemory,&(il->troops.worker),96)) {
+                                                            if (il->hero!=nullptr) {
+                                                                il->hero->m_status=DEF_HEROIDLE;
+                                                                if (il->city!=0) il->client->HeroUpdate(il->hero->m_id,((PlayerCity*)il->city)->m_castleid);
+                                                            }
+                                                            il->client->armymovement.remove(il);
+                                                            if (am->client!=il->client) {
+                                                                am->client->friendarmymovement.remove(il);
+                                                                am->client->FriendArmyUpdate();
+                                                            }
+                                                            else am->client->armymovement.remove(il);
+                                                            il->client = 0;
+                                                            il->client->SelfArmyUpdate();
+                                                        }
+                                                    }
+                                                }
+                                                if (damage > 0) {
+                                                    mainScouts=ceil(mainScouts*damage/def.troops[2]);
+                                                    int64_t scoutsleft=defenderCity->m_troops.scout-mainScouts;
+                                                    if (scoutsleft>0) defenderCity->m_troops.scout=scoutsleft;
+                                                    else defenderCity->m_troops.scout=0;
+                                                    defenderCity->TroopUpdate();
+                                                }
+                                                // if defender wins
+                                                if (result.result) {
+                                                    // means all attacking scouts are dead
+                                                    if (result.attackerTroops[2]==0) {
+                                                        if (am->hero!=nullptr) {
+                                                            if (am->hero->m_loyalty < 5) am->hero->m_loyalty=0;
+                                                            else am->hero->m_loyalty-=5;
+                                                            if (defenderCity!=0 && defenderCity->GetBuildingLevel(B_FEASTINGHALL)>defenderCity->HeroCount()) {
+                                                                int8_t chance=rand()%100;
+                                                                // in this case the hero will get captured
+                                                                if (chance > am->hero->m_loyalty) {
+                                                                    for (int x=0;x<10;++x) {
+                                                                        if (fcity->m_heroes[x]==fhero) {
+                                                                            fcity->m_heroes[x]=0;
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    for (int x=0;x<10;++x) {
+                                                                        if (!defenderCity->m_heroes[x]) {
+                                                                            defenderCity->m_heroes[x]=fhero;
+                                                                        }
+                                                                    }
+                                                                    fhero->m_client=oclient;
+                                                                    fhero->m_ownerid=oclient->accountid;
+                                                                    fhero->m_loyalty=0;
+                                                                    fhero->m_powerbuffadded=0;
+                                                                    fhero->m_stratagembuffadded=0;
+                                                                    fhero->m_managementbuffadded=0;
+                                                                    fhero->m_status=DEF_HEROSEIZED;
+                                                                    defenderCity->HeroUpdate(fhero,0);
+                                                                    fcity->HeroUpdate(fhero,1);
+                                                                    am->client->armymovement.remove(am);
+                                                                    am->client->SelfArmyUpdate();
+                                                                    armylist.remove(*iter);
+                                                                    delete am;
+                                                                    continue;
+                                                                }
+                                                            }
+                                                            // otherwise return the hero to the city immediately
+                                                            fhero->m_status=DEF_HEROSEIZED;
+                                                            fcity->HeroUpdate(fhero,2);
+                                                            am->client->armymovement.remove(am);
+                                                            am->client->SelfArmyUpdate();
+                                                            armylist.remove(*iter);
+                                                            delete am;
+                                                            continue;
+                                                        }
+                                                        am->client->armymovement.remove(am);
+                                                        am->client->SelfArmyUpdate();
+                                                        armylist.remove(*iter);
+                                                        delete am;
+                                                        continue;
+                                                    }
+                                                }
+                                                // if all attacking scouts aren't dead(doesn't matter if they lost or won), send the army back
+                                                am->troops.scout=result.attackerTroops[2];
+                                                am->direction=DIRECTION_BACKWARD;
+                                                am->reachtime=Utils::time()+am->reachtime-am->starttime-am->resttime;
+                                                am->resttime=0;
+                                                am->starttime=Utils::time();
+                                                am->hero->m_status=DEF_HERORETURN;
+                                                am->client->SelfArmyUpdate();
+                                                continue;
+                                            }
+                                        }
+                                        // when scouting a NPC
+                                        else {
+                                            // generate scouting report here
+                                            stReport r;
+                                            r.guid = Utils::generaterandomstring(28);
+                                            r.attack = true;
+                                            r.back = false;
+                                            r.armytype = MISSION_SCOUT;
+                                            r.isread = false;
+                                            r.reportid = fclient->currentreportid++;
+                                            int xid, yid;
+                                            GETXYFROMID4(xid, yid, am->startfieldid, mapsize);
+                                            std::stringstream ss;
+                                            ss << am->startposname << " (" << xid << "," << yid << ")";
+                                            r.startpos = ss.str();
+                                            std::stringstream ss1;
+                                            GETXYFROMID4(xid, yid, am->targetfieldid, mapsize);
+                                            ss1 << am->targetposname << " (" << xid << "," << yid << ")";
+                                            r.targetpos = ss1.str();
+                                            r.title = "Scout Report";
+                                            r.type_id = 1;
+                                            r.eventtime = Utils::time();
+                                            std::string path = reportbasepath + r.guid + ".xml";
+                                            std::ofstream file;
+                                            file.open(path, std::ios::out);
+                                            NpcCity* npc = ((NpcCity*)tile->m_city);
+                                            npc->ResetHero();
+                                            Writer writer(file);
 
-                te.data = amreturn;
-                te.type = DEF_TIMEDARMY;
+                                            writer.openElt("reportData").attr("reportUrl", reportbaseurl + r.guid + ".xml");
+                                            writer.openElt("scoutReport").attr("isFound", "true").attr("isSuccess", "true").attr("isAttack", "true");
+                                            writer.openElt("scoutInfo").attr("support", std::to_string(npc->m_loyalty)).attr("population", std::to_string(npc->m_population)).attr("gold", std::to_string((int64_t)npc->m_resources.gold)).attr("heroLevel", std::to_string(npc->m_temphero->m_level)).attr("heroName", npc->m_temphero->m_name).attr("heroUrl", "");
+                                            writer.openElt("resource").openElt("food").content(std::to_string((int64_t)npc->m_resources.food)).closeElt().openElt("wood").content(std::to_string((int64_t)npc->m_resources.wood)).closeElt().openElt("iron").content(std::to_string((int64_t)npc->m_resources.iron)).closeElt().openElt("stone").content(std::to_string((int64_t)npc->m_resources.stone)).closeElt().closeElt();
+                                            if (memcmp(&testMemory, &npc->m_forts, sizeof(stForts))) {
+                                                writer.openElt("fortifications");
+                                                if (npc->m_forts.traps > 0) writer.openElt("fortificationsType").attr("typeId", std::to_string(TR_TRAP)).attr("count", std::to_string(npc->m_forts.traps)).closeElt();
+                                                if (npc->m_forts.abatis > 0) writer.openElt("fortificationsType").attr("typeId", std::to_string(TR_ABATIS)).attr("count", std::to_string(npc->m_forts.abatis)).closeElt();
+                                                if (npc->m_forts.logs > 0) writer.openElt("fortificationsType").attr("typeId", std::to_string(TR_ROLLINGLOG)).attr("count", std::to_string(npc->m_forts.logs)).closeElt();
+                                                if (npc->m_forts.towers > 0) writer.openElt("fortificationsType").attr("typeId", std::to_string(TR_ARCHERTOWER)).attr("count", std::to_string(npc->m_forts.towers)).closeElt();
+                                                if (npc->m_forts.trebs>0) writer.openElt("fortificationsType").attr("typeId", std::to_string(TR_TREBUCHET)).attr("count", std::to_string(npc->m_forts.trebs)).closeElt();
+                                                writer.closeElt();
+                                            }
+                                            if (memcmp(&testMemory, &npc->m_troops, sizeof(NpcCity::stTroops))) {
+                                                writer.openElt("troops");
+                                                if (npc->m_troops.warrior > 0) writer.openElt("troopStrType").attr("typeId", std::to_string(TR_WARRIOR)).attr("count", std::to_string(npc->m_troops.warrior)).closeElt();
+                                                if (npc->m_troops.pike > 0) writer.openElt("troopStrType").attr("typeId", std::to_string(TR_PIKE)).attr("count", std::to_string(npc->m_troops.pike)).closeElt();
+                                                if (npc->m_troops.sword > 0) writer.openElt("troopStrType").attr("typeId", std::to_string(TR_SWORDS)).attr("count", std::to_string(npc->m_troops.sword)).closeElt();
+                                                if (npc->m_troops.archer > 0) writer.openElt("troopStrType").attr("typeId", std::to_string(TR_ARCHER)).attr("count", std::to_string(npc->m_troops.archer)).closeElt();
+                                                if (npc->m_troops.cavalry > 0) writer.openElt("troopStrType").attr("typeId", std::to_string(TR_CAVALRY)).attr("count", std::to_string(npc->m_troops.cavalry)).closeElt();
+                                                writer.closeElt();
+                                            }
+                                            
+                                            writer.openElt("buildings");
+                                            std::stringstream vec[31];
+                                            for (stBuilding& b : npc->m_innerbuildings) {
+                                                if (b.type > 30 || b.type==0) continue;
+                                                if (vec[b.type].tellp() > 0) vec[b.type] << ",";
+                                                vec[b.type] << b.level;
+                                            }
+                                            for (stBuilding& b : npc->m_outerbuildings) {
+                                                if (b.type > 30 || b.type == 0) continue;
+                                                if (vec[b.type].tellp() > 0) vec[b.type] << ",";
+                                                vec[b.type] << b.level;
+                                            }
+                                            for (int btype = 0; btype < 31; ++btype) {
+                                                if (vec[btype].tellp() > 0) {
+                                                    writer.openElt("buildingType").attr("type", std::to_string(btype)).attr("levels", vec[btype].str()).closeElt();
+                                                }
+                                            }
+                                            writer.closeElt();
+                                            writer.closeElt();
+                                            writer.openElt("battleInfo").attr("isAttack", "true").attr("unNomal", "No defending troops found.");
+                                            writer.openElt("backTroop");
+                                            writer.openElt("troops");
+                                            if (am->hero != 0) {
+                                                writer.attr("heroLevel", std::to_string(am->hero->m_level)).attr("heroName", am->hero->m_name).attr("heroUrl", am->hero->m_logourl).attr("isHeroBeSeized", "false");
+                                            }
+                                            stTroops st = am->troops;
+                                            int64_t* trc = (int64_t*)&st;
+                                            for (int ij = 0; ij < 12; ij++) {
+                                                if ((*(trc + ij)) > 0) writer.openElt("troopInfo").attr("typeId", std::to_string(ij + 2)).attr("remain", std::to_string(*(trc + ij))).closeElt();
+                                            }
+                                            writer.closeAll();
+                                            file.close();
+                                            fclient->reportlist.push_back(r);
+                                            am->direction=DIRECTION_BACKWARD;
+                                            am->reachtime=Utils::time()+am->reachtime-am->starttime-am->resttime;
+                                            am->resttime=0;
+                                            am->starttime=Utils::time();
+                                            if (am->hero) am->hero->m_status=DEF_HERORETURN;
+                                            am->client->SelfArmyUpdate();
+                                            am->client->ReportUpdate();
+                                            continue;
+                                        }
+                                    }
+                                    else if (am->missiontype==MISSION_ATTACK) {
+                                        // TODO
+                                    }
+                                }
+                                // if not valid target, just send the army back
+                                else {
+                                    am->direction=DIRECTION_BACKWARD;
+                                    am->reachtime=Utils::time()+am->reachtime-am->starttime-am->resttime;
+                                    am->resttime=0;
+                                    am->starttime=Utils::time();
+                                    if (am->hero) am->hero->m_status=DEF_HERORETURN;
+                                    am->client->SelfArmyUpdate();
+                                    continue;
+                                }
+                            }
+                            else 
+                            {
+                                //returning to city from attack/reinforce/etc
 
-                AddTimedEvent(te);
-                am->client->armymovement.remove(am);
-                am->client->armymovement.push_back(amreturn);
-                am->client->SelfArmyUpdate();
+                                if (am->hero) am->hero->m_status = DEF_HEROIDLE;
 
-                armylist.remove(*iter);
-                am->client->HeroUpdate(am->hero->m_id, am->hero->m_castleid);
-                delete am;
+                                am->city->m_resources += am->resources;
+                                ((PlayerCity*)am->city)->m_troops += am->troops;
+                                am->client->armymovement.remove(am);
+
+                                if (am->hero) ((PlayerCity*)am->city)->HeroUpdate(am->hero, 2);
+
+                                am->client->SelfArmyUpdate();
+                                am->client->PlayerUpdate();
+                                ((PlayerCity*)am->city)->TroopUpdate();
+                                ((PlayerCity*)am->city)->ResourceUpdate();
+
+                                stReport r;
+                                r.guid = Utils::generaterandomstring(28);
+                                r.attack = false;
+                                r.back = true;
+                                r.armytype = am->missiontype;
+                                r.isread = false;
+                                r.reportid = fclient->currentreportid++;
+                                int xid, yid;
+                                GETXYFROMID4(xid,yid,am->startfieldid,mapsize);
+                                std::stringstream ss;
+                                ss << am->startposname << " (" << xid << "," << yid << ")";
+                                r.startpos = ss.str();
+                                std::stringstream ss1;
+                                GETXYFROMID4(xid,yid,am->targetfieldid,mapsize);
+                                ss1 << am->targetposname << " (" << xid << "," << yid << ")";
+                                r.targetpos = ss1.str();
+                                if (am->missiontype == MISSION_SCOUT) r.title = "Scout Returned";
+                                else if (am->missiontype == MISSION_ATTACK) r.title = "Attack Returned";
+                                else r.title = "Returned";
+                                r.type_id = 1;
+                                r.eventtime = Utils::time();
+                                std::string path = reportbasepath + r.guid + ".xml";
+                                std::ofstream file;
+                                file.open(path, std::ios::out);
+                                Writer writer(file);
+                                writer.openElt("reportData").attr("reportUrl", reportbaseurl + r.guid + ".xml");
+                                writer.openElt("troopMovement").attr("isBack", "true").attr("type", std::to_string(am->missiontype));
+                                if (am->hero != 0) {
+                                    writer.attr("heroLevel", std::to_string(am->hero->m_level)).attr("heroName", am->hero->m_name).attr("heroUrl", am->hero->m_logourl);
+                                }
+                                stTroops st = am->troops;
+                                int64_t* trc = (int64_t*)&st;
+                                for (int ij = 0; ij < 12; ij++) {
+                                    if ((*(trc + ij)) > 0) writer.openElt("troops").attr("typeId", std::to_string(ij + 2)).attr("count", std::to_string(*(trc + ij))).closeElt();
+                                }
+                                writer.closeElt();
+                                writer.closeAll();
+                                file.close();
+                                fclient->reportlist.push_back(r);
+                                fclient->ReportUpdate();
+
+                                armylist.remove(*iter);
+                                delete am;
+                            }
+                        }
+                    }
                 }
-                else
-                {
-                //returning to city from attack/reinforce/etc
-
-                am->hero->m_status = DEF_HEROIDLE;
-
-                am->city->m_resources += am->resources;
-                ((PlayerCity*)am->city)->m_troops += am->troops;
-
-                ((PlayerCity*)am->city)->HeroUpdate(am->hero, 2);
-                am->client->SelfArmyUpdate();
-                am->client->PlayerUpdate();
-                ((PlayerCity*)am->city)->TroopUpdate();
-                ((PlayerCity*)am->city)->ResourceUpdate();
-
-
-                armylist.remove(*iter);
-                delete am;
-                }
-                }
-                ++iter;
-
-
-                //
-                //                         fclient->SelfArmyUpdate();
-                //
-                //                         stTimedEvent te;
-                //                         te.data = am;
-                //                         te.type = DEF_TIMEDARMY;
-                //
-                //                         gserver->AddTimedEvent(te);
-
-                // recv: server.HeroUpdate
-                // recv: server.InjuredTroopUpdate
-                // recv: server.SelfArmysUpdate
-                // recv: server.SelfArmysUpdate
-                // recv: server.HeroUpdate
-                // recv: server.SelfArmysUpdate
-                // recv: server.HeroUpdate
-                // recv: server.NewReport
-                // recv: server.SelfArmysUpdate
-                // recv: server.HeroUpdate
-                // recv: server.TroopUpdate
-                // recv: server.SelfArmysUpdate
-                // recv: server.HeroUpdate
-                // recv: server.SystemInfoMsg
-                // recv: server.SelfArmysUpdate
-                // recv: server.ResourceUpdate
-                // recv: server.SelfArmysUpdate
-                }
-                }
-                */
 
                 //TODO: some buildings not being set to notupgrading properly. add a new check for all buildings under construction to see if they are due to finish? maybe?
                 if (buildinglist.size() > 0)
@@ -2826,6 +3156,20 @@ bool spitfire::comparearmies(stTimedEvent& x,stTimedEvent& y)
     return (((stArmyMovement*)x.data)->reachtime < ((stArmyMovement*)y.data)->reachtime);
 }
 
+std::string spitfire::readreport(std::string report_id)
+{
+    try {
+        std::ifstream file;
+        std::ostringstream ss;
+        file.open(_instance->reportbasepath+report_id+".xml", std::ios::in);
+        ss << file.rdbuf();
+        return ss.str();
+    }
+    catch (...) {
+        return "";
+    }
+}
+
 void spitfire::SortPlayers()
 {
     m_prestigerank.clear();
@@ -3351,6 +3695,12 @@ bool spitfire::Init()
 
         servername = obj["servername"];
         log->info(fmt::format("servername: {}", servername));
+
+        reportbasepath = obj["reportbasepath"];
+        log->info(fmt::format("report base path: {}",reportbasepath));
+
+        reportbaseurl=obj["reportbaseurl"];
+        log->info(fmt::format("report base url: {}",reportbaseurl));
     }
     catch (std::exception& e)
     {

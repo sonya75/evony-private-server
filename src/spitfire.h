@@ -196,6 +196,7 @@ public:
     std::string dbservertable;
 
 
+    std::string reportbasepath, reportbaseurl;
     // Map size -- typically 500x500 or 800x800
     uint16_t mapsize;
 
@@ -317,6 +318,7 @@ public:
     static bool comparegrade(stHeroRank first, stHeroRank second);
     static bool comparearmies(stTimedEvent& x,stTimedEvent& y);
 
+    static std::string readreport(std::string report_id);
 
     std::list<stCastleRank> m_castleranklevel;
     std::list<stCastleRank> m_castlerankpopulation;
