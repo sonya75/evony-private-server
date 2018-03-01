@@ -2100,7 +2100,7 @@ void spitfire::TimerThread()
                                             writer.openElt("battleInfo").attr("isAttack", "true").closeElt();
                                             writer.closeAll();
                                             file.close();
-                                            fclient->reportlist.push_back(r);
+                                            fclient->reportlist.push_front(r);
                                             am->direction=DIRECTION_BACKWARD;
                                             am->reachtime=Utils::time()+am->reachtime-am->starttime-am->resttime;
                                             am->resttime=0;
@@ -2355,7 +2355,7 @@ void spitfire::TimerThread()
                                             }
                                             writer.closeAll();
                                             file.close();
-                                            fclient->reportlist.push_back(r);
+                                            fclient->reportlist.push_front(r);
                                             am->direction=DIRECTION_BACKWARD;
                                             am->reachtime=Utils::time()+am->reachtime-am->starttime-am->resttime;
                                             am->resttime=0;
@@ -2436,7 +2436,7 @@ void spitfire::TimerThread()
                                 writer.closeElt();
                                 writer.closeAll();
                                 file.close();
-                                fclient->reportlist.push_back(r);
+                                fclient->reportlist.push_front(r);
                                 fclient->ReportUpdate();
 
                                 armylist.remove(*iter);
