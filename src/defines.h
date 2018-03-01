@@ -57,10 +57,19 @@
 #define DEF_HEROMAYOR 1
 #define DEF_HEROREINFORCE //exists?
 #define DEF_HEROATTACK 3
+#define DEF_HEROSEIZED 4
 #define DEF_HEROSCOUT //exists?
 #define DEF_HERORETURN 5
 
+#define MISSION_TRANS 1
+#define MISSION_REINF 2
+#define MISSION_SCOUT 3
+#define MISSION_BUILDCITY 4
+#define MISSION_ATTACK 5
 
+#define DIRECTION_FORWARD 1
+#define DIRECTION_BACKWARD 2
+#define DIRECTION_STAY 3
 
 // BUILDING IDS
 
@@ -104,7 +113,6 @@
 #define TR_ARCHERTOWER 16
 #define TR_ROLLINGLOG 17
 #define TR_TREBUCHET 18
-
 
 #define MAIL_INBOX 1
 #define MAIL_SYSTEM 2
@@ -192,6 +200,7 @@ inline void my_split(std::vector<std::string> & toks, const std::string & src, c
             break;
     }
 }
+
 // #define SQLCATCH(a)    catch (std::exception & e)\
 // {\
 //     std::string file = __FILE__;\
@@ -308,14 +317,12 @@ inline void my_split(std::vector<std::string> & toks, const std::string & src, c
 #define DEF_LISTENSOCK 1
 #define DEF_NORMALSOCK 2
 
-
 #ifndef WIN32
 #define strtok_s strtok_r
 #define _atoi64 atoll
 #define sprintf_s snprintf
 #define strcpy_s(a,b,c) strcpy(a,c)
 #endif
-
 
 #define KeyExists(x,y) ((x._object->Exists(y))>=0)
 #define IsString(x) (x.type==String)
