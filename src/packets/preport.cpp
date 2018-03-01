@@ -28,66 +28,115 @@ void preport::process()
 
     if (command == "deleteReport")
     {
-        std::string reportid = data["idStr"];//always string? always a stringed number?
+        std::string reportid = data["idStr"];
 
-        amf3object obj3;
-        obj3["cmd"] = "report.deleteReport";
-        obj3["data"] = amf3object();
-        amf3object & data3 = obj3["data"];
-
-        data3["packageId"] = 0.0;
-        data3["ok"] = 1;
-        gserver.SendObject(client, obj3);
+        if (reportid.length() > 0) {
+            char* l = new char[reportid.length() + 1];
+            char* ll = l;
+            l[reportid.length()] = 0;
+            strcpy(l, reportid.c_str());
+            while (true) {
+                int32_t x = strtol(ll, &ll, 10);
+                if (x == 0) {
+                    gserver.SendObject(client,gserver.CreateError("report.deleteReport", -99, "Invalid report id."));
+                    return;
+                }
+                std::list<stReport>::iterator iter;
+                for (iter = client->reportlist.begin(); iter != client->reportlist.end(); ++iter) {
+                    if (iter->reportid == x) {
+                        client->reportlist.erase(iter);
+                        break;
+                    }
+                }
+                if (*ll == 0) break;
+                ll++;
+            }
+            delete[] l;
+        }
+        obj2["cmd"] = "report.deleteReport";
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+        gserver.SendObject(client, obj2);
+        client->ReportUpdate();
         return;
     }
     if (command == "markAsRead")
     {
+        int reportid = data["reportId"];
+        std::list<stReport>::iterator iter;
+        stReport* r = nullptr;
+        for (iter = client->reportlist.begin(); iter != client->reportlist.end(); ++iter) {
+            if (iter->reportid == reportid) {
+                r = &*iter;
+            }
+        }
+        if (r==nullptr) {
+            gserver.SendObject(client, gserver.CreateError("report.markAsRead", -99, "Invalid report id."));
+            return;
+        }
+        obj2["cmd"] = "report.markAsRead";
+        data2["ok"] = 1;
+        data2["packageId"] = 0.0;
 
-        amf3object obj3;
-        obj3["cmd"] = "report.receiveReportList";
-        obj3["data"] = amf3object();
-        amf3object & data3 = obj3["data"];
-
-        amf3object report;
-        report["id"] = 0;//report id (based on current reports you have, or ?)
+        amf3object report = amf3object();
+        report["id"] = reportid;
         report["selected"] = false;
-        report["title"] = "Plunder Reports";
-        report["startPos"] = "City Name(317,374)";
-        report["back"] = false;//??
-        report["attack"] = false;//??
-        report["targetPos"] = "Daisy(317,371)";
-        report["eventTime"] = Utils::time();
-        report["type"] = 1;//1 = plunder?
-        report["armyType"] = 5;//5 = attack?
-        report["isRead"] = 0;//0 = unread, 1 = read?
-        report["content"] = "<reportData reportUrl=\"http://battleceshi3.evony.com/default.html?20140613/46/f1/46f16df3fb6ca832bc7ac1a182c99060.xml\">\
-<battleReport isAttack=\"true\" isAttackSuccess=\"false\" round=\"100\">\
-<attackTroop king=\"Daisy\" heroName=\"shitatt\" heroLevel=\"1\" heroUrl=\"images/icon/player/faceA21s.png\">\
-<troopUnit typeId=\"2\" count=\"1\" lose=\"0\"/>\
-</attackTroop>\
-<defendTroop king=\"Daisy1\"/>\
-<backTroop>\
-<troops heroLevel=\"1\" heroName=\"shitatt\" heroUrl=\"images/icon/player/faceA21s.png\" isHeroBeSeized=\"false\">\
-<troopInfo typeId=\"2\" remain=\"1\"/>\
-</troops>\
-</backTroop>\
-</battleReport>\
-</reportData>";
-        data3["report"] = report;
+        report["title"] = r->title;
+        report["startPos"] = r->startpos;
+        report["back"] = r->back;
+        report["attack"] = r->attack;
+        report["targetPos"] = r->targetpos;
+        report["eventTime"] = (double)r->eventtime;
+        report["type"] = r->type_id;
+        report["armyType"] = r->armytype;
+        report["isRead"] = r->isread;
+        report["content"] = gserver.readreport(r->guid);
+        data2["report"] = report;
 
-        gserver.SendObject(client, obj3);
+        gserver.SendObject(client, obj2);
 
+        r->isread = true;
         client->ReportUpdate();
         return;
     }
     if (command == "readOverReport")
     {
+        std::string reportid = data["reportIds"];
 
+        if (reportid.length() > 0) {
+            char* l = new char[reportid.length() + 1];
+            char* ll = l;
+            l[reportid.length()] = 0;
+            strcpy(l, reportid.c_str());
+            while (true) {
+                int32_t x = strtol(ll, &ll, 10);
+                if (x == 0) {
+                    gserver.SendObject(client, gserver.CreateError("report.readOverReport", -99, "Invalid report id."));
+                    return;
+                }
+                std::list<stReport>::iterator iter;
+                for (iter = client->reportlist.begin(); iter != client->reportlist.end(); ++iter) {
+                    if (iter->reportid == x) {
+                        iter->isread = true;
+                        break;
+                    }
+                }
+                if (*ll == 0) break;
+                ll++;
+            }
+            delete[] l;
+        }
+        obj2["cmd"] = "report.readOverReport";
+        data2["packageId"] = 0.0;
+        data2["ok"] = 1;
+        gserver.SendObject(client, obj2);
+        client->ReportUpdate();
+        return;
     }
     if (command == "receiveReportList")
     {
         int pagesize = data["pageSize"];
-        int type = data["type"];
+        int type = data["reportType"];
         int pageno = data["pageNo"];
 
         if (pageno == 0)
@@ -97,7 +146,7 @@ void preport::process()
         std::list<stReport> * reportlist = &client->reportlist;
 
         int32_t count = 0;
-        for (stReport report : * reportlist)
+        for (stReport& report : * reportlist)
         {
             if (report.type_id == type)
                 count++;
@@ -108,22 +157,22 @@ void preport::process()
         data2["ok"] = 1;
         amf3array reports = amf3array();
 
-        std::list<stReport>::reverse_iterator iter;
-        if (pagesize <= 0 || pagesize > 20 || pageno < 0 || pageno > 100000)
+        if (pagesize <= 0 || pagesize > 1000 || pageno < 0 || pageno > 100000)
         {
             gserver.SendObject(client, gserver.CreateError("report.receiveReportList", -99, "Invalid data."));
             return;
         }
 
-        if ((pageno - 1)*pagesize > reportlist->size())
+        if ((pageno - 1)*pagesize > count)
         {
             gserver.SendObject(client, gserver.CreateError("report.receiveReportList", -99, "Invalid page."));
             return;
         }
-        iter = reportlist->rbegin();
+        std::list<stReport>::iterator iter;
+        iter = reportlist->begin();
         for (int i = 0; i < (pageno - 1)*pagesize; ++i)
         {
-            while (iter != reportlist->rend())
+            while (iter != reportlist->end())
             {
                 if (iter->type_id == type)
                 {
@@ -140,24 +189,25 @@ void preport::process()
             data2["totalPage"] = (count / pagesize);
         else
             data2["totalPage"] = (count / pagesize) + 1;
-        for (; iter != reportlist->rend() && pagesize != 0; ++iter)
+        for (; iter != reportlist->end() && pagesize != 0; ++iter)
         {
             if (iter->type_id == type)
             {
                 pagesize--;
 
                 amf3object report;
-                report["id"] = iter->reportid;//report id (based on current reports you have, or ?)
+                report["id"] = iter->reportid;
                 report["selected"] = false;
                 report["title"] = iter->title;
                 report["startPos"] = iter->startpos;
-                report["back"] = iter->back;//??
-                report["attack"] = iter->attack;//??
+                report["back"] = iter->back;
+                report["attack"] = iter->attack;
                 report["targetPos"] = iter->targetpos;
-                report["eventTime"] = iter->eventtime;
-                report["type"] = iter->type_id;//1 = plunder?
-                report["armyType"] = iter->armytype;//5 = attack?
-                report["isRead"] = iter->isread();//0 = unread, 1 = read?
+                report["eventTime"] = (double)iter->eventtime;
+                report["type"] = iter->type_id;
+                report["armyType"] = iter->armytype;
+                report["isRead"] = iter->isread;
+                report["content"] = amf3object();
                 reports.Add(report);
             }
         }
