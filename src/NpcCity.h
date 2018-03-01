@@ -16,7 +16,11 @@ public:
     ~NpcCity(void);
     void Initialize(bool resources, bool troops);
     void SetTroops(int32_t warrior, int32_t pike, int32_t sword, int32_t archer, int32_t cavalry);
+    void SetMaxTroops(int32_t warrior, int32_t pike, int32_t sword, int32_t archer, int32_t cavalry);
+    void SetMaxForts(int32_t traps, int32_t abatis, int32_t towers, int32_t logs, int32_t trebs);
     void SetupBuildings();
+    void ResetHero();
+    void RecoverFromAttack();
     void CalculateStats(bool resources, bool troops);
 
     struct stTroops
@@ -35,6 +39,9 @@ public:
 
     uint64_t m_calculatestuff;
 
+    int32_t m_population;
+
+    static int32_t IDLE_POPULATIONS[10];
 
     int32_t m_ownerid;
 };
