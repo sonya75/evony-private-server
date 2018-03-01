@@ -12,11 +12,12 @@
 Tile::Tile()
 {
     m_city = nullptr;
+    m_valley = nullptr;
     m_castleicon = 0;
-    m_castleid = -1;
+    m_castleid = 0;
     m_id = -1;
     m_npc = false;
-    m_ownerid = -1;
+    m_ownerid = 0;
     m_powerlevel = -1;
     m_state = -1;
     m_type = FLAT;
