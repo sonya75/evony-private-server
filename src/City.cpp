@@ -113,7 +113,7 @@ bool City::SetBuilding(int16_t type, int8_t level, int16_t position, int16_t sta
 
 
 
-void City::SetResources(double food, double wood, double stone, double iron, double gold)
+void City::SetResources(double gold, double food, double wood, double stone, double iron)
 {
     m_resources.food = food;
     m_resources.gold = gold;
@@ -122,7 +122,7 @@ void City::SetResources(double food, double wood, double stone, double iron, dou
     m_resources.stone = stone;
 }
 
-void City::SetMaxResources(double food, double wood, double stone, double iron, double gold)
+void City::SetMaxResources(double gold, double food, double wood, double stone, double iron)
 {
     m_maxresources.food = food;
     m_maxresources.gold = gold;
