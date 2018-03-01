@@ -480,9 +480,8 @@ void ptech::process()
             }
             else if (speeditemid == "coins.speed")
             {
-                //TODO: find value of cents based on time remaining
-                cents = 200;
                 reducetime = (research->endtime - research->starttime);
+                cents=calculatecoinsforspeedup(reducetime);
             }
 
             if (client->GetItemCount(speeditemid) <= 0)
@@ -519,10 +518,28 @@ void ptech::process()
         int positionid = data["positionId"];
         uint32_t castleid = data["castleId"];
 
-        obj2["cmd"] = "castle.getCoinsNeed";
+        stResearch * research = nullptr;
+        for (auto i = 0; i < 25; ++i)
+        {
+            if (client->research[i].castleid == city->m_castleid)
+            {
+                research = &client->research[i];
+                break;
+            }
+        }
+        if (research == 0)
+        {
+            gserver.SendObject(client, gserver.CreateError("tech.getCoinsNeed", -99, "Invalid tech."));
+            return;
+        }
+
+		uint64_t curtime = Utils::time();
+		if (research->endtime > curtime) curtime = research->endtime - curtime;
+		else curtime = 0;
+        obj2["cmd"] = "tech.getCoinsNeed";
         data2["packageId"] = 0.0;
         data2["ok"] = 1;
-        data2["coinsNeed"] = 200;//TODO: calculate correct cents cost based on time
+		data2["coinsNeed"] = calculatecoinsforspeedup(curtime);
 
         gserver.SendObject(client, obj2);
         return;

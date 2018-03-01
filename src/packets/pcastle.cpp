@@ -886,9 +886,8 @@ void pcastle::process()
             }
             else if (speeditemid == "coins.speed")
             {
-                //TODO: find value of cents based on time remaining
-                cents = 200;
                 reducetime = (building->endtime - building->starttime);
+                cents=calculatecoinsforspeedup(reducetime);
             }
 
             if (client->GetItemCount(speeditemid) <= 0)
@@ -934,10 +933,18 @@ void pcastle::process()
         int positionid = data["positionId"];
         uint32_t castleid = data["castleId"];
 
+		PlayerCity*	city = client->GetCity(castleid);
+        stBuilding* building=city->GetBuilding(positionid);
+        uint64_t curtime=Utils::time();
+        if (building==0 || building->endtime < curtime) {
+            gserver.SendObject(client,gserver.CreateError("castle.getCoinsNeed",-99,"Invalid position id."));
+            return;
+        }
+        curtime=building->endtime-curtime;
         obj2["cmd"] = "castle.getCoinsNeed";
         data2["packageId"] = 0.0;
         data2["ok"] = 1;
-        data2["coinsNeed"] = 200;//TODO calculate correct cents cost based on time
+        data2["coinsNeed"] = calculatecoinsforspeedup(curtime);
 
         gserver.SendObject(client, obj2);
         return;

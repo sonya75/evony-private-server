@@ -201,6 +201,31 @@ inline void my_split(std::vector<std::string> & toks, const std::string & src, c
     }
 }
 
+inline int32_t calculatecoinsforspeedup(uint64_t timeleft)
+{
+    int coinsNeeded=0;
+    if (timeleft >= 28800000) {
+        coinsNeeded+=(50*(int)(timeleft/28800000));
+        timeleft=timeleft%28800000;
+    }
+    if (timeleft>21600000) return coinsNeeded+50;
+    if (timeleft >= 9000000) {
+        coinsNeeded+=(20*(int)(timeleft/9000000));
+        timeleft=timeleft%9000000;
+    }
+    if (timeleft>7200000) return coinsNeeded+20;
+    if (timeleft >= 3600000) {
+        coinsNeeded+=(10*(int)(timeleft/3600000));
+        timeleft=timeleft%3600000;
+    }
+    if (timeleft>1800000) return coinsNeeded+10;
+    if (timeleft>=900000) {
+        coinsNeeded=(5*(int)(timeleft/900000));
+        timeleft=timeleft%900000;
+    }
+    if (timeleft>0) coinsNeeded+=5;
+    return coinsNeeded;
+}
 // #define SQLCATCH(a)    catch (std::exception & e)\
 // {\
 //     std::string file = __FILE__;\
