@@ -933,7 +933,7 @@ void pcastle::process()
         int positionid = data["positionId"];
         uint32_t castleid = data["castleId"];
 
-		PlayerCity*	city = client->GetCity(castleid);
+        PlayerCity*    city = client->GetCity(castleid);
         stBuilding* building=city->GetBuilding(positionid);
         uint64_t curtime=Utils::time();
         if (building==0 || building->endtime < curtime) {

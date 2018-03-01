@@ -224,8 +224,8 @@ std::string PlayerCity::DBTroops() const
     args.emplace_back(m_troops.sword);
     args.emplace_back(TR_TRANSPORTER);
     args.emplace_back(m_troops.transporter);
-	args.emplace_back(TR_BALLISTA);  // added ballista code
-	args.emplace_back(m_troops.ballista);
+    args.emplace_back(TR_BALLISTA);  // added ballista code
+    args.emplace_back(m_troops.ballista);
     args.emplace_back(TR_RAM);
     args.emplace_back(m_troops.ram);
     args.emplace_back(TR_CATAPULT);

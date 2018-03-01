@@ -533,13 +533,13 @@ void ptech::process()
             return;
         }
 
-		uint64_t curtime = Utils::time();
-		if (research->endtime > curtime) curtime = research->endtime - curtime;
-		else curtime = 0;
+        uint64_t curtime = Utils::time();
+        if (research->endtime > curtime) curtime = research->endtime - curtime;
+        else curtime = 0;
         obj2["cmd"] = "tech.getCoinsNeed";
         data2["packageId"] = 0.0;
         data2["ok"] = 1;
-		data2["coinsNeed"] = calculatecoinsforspeedup(curtime);
+        data2["coinsNeed"] = calculatecoinsforspeedup(curtime);
 
         gserver.SendObject(client, obj2);
         return;
