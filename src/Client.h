@@ -114,6 +114,7 @@ public:
     int64_t allianceapplytime;
     bool haschangedface;
     uint16_t changeface;//new castle designs
+    uint32_t currentreportid;
 
     int8_t icon;
 

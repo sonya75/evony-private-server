@@ -68,6 +68,7 @@ Client::Client()
     haschangedface = false;
     beginner = false;
     changeface = 0;//1 = xmas, 2 = halloween maybe?, more?
+    currentreportid = 1;
     allianceapplytime = 0;
 
     currentcityid = currentcityindex = -1;
@@ -269,7 +270,12 @@ amf3object  Client::ToObject()
     //    obj["currentDateTime"] = "2011.07.27 03.20.32";
     obj["currentDateTime"] = s.c_str();
     obj["newReportCount_army"] = 0;
-    obj["friendArmys"] = amf3array();
+    amf3array friendarmys;
+    for (stArmyMovement* xo : friendarmymovement) {
+        amf3object ox=xo->ToObject();
+        friendarmys.Add(ox);
+    }
+    obj["friendArmys"] = friendarmys;
     obj["saleTypeBeans"] = SaleTypeItems();
     obj["autoFurlough"] = false;
     obj["castleSignBean"] = CastleSignArray();
@@ -279,12 +285,22 @@ amf3object  Client::ToObject()
     obj["newMailCount"] = newmailall;
     obj["furlough"] = false;
     obj["gameSpeed"] = 1;
-    obj["enemyArmys"] = amf3array();
+    amf3array enemyarmys;
+    for (stArmyMovement* xo : enemyarmymovement) {
+        amf3object ox=xo->ToObject();
+        enemyarmys.Add(ox);
+    }
+    obj["enemyArmys"] = enemyarmys;
     obj["currentTime"] = (double)Utils::time();
     obj["items"] = Items();
     obj["freshMan"] = false;
     obj["finishedQuestCount"] = 0;
-    obj["selfArmys"] = amf3array();
+    amf3array selfarmys;
+    for (stArmyMovement* xo : armymovement) {
+        amf3object ox=xo->ToObject();
+        selfarmys.Add(ox);
+    }
+    obj["selfArmys"] = selfarmys;
     obj["saleItemBeans"] = SaleItems();
 
     return obj;
