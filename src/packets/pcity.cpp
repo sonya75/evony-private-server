@@ -110,7 +110,7 @@ void pcity::process()
             GETXYFROMID(randomid);
             int x = xfromid;
             int y = yfromid;
-            if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != -1)
+            if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != 0)
             {
                 gserver.SendObject(client, gserver.CreateError("city.moveCastle", -25, "No open flats exist."));
                 return;
@@ -120,7 +120,14 @@ void pcity::process()
 
             if (city->armymovement.size() > 0)
             {
-                //fail
+                gserver.SendObject(client, gserver.CreateError("city.moveCastle",-77,"You must recall all of your troops before you teleport your city."));
+                return;
+            }
+            for (stArmyMovement* pl : client->friendarmymovement) {
+                if (pl->targetfieldid==city->m_tileid && pl->direction == DIRECTION_STAY) {
+                    gserver.SendObject(client, gserver.CreateError("city.moveCastle",-77,"You must recall all of your troops before you teleport your city."));
+                    return;
+                } 
             }
             gserver.map->m_tile[city->m_tileid].m_type = FLAT;
             city->m_tileid = randomid;
