@@ -131,6 +131,8 @@ spitfire::~spitfire()
     MySQL::Connector::unregisterConnector();
 }
 
+int64_t spitfire::testMemory[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+
 void spitfire::io_thread()
 {
     srand(static_cast<int32_t>(Utils::time()));
@@ -935,12 +937,128 @@ void spitfire::run()
         }
     }
 
+    log->info("Loading army data");
+    {
+        Poco::Data::Session ses2(serverpool->get());
+        Statement select(ses2);
+        select << "SELECT * FROM `armies`";
+        select.execute();
+        RecordSet rs(select);
+
+        rs.moveFirst();
+        std::vector<std::string> vec;
+        for (int i = 0; i < rs.rowCount(); ++i, rs.moveNext())
+        {
+            stArmyMovement* x=new stArmyMovement;
+            Client* l=GetClient(rs.value("clientid").convert<std::int32_t>());
+            if (l==0) {
+                delete x;
+                continue;
+            }
+            x->client=l;
+            PlayerCity* city=l->GetCity(rs.value("cityid").convert<int64_t>());
+            if (city==0) {
+                delete x;
+                continue;
+            }
+            int64_t heroid=rs.value("heroid").convert<int64_t>();
+            Hero* hero = nullptr;
+            if (heroid>0) {
+                hero=city->GetHero(heroid);
+                if (hero==0) {
+                    delete x;
+                    continue;
+                }
+            }
+            x->hero=hero;
+            x->city=city;
+            x->targetfieldid=rs.value("targetfieldid").convert<int32_t>();
+            x->direction=rs.value("direction").convert<int16_t>();
+            std::string resourcestring = rs.value("resource").convert<std::string>();
+            if (resourcestring.length() > 0) {
+                my_split(vec, resourcestring, ",");
+                x->resources.food = atol(vec[0].c_str());
+                x->resources.wood = atol(vec[1].c_str());
+                x->resources.stone = atol(vec[2].c_str());
+                x->resources.iron = atol(vec[3].c_str());
+                x->resources.gold = atol(vec[4].c_str());
+            }
+            std::string troopstring = rs.value("troops").convert<std::string>();
+            if (troopstring.length() > 0) {
+                my_split(vec, troopstring, ",");
+                x->troops.worker = atol(vec[0].c_str());
+                x->troops.warrior = atol(vec[1].c_str());
+                x->troops.scout = atol(vec[2].c_str());
+                x->troops.pike = atol(vec[3].c_str());
+                x->troops.sword = atol(vec[4].c_str());
+                x->troops.archer = atol(vec[5].c_str());
+                x->troops.transporter = atol(vec[6].c_str());
+                x->troops.cavalry = atol(vec[7].c_str());
+                x->troops.cataphract = atol(vec[8].c_str());
+                x->troops.ballista = atol(vec[9].c_str());
+                x->troops.ram = atol(vec[10].c_str());
+                x->troops.catapult = atol(vec[11].c_str());
+            }
+            x->starttime = rs.value("starttime").convert<int64_t>();
+            x->reachtime = rs.value("reachtime").convert<int64_t>();
+            x->resttime = rs.value("resttime").convert<int64_t>();
+            x->missiontype = rs.value("missiontype").convert<int32_t>();
+            x->startfieldid = rs.value("startfieldid").convert<int32_t>();
+            if (x->hero != 0) {
+                x->herolevel = x->hero->m_level;
+                x->heroname = x->hero->m_name;
+            }
+            x->startposname = city->m_cityname;
+            x->targetposname= map->GetTileFromID(x->targetfieldid)->GetName();
+            x->armyid = armycounter++;
+            stTimedEvent tl;
+            tl.type = DEF_TIMEDARMY;
+            tl.data = x;
+            armylist.push_back(tl);
+            x->client->armymovement.push_back(x);
+            Tile* til = map->GetTileFromID(x->targetfieldid);
+            if (til->m_ownerid > 0) {
+                Client* ml = GetClient(til->m_ownerid);
+                if (ml != x->client && ml!=0) {
+                    int16_t relation = m_alliances->GetRelation(ml->accountid, x->client->accountid);
+                    if (relation == DEF_ALLIANCE || relation == DEF_ALLY) {
+                        ml->friendarmymovement.push_back(x);
+                    }
+                }
+            }
+        }
+        armylist.sort(comparearmies);
+    }
 
     log->info("Loading Report data.");
 
+    {
+        Poco::Data::Session ses(serverpool->get());
+        Statement select(ses);
+        select << "SELECT * FROM `reports`;";
+        select.execute();
+        RecordSet rs(select);
 
-
-
+        rs.moveFirst();
+        for (int i = 0; i < rs.rowCount(); ++i, rs.moveNext()) {
+            int64_t clientid = rs.value("accountid").convert<int64_t>();
+            Client * client = GetClient(clientid);
+            if (client == 0) continue;
+            stReport r;
+            r.armytype = rs.value("armytype").convert<int8_t>();
+            r.back = rs.value("back").convert<bool>();
+            r.attack = rs.value("attack").convert<bool>();
+            r.type_id = rs.value("typeid").convert<int8_t>();
+            r.startpos = rs.value("startpos").convert<std::string>();
+            r.targetpos = rs.value("targetpos").convert<std::string>();
+            r.title = rs.value("title").convert<std::string>();
+            r.guid = rs.value("guid").convert<std::string>();
+            r.eventtime = rs.value("eventtime").convert<uint64_t>();
+            r.isread = rs.value("isread").convert<bool>();
+            r.reportid = client->currentreportid++;
+            client->reportlist.push_back(r);
+        }
+    }
     /*uint64_t alliancecount = 0;
     {
     Session ses2(serverpool->get());
@@ -1074,6 +1192,90 @@ void spitfire::run()
     //io_service_.run();
 
     timerthread.join();
+
+    // update DB on exit
+    log->info("Updating database before exiting");
+
+    log->info("Updating players database");
+    for (Client* xl:players) {
+        if (xl) xl->SaveToDB();
+    }
+
+    log->info("Updating cities database");
+    for (Client* xl : players) {
+        if (xl) {
+            for (PlayerCity* pl : xl->citylist) {
+                if (pl) pl->SaveToDB();
+            }
+        }
+    }
+
+    log->info("Updating heroes database");
+    for (Client* xl : players) {
+        if (xl) {
+            for (PlayerCity* pl : xl->citylist) {
+                if (pl) {
+                    for (Hero* hl : pl->m_heroes) {
+                        if (hl) hl->SaveToDB();
+                    }
+                }
+            }
+        }
+    }
+
+    log->info("Updating armies database");
+    {
+        Poco::Data::Session ses2(serverpool->get());
+        ses2 << "TRUNCATE TABLE `armies`", now;        
+        
+        using ArmyData = Poco::Tuple<int64_t, int8_t, std::string, std::string, int64_t, int64_t, int64_t, int8_t, int32_t, int32_t, int64_t, int32_t>;
+        std::vector<Poco::Any> vec;
+        for (stTimedEvent& evt : armylist)
+        {
+            stArmyMovement* x=(stArmyMovement*)evt.data;
+            vec.clear();
+            vec.emplace_back((int64_t)x->resources.food);
+            vec.emplace_back((int64_t)x->resources.wood);
+            vec.emplace_back((int64_t)x->resources.stone);
+            vec.emplace_back((int64_t)x->resources.iron);
+            vec.emplace_back((int64_t)x->resources.gold);
+            std::string resourcestring;
+            Poco::format(resourcestring,"%?d,%?d,%?d,%?d,%?d", vec);
+            vec.clear();
+            vec.emplace_back(x->troops.worker);
+            vec.emplace_back(x->troops.warrior);
+            vec.emplace_back(x->troops.scout);
+            vec.emplace_back(x->troops.pike);
+            vec.emplace_back(x->troops.sword);
+            vec.emplace_back(x->troops.archer);
+            vec.emplace_back(x->troops.transporter);
+            vec.emplace_back(x->troops.cavalry);
+            vec.emplace_back(x->troops.cataphract);
+            vec.emplace_back(x->troops.ballista);
+            vec.emplace_back(x->troops.ram);
+            vec.emplace_back(x->troops.catapult);
+            std::string troopstring;
+            Poco::format(troopstring,"%?d,%?d,%?d,%?d,%?d,%?d,%?d,%?d,%?d,%?d,%?d,%?d", vec);
+            int64_t heroid = -1;
+            if (x->hero != 0) heroid = x->hero->m_id;
+            ArmyData save(heroid, x->direction, resourcestring, troopstring, x->starttime, x->reachtime, x->resttime, x->missiontype, x->startfieldid, x->targetfieldid, ((PlayerCity*)x->city)->m_castleid, x->client->accountid);
+            ses2 << "INSERT INTO `armies` (`heroid`, `direction`, `resource`, `troops`, `starttime`, `reachtime`, `resttime`, `missiontype`, `startfieldid`, `targetfieldid`, `cityid`, `clientid`) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", use(save), now;
+        }
+    }
+
+    log->info("Updating reports database");
+    {
+        Poco::Data::Session ses(serverpool->get());
+        ses << "TRUNCATE TABLE `reports`;", now;
+        using ReportData = Poco::Tuple<int64_t, int8_t, bool, bool, int8_t, std::string, std::string, std::string, std::string, uint64_t, bool>;
+        for (Client* client : players) {
+            if (client == 0) continue;
+            for (stReport& r : client->reportlist) {
+                ReportData report(client->accountid, r.armytype, r.back, r.attack, r.type_id, r.startpos, r.targetpos, r.title, r.guid, r.eventtime, r.isread);
+                ses << "INSERT INTO `reports` (`accountid`, `armytype`, `back`, `attack`, `typeid`, `startpos`, `targetpos`, `title`, `guid`, `eventtime`, `isread`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", use(report), now;
+            }
+        }
+    }
 }
 
 void spitfire::stop()
@@ -1483,7 +1685,7 @@ int32_t spitfire::CalcTroopSpeed(PlayerCity * city, stTroops & troops, int32_t s
     GETXYFROMID4(fx, fy, starttile, mapsize);
     GETXYFROMID4(tx, ty, endtile, mapsize);
 
-    double line = sqrt(pow(abs(fx - tx), abs(fx - tx)) + pow(abs(fy - ty), abs(fy - ty)));
+    double line = sqrt(pow(abs(fx - tx), 2) + pow(abs(fy - ty), 2));
 
     double slowest = 10000;//either
     double mslowest = 10000;//mech
@@ -2618,6 +2820,10 @@ bool spitfire::comparecities(stClientRank first, stClientRank second)
         return true;
     else
         return false;
+}
+bool spitfire::comparearmies(stTimedEvent& x,stTimedEvent& y)
+{
+    return (((stArmyMovement*)x.data)->reachtime < ((stArmyMovement*)y.data)->reachtime);
 }
 
 void spitfire::SortPlayers()

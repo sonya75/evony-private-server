@@ -66,6 +66,7 @@ private:
     spitfire();
     ~spitfire();
     static spitfire * _instance;
+    static int64_t testMemory[12];
 public:
 
     enum server_status
@@ -314,6 +315,7 @@ public:
     static bool comparepower(stHeroRank first, stHeroRank second);
     static bool comparemanagement(stHeroRank first, stHeroRank second);
     static bool comparegrade(stHeroRank first, stHeroRank second);
+    static bool comparearmies(stTimedEvent& x,stTimedEvent& y);
 
 
     std::list<stCastleRank> m_castleranklevel;
