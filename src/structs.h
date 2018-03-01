@@ -199,9 +199,9 @@ struct stTroops
     int64_t pike;
     int64_t sword;
     int64_t archer;
+    int64_t transporter;
     int64_t cavalry;
     int64_t cataphract;
-    int64_t transporter;
     int64_t ballista;
     int64_t ram;
     int64_t catapult;
@@ -298,11 +298,11 @@ struct stArmyMovement
         obj["startPosName"] = startposname;
         obj["king"] = king;
         obj["troop"] = troops.ToObject();
-        obj["startTime"] = starttime;
+        obj["startTime"] = (double)starttime;
         obj["armyId"] = armyid;
-        obj["reachTime"] = reachtime;
+        obj["reachTime"] = (double)reachtime;
         obj["heroLevel"] = herolevel;
-        obj["restTime"] = resttime;
+        obj["restTime"] = (double)resttime;
         obj["missionType"] = missiontype;
         obj["startFieldId"] = startfieldid;
         obj["targetFieldId"] = targetfieldid;
