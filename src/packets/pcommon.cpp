@@ -417,7 +417,7 @@ void pcommon::process()
                 GETXYFROMID(randomid);
                 int x = xfromid;
                 int y = yfromid;
-                if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != -1)
+                if (gserver.map->m_tile[randomid].m_type != FLAT || gserver.map->m_tile[randomid].m_ownerid != 0)
                 {
                     gserver.log->error("Error. Flat not empty!");
                     gserver.SendObject(client, gserver.CreateError("common.createNewPlayer", -25, "Error with account creation. #-25"));

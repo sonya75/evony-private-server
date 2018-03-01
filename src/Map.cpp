@@ -78,7 +78,7 @@ void Map::CalculateOpenTiles()
                 if (tile->m_type == FLAT)
                 {
                     m_totalflats[tempstate]++;
-                    if (tile->m_ownerid == -1)
+                    if (tile->m_ownerid == 0)
                     {
                         m_openflats[tempstate]++;
 
