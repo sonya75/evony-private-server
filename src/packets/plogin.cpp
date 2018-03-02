@@ -46,6 +46,12 @@ void plogin::process()
         return;
     }
 
+	if (client != 0)
+	{
+		gserver.SendObject(client, gserver.CreateError("server.loginResponse", -99, "Client already logged in."));
+		return;
+	}
+
     std::string newuser;
     std::string newpass;
     newuser = Utils::makesafe(username);
