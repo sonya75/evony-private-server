@@ -3042,6 +3042,19 @@ void spitfire::MassDisconnect()
 }
 
 int spitfire::RandomStat() const
+
+// rand() % 10000 gives a number in the range 0..9999
+// int rnd = rand() % 10000; gives us a granularity of 10000
+// a possible one in 10000 chance.
+// 6500 times out of 10000 a normal hero is generated
+// with a stat of between 15 and 35.
+// Then, 'else if' is used to divide up the remaining 3500
+// into sections 30, 45, 60, 70 etc
+// a small random number is added to each to add a
+// spread within that range.
+// e.g. rand() % 6 gives a number in the range 0..5
+// a value of 10 is returned at the end if all else fails.
+
 {
     int rnd = rand() % 10000;
     if ((rnd >= 0) && (rnd < 6500))
@@ -3065,15 +3078,22 @@ int spitfire::RandomStat() const
         return rand() % 6 + 70; // 70-75
     }
     else if ((rnd >= 9950) && (rnd < 9975))
+    // a 25 in 10000 chance of getting one of these
     {
-        return rand() % 6 + 75; // 75-80
+        return rand() % 5 + 75; // 75-80
     }
-    else if ((rnd >= 9975) && (rnd < 10000))
-    {
-        return rand() % 6 + 80; // 80-85
-    }
+    // Leave out these two lines, max stat is 79. //
+    //    else if ((rnd >= 9975) && (rnd < 10000))
+    //    {
+    //        return rand() % 6 + 80; // 80-85
+    //    }
+
+    // anything above 9975 gets a 10
+    // a 25 in 10000 chance of getting a 10
+    // for this stat.
     return 10;
 }
+
 
 Hero * spitfire::CreateRandomHero(int innlevel) const
 {
