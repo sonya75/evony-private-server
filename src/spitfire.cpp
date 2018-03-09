@@ -941,7 +941,7 @@ void spitfire::run()
         }
     }
 
-    log->info("Loading army data");
+    log->info("Loading army data.");
     {
         Poco::Data::Session ses2(serverpool->get());
         Statement select(ses2);
@@ -1201,14 +1201,14 @@ void spitfire::run()
     timerthread.join();
 
     // update DB on exit
-    log->info("Updating database before exiting");
+    log->info("Updating database before exiting.");
 
-    log->info("Updating players database");
+    log->info("Updating players database.");
     for (Client* xl:players) {
         if (xl) xl->SaveToDB();
     }
 
-    log->info("Updating cities database");
+    log->info("Updating cities database.");
     for (Client* xl : players) {
         if (xl) {
             for (PlayerCity* pl : xl->citylist) {
@@ -1217,7 +1217,7 @@ void spitfire::run()
         }
     }
 
-    log->info("Updating heroes database");
+    log->info("Updating heroes database.");
     for (Client* xl : players) {
         if (xl) {
             for (PlayerCity* pl : xl->citylist) {
@@ -1230,7 +1230,7 @@ void spitfire::run()
         }
     }
 
-    log->info("Updating armies database");
+    log->info("Updating armies database.");
     {
         Poco::Data::Session ses2(serverpool->get());
         ses2 << "TRUNCATE TABLE `armies`", now;        
@@ -1270,7 +1270,7 @@ void spitfire::run()
         }
     }
 
-    log->info("Updating reports database");
+    log->info("Updating reports database.");
     {
         Poco::Data::Session ses(serverpool->get());
         ses << "TRUNCATE TABLE `reports`;", now;
