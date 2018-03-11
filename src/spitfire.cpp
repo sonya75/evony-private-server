@@ -3687,40 +3687,40 @@ bool spitfire::Init()
         log->info("Loading config.json");
 
         bindaddress = obj["bindaddress"];
-        log->info(fmt::format("bindaddress: {}", bindaddress));
+        log->info("bindaddress: {}", bindaddress);
 
         bindport = obj["bindport"];
-        log->info(fmt::format("bindport: {}", bindport));
+        log->info("bindport: {}", bindport);
 
         maxplayers = obj["maxplayers"];
-        log->info(fmt::format("maxplayers: {}", maxplayers));
+        log->info("maxplayers: {}", maxplayers);
 
         mapsize = obj["mapsize"];
-        log->info(fmt::format("mapsize: {}", mapsize));
+        log->info("mapsize: {}", mapsize);
 
         sqlhost = obj["sqlhost"];
-        log->info(fmt::format("sqlhost: {}", sqlhost));
+        log->info("sqlhost: {}", sqlhost);
 
         sqluser = obj["sqluser"];
-        log->info(fmt::format("sqluser: {}", sqluser));
+        log->info("sqluser: {}", sqluser);
 
         sqlpass = obj["sqlpass"];
         log->info("sqlpass set");
 
         dbmaintable = obj["dbmaintable"];
-        log->info(fmt::format("dbmaintable: {}", dbmaintable));
+        log->info("dbmaintable: {}", dbmaintable);
 
         dbservertable = obj["dbservertable"];
-        log->info(fmt::format("dbservertable: {}", dbservertable));
+        log->info("dbservertable: {}", dbservertable);
 
         servername = obj["servername"];
-        log->info(fmt::format("servername: {}", servername));
+        log->info("servername: {}", servername);
 
         reportbasepath = obj["reportbasepath"];
-        log->info(fmt::format("report base path: {}",reportbasepath));
+        log->info("report base path: {}",reportbasepath);
 
-        reportbaseurl=obj["reportbaseurl"];
-        log->info(fmt::format("report base url: {}",reportbaseurl));
+        reportbaseurl = obj["reportbaseurl"];
+        log->info("report base url: {}",reportbaseurl);
     }
     catch (std::exception& e)
     {
