@@ -136,6 +136,12 @@
     <ClCompile Include="..\src\packets\plogin.cpp">
       <Filter>src\packets</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Valley.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\BattleCalc.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\CMakeLists.txt">
@@ -311,6 +317,15 @@
       <Filter>src\packets</Filter>
     </ClInclude>
     <ClInclude Include="..\src\structs.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Valley.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\xml_writer.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\combatsimulator.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -156,6 +156,12 @@
     <ClCompile Include="..\src\packets\phero.cpp">
       <Filter>Source Files\packets</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Valley.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\BattleCalc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\spitfire.h">
@@ -298,6 +304,15 @@
     </ClInclude>
     <ClInclude Include="..\src\packets\phero.h">
       <Filter>Source Files\packets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Valley.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\xml_writer.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\combatsimulator.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

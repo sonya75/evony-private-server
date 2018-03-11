@@ -30,6 +30,7 @@
     <ClCompile Include="..\src\amf3objectmap.cpp" />
     <ClCompile Include="..\src\amf3parser.cpp" />
     <ClCompile Include="..\src\amf3writer.cpp" />
+    <ClCompile Include="..\src\BattleCalc.cpp" />
     <ClCompile Include="..\src\City.cpp" />
     <ClCompile Include="..\src\Client.cpp" />
     <ClCompile Include="..\src\connection.cpp" />
@@ -67,6 +68,7 @@
     <ClCompile Include="..\src\spitfire.cpp" />
     <ClCompile Include="..\src\Tile.cpp" />
     <ClCompile Include="..\src\Utils.cpp" />
+    <ClCompile Include="..\src\Valley.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Alliance.h" />
@@ -81,6 +83,7 @@
     <ClInclude Include="..\src\amf3writer.h" />
     <ClInclude Include="..\src\City.h" />
     <ClInclude Include="..\src\Client.h" />
+    <ClInclude Include="..\src\combatsimulator.h" />
     <ClInclude Include="..\src\connection.h" />
     <ClInclude Include="..\src\defines.h" />
     <ClInclude Include="..\src\Hero.h" />
@@ -117,6 +120,8 @@
     <ClInclude Include="..\src\structs.h" />
     <ClInclude Include="..\src\Tile.h" />
     <ClInclude Include="..\src\Utils.h" />
+    <ClInclude Include="..\src\Valley.h" />
+    <ClInclude Include="..\src\xml_writer.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D2DCEAFD-57F7-4DE3-91BE-94271EBDA177}</ProjectGuid>
@@ -174,6 +179,8 @@
       <CppLanguageStandard>
       </CppLanguageStandard>
       <CLanguageStandard />
+      <BrowseInformation>false</BrowseInformation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

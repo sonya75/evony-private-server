@@ -19,6 +19,7 @@
     <ClCompile Include="..\src\amf3objectmap.cpp" />
     <ClCompile Include="..\src\amf3parser.cpp" />
     <ClCompile Include="..\src\amf3writer.cpp" />
+    <ClCompile Include="..\src\BattleCalc.cpp" />
     <ClCompile Include="..\src\City.cpp" />
     <ClCompile Include="..\src\Client.cpp" />
     <ClCompile Include="..\src\connection.cpp" />
@@ -56,6 +57,7 @@
     <ClCompile Include="..\src\spitfire.cpp" />
     <ClCompile Include="..\src\Tile.cpp" />
     <ClCompile Include="..\src\Utils.cpp" />
+    <ClCompile Include="..\src\Valley.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Alliance.h" />
@@ -70,6 +72,7 @@
     <ClInclude Include="..\src\amf3writer.h" />
     <ClInclude Include="..\src\City.h" />
     <ClInclude Include="..\src\Client.h" />
+    <ClInclude Include="..\src\combatsimulator.h" />
     <ClInclude Include="..\src\connection.h" />
     <ClInclude Include="..\src\defines.h" />
     <ClInclude Include="..\src\Hero.h" />
@@ -105,6 +108,8 @@
     <ClInclude Include="..\src\spitfire.h" />
     <ClInclude Include="..\src\Tile.h" />
     <ClInclude Include="..\src\Utils.h" />
+    <ClInclude Include="..\src\Valley.h" />
+    <ClInclude Include="..\src\xml_writer.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -171,10 +176,11 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>PocoFoundationd.lib;PocoDataMySQLd.lib;PocoDatad.lib;fmt.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>PocoFoundationd.lib;PocoDataMySQLd.lib;PocoDatad.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
