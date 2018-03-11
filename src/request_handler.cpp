@@ -233,9 +233,35 @@ void request_handler::handle_request(spitfire & server, request& req) const
             pkt.process();
         }
     }
-    catch (Poco::Data::MySQL::StatementException * e)
+    catch (Poco::Data::MySQL::ConnectionException& e)\
     {
-        server.log->error("Random SQL Exception: {}", e->displayText());
+        std::string file = __FILE__;
+        server.log->error("ConnectionException: {} {} {}", file, __LINE__, e.displayText());
+        return;
+    }
+    catch (Poco::Data::MySQL::StatementException& e)
+    {
+        std::string file = __FILE__;
+        server.log->error("StatementException: {} {} {}", file, __LINE__, e.displayText());
+        return;
+    }
+    catch (Poco::Data::MySQL::MySQLException& e)
+    {
+        std::string file = __FILE__;
+        server.log->error("MySQLException: {} {} {}", file, __LINE__, e.displayText());
+        return;
+    }
+    catch (Poco::InvalidArgumentException& e)
+    {
+        std::string file = __FILE__;
+        server.log->error("InvalidArgumentException: {} {} {}", file, __LINE__, e.displayText());
+        return;
+    }
+    catch (Poco::Data::ConnectionFailedException& e)
+    {
+        std::string file = __FILE__;
+        server.log->error("ConnectionFailedException: {} {} {}", file, __LINE__, e.displayText());
+        return;
     }
     catch (std::exception & e)
     {
