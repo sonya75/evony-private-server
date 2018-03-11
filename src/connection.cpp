@@ -76,7 +76,7 @@ void connection::stop()
         client_->socket = 0;
         client_->socknum = 0;
         client_ = nullptr;
-        spitfire::GetSingleton().PlayerCount(-1);
+        //spitfire::GetSingleton().PlayerCount(-1);
 
         //TODO: record last online time
     }

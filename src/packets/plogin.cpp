@@ -42,8 +42,8 @@ void plogin::process()
 
     if (gserver.maxplayers <= gserver.currentplayersonline + 1)
     {
-        gserver.SendObject(req.conn, gserver.CreateError("server.LoginResponse", -99, "Servers are currently overloaded. Please try again later."));
-        return;
+        //gserver.SendObject(req.conn, gserver.CreateError("server.LoginResponse", -99, "Servers are currently overloaded. Please try again later."));
+        //return;
     }
 
 	if (client != 0)
