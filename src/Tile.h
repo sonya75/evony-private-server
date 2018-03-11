@@ -11,6 +11,7 @@
 
 
 class City;
+class ValleyData;
 
 class Tile
 {
@@ -23,7 +24,7 @@ public:
     std::string GetName() const;
 
     City * m_city;
-    void* m_valley;
+    ValleyData * m_valley;
     char m_castleicon;
     uint32_t m_castleid;
     uint32_t m_id;

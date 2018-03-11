@@ -2058,9 +2058,8 @@ void spitfire::TimerThread()
                                             // this is for saving memory only for now
                                             if (tile->m_valley == nullptr) {
                                                 tile->m_valley = new ValleyData;
-                                                ((ValleyData*)tile->m_valley)->m_tile = tile;
                                             }
-                                            ((ValleyData*)tile->m_valley)->Reset(false);
+                                            tile->m_valley->Reset(false);
                                             stReport r;
                                             r.guid = Utils::generaterandomstring(28);
                                             r.attack = true;
