@@ -30,9 +30,10 @@ AllianceMgr::~AllianceMgr()
 void AllianceMgr::DeleteAlliance(Alliance * alliance)
 {
     int32_t found = -1;
+    if (alliance == nullptr) return;
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i])
+        if (m_alliances[i] != nullptr)
         {
             if (m_alliances[i]->m_allianceid != alliance->m_allianceid)
             {
@@ -78,7 +79,7 @@ void AllianceMgr::CheckAlliance(Alliance * alliance)
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
-        if (m_alliances[i] != 0)
+        if (m_alliances[i] != nullptr)
         {
             if (m_alliances[i]->m_members.size() == 0)
             {
@@ -115,7 +116,7 @@ bool AllianceMgr::JoinAlliance(uint64_t allianceid, Client * client)
         return false; //already in an alliance
     }
     Alliance * alliance = AllianceById(allianceid);
-    if (alliance == (Alliance*)-1)
+    if (alliance == (Alliance*)0)
     {
         return false; //alliance doesn't exist
     }
@@ -126,7 +127,7 @@ bool AllianceMgr::JoinAlliance(uint64_t allianceid, Client * client)
         client->allianceid = alliance->m_allianceid;
         client->alliancename = alliance->m_name;
         client->alliancerank = DEF_ALLIANCEMEMBER;
-        client->PlayerUpdate();
+        client->PlayerInfoUpdate();
         return true;
     }
     return false;
@@ -139,7 +140,7 @@ bool AllianceMgr::RemoveFromAlliance(uint64_t allianceid, Client * client)
         return false; //not in an alliance
     }
     Alliance * alliance = AllianceById(allianceid);
-    if (alliance == (Alliance*)-1)
+    if (alliance == (Alliance*)0)
     {
         return false; //alliance doesn't exist
     }
@@ -150,7 +151,7 @@ bool AllianceMgr::RemoveFromAlliance(uint64_t allianceid, Client * client)
     client->alliancename = "";
     client->alliancerank = 0;
 
-    client->PlayerUpdate();
+    client->PlayerInfoUpdate();
     return true;
 }
 
@@ -161,7 +162,7 @@ bool AllianceMgr::SetRank(uint64_t allianceid, Client * client, int8_t rank)
         return false; //no alliance id given
     }
     Alliance * alliance = AllianceById(allianceid);
-    if (alliance == (Alliance*)-1)
+    if (alliance == (Alliance*)0)
     {
         return false; //alliance doesn't exist
     }
@@ -243,7 +244,8 @@ int16_t AllianceMgr::GetRelation(int64_t client1, int64_t client2)
 
     Alliance * a1 = AllianceById(c1->allianceid);
     Alliance * a2 = AllianceById(c2->allianceid);
-
+    if (!a1 || !a2)
+        return DEF_NORELATION;
     if (a1->IsEnemy(c2->allianceid))
         return DEF_ENEMY;
     else if (a1->IsAlly(c2->allianceid))
@@ -292,7 +294,7 @@ void AllianceMgr::SortAlliances()
             sthon.honor = stpre.prestige = 0;
             stmem.id = stpre.id = sthon.id = m_alliances[i]->m_allianceid;
             stmem.members = m_alliances[i]->m_members.size();
-            m_alliances[i]->m_citycount = 0;
+            m_alliances[i]->m_allicitycount = 0;
             for (Alliance::stMember & member : m_alliances[i]->m_members)
             {
                 Client * client = spitfire::GetSingleton().GetClient(member.clientid);
@@ -300,7 +302,7 @@ void AllianceMgr::SortAlliances()
                 {
                     sthon.honor += client->honor;
                     stpre.prestige += client->prestige;
-                    m_alliances[i]->m_citycount += client->citycount;
+                    m_alliances[i]->m_allicitycount += client->citylist.size();
                 }
             }
             stmem.ref = m_alliances[i];
@@ -337,7 +339,7 @@ void AllianceMgr::SortAlliances()
     }
 }
 
-Alliance * AllianceMgr::AllianceById(uint64_t id)
+Alliance * AllianceMgr::AllianceById(int64_t id)//util
 {
     for (int i = 0; i < DEF_MAXALLIANCES; ++i)
     {
@@ -346,7 +348,7 @@ Alliance * AllianceMgr::AllianceById(uint64_t id)
             return m_alliances[i];
         }
     }
-    return (Alliance*)-1;
+    return (Alliance*)0;
 }
 
 Alliance * AllianceMgr::AllianceByName(std::string name)
@@ -358,7 +360,7 @@ Alliance * AllianceMgr::AllianceByName(std::string name)
             return m_alliances[i];
         }
     }
-    return (Alliance*)-1;
+    return (Alliance*)0;
 }
 
 

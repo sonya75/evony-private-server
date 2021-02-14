@@ -23,7 +23,7 @@ public:
     AllianceMgr();
     ~AllianceMgr();
     int16_t GetRelation(int64_t client1, int64_t client2);
-    Alliance * CreateAlliance(std::string name, std::string founder, int64_t allianceid = 0, bool savetodb = true);
+    Alliance * CreateAlliance(std::string name, std::string founder, int64_t allianceid = 0, bool savetodb = false);
     void DeleteAlliance(Alliance * alliance);
     void CheckAlliance(Alliance * alliance);
 
@@ -83,7 +83,7 @@ public:
     bool RemoveFromAlliance(uint64_t allianceid, Client * client);
     bool SetRank(uint64_t allianceid, Client * client, int8_t rank);
 
-    Alliance * AllianceById(uint64_t id);
+    Alliance * AllianceById(int64_t id);
     Alliance * AllianceByName(std::string name);
 
     Alliance * m_alliances[DEF_MAXALLIANCES];

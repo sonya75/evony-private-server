@@ -155,6 +155,7 @@ amf3object Alliance::ToObject()
 
 bool Alliance::IsEnemy(int64_t allianceid)
 {
+    if (allianceid <= 0) return false;
     for (int64_t _id : m_enemies)
     {
         if (allianceid == _id)
@@ -167,6 +168,7 @@ bool Alliance::IsEnemy(int64_t allianceid)
 
 bool Alliance::IsAlly(int64_t allianceid)
 {
+    if (allianceid <= 0) return false;
     for (int64_t _id : m_allies)
     {
         if (allianceid == _id)
@@ -179,6 +181,7 @@ bool Alliance::IsAlly(int64_t allianceid)
 
 bool Alliance::IsNeutral(int64_t allianceid)
 {
+    if (allianceid <= 0) return false;
     for (int64_t _id : m_neutral)
     {
         if (allianceid == _id)

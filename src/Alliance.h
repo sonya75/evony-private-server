@@ -73,7 +73,7 @@ public:
     int16_t m_prestigerank;
     int16_t m_honorrank;
     int16_t m_membersrank;
-    int32_t m_citycount;
+    int32_t m_allcitycount;
 
     struct stMember
     {
@@ -106,11 +106,14 @@ public:
     std::list<int64_t> m_enemies;
     std::list<int64_t> m_allies;
     std::list<int64_t> m_neutral;
+    std::vector<stReport> m_alliancereports;
+    std::vector<stReport> m_allianceevents;
 
     int64_t m_ownerid;
     std::string m_owner;
     std::string m_name;
     std::string m_founder;
+    int64_t m_founderid;
     std::string m_note;
     std::string m_intro;
     std::string m_motd;
