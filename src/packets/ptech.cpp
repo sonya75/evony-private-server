@@ -495,7 +495,7 @@ void ptech::process()
                 }
                 //not enough item, but can buy with cents
                 client->cents -= cents;
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
             }
             else
             { //has item

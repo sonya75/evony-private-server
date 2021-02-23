@@ -74,7 +74,7 @@ public:
     int16_t m_honorrank;
     int16_t m_membersrank;
     int32_t m_allcitycount;
-
+    int32_t m_allicitycount;
     struct stMember
     {
         bool operator==(const stMember& rhs) const

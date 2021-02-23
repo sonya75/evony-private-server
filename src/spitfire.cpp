@@ -1829,7 +1829,7 @@ bool spitfire::ParseChat(Client * client, std::string str)
             {
                 data["msg"] = "50000 Cents granted.";
                 client->cents += 50000;
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
             }
             /*            else if (!strcmp(command, "pres"))
             {
@@ -1838,7 +1838,7 @@ bool spitfire::ParseChat(Client * client, std::string str)
             ss << test << "prestige granted.";
             data["msg"] = ss.str().c_str();
             client->m_prestige += test;
-            client->PlayerUpdate();
+            client->PlayerInfoUpdate();
             }*/
             else if (!strcmp(command, "resources"))
             {
@@ -1991,7 +1991,7 @@ void spitfire::TimerThread()
                                 //troops done training
                                 double gain = iter->count * GetPrestigeOfAction(DEF_TRAIN, iter->troopid, 1, city->m_level);
                                 client->Prestige(gain);
-                                client->PlayerUpdate();
+                                client->PlayerInfoUpdate();
                                 if (city->m_mayor)
                                 {
                                     city->m_mayor->m_experience += gain;
@@ -2393,7 +2393,7 @@ void spitfire::TimerThread()
                                 if (am->hero) ((PlayerCity*)am->city)->HeroUpdate(am->hero, 2);
 
                                 am->client->SelfArmyUpdate();
-                                am->client->PlayerUpdate();
+                                am->client->PlayerInfoUpdate();
                                 ((PlayerCity*)am->city)->TroopUpdate();
                                 ((PlayerCity*)am->city)->ResourceUpdate();
 
@@ -2515,7 +2515,7 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                                     city->HeroUpdate(city->m_mayor, 2);
                                 }
                                 //city->CastleUpdate();
-                                client->PlayerUpdate();
+                                client->PlayerInfoUpdate();
                                 city->ResourceUpdate();
 
                                 SendObject(client, obj);
@@ -2616,7 +2616,7 @@ Hang in there and stay alert.Good luck!", MAIL_SYSTEM);
                                     city->HeroUpdate(city->m_mayor, 2);
                                 }
                                 //city->CastleUpdate();
-                                client->PlayerUpdate();
+                                client->PlayerInfoUpdate();
                                 city->ResourceUpdate();
 
                                 SendObject(client, obj);
@@ -3228,7 +3228,7 @@ void spitfire::SortPlayers()
         ranklist.rank = num;
         ranklist.client->prestigerank = num++;
         if (ranklist.client->connected)
-            ranklist.client->PlayerUpdate();
+            ranklist.client->PlayerInfoUpdate();
     }
     num = 1;
     for (stClientRank & ranklist : m_honorrank)

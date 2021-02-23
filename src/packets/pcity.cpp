@@ -198,7 +198,7 @@ void pcity::process()
         client->flag = flag;
         // TODO check valid name and error reporting - city.modifyFlag
 
-        client->PlayerUpdate();
+        client->PlayerInfoUpdate();
 
         obj2["cmd"] = "city.modifyFlag";
         data2["packageId"] = 0.0;
@@ -277,7 +277,7 @@ void pcity::process()
         client->AddItem("player.name.1.a", -1);
 
         client->playername = newname;
-        client->PlayerUpdate();
+        client->PlayerInfoUpdate();
 
 
         obj2["cmd"] = "city.modifyUserName";

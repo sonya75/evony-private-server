@@ -272,7 +272,7 @@ void pfortifications::process()
                     }
                     //not enough item, but can buy with cents
                     client->cents -= cents;
-                    client->PlayerUpdate();
+                    client->PlayerInfoUpdate();
 
                     if (trainqueue.endtime > 0)
                     {

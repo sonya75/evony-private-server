@@ -152,7 +152,7 @@ public:
     std::list<stArmyMovement*> enemyarmymovement;
 
     void CalculateResources();
-    void PlayerUpdate();
+    void PlayerInfoUpdate();
     void ItemUpdate(std::string itemname);
     void BuffUpdate(std::string name, std::string desc, int64_t endtime, int8_t type = 0);
     void HeroUpdate(int heroid, int castleid);
@@ -179,7 +179,7 @@ public:
         {
             beginner = set;
             if (update)
-                PlayerUpdate();
+                PlayerInfoUpdate();
         }
     }
     inline void CheckBeginner(bool update = true)

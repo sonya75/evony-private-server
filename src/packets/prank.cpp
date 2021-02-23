@@ -198,7 +198,7 @@ void prank::process()
                 temp["description"] = iter->ref->m_intro;
                 temp["createrName"] = iter->ref->m_founder;
                 temp["name"] = iter->ref->m_name;
-                temp["city"] = iter->ref->m_citycount;
+                temp["city"] = iter->ref->m_allicitycount;
                 beans.Add(temp);
             }
             data2["beans"] = beans;

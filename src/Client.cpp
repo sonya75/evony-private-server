@@ -869,7 +869,7 @@ void Client::CalculateResources()
     }
 }
 
-void Client::PlayerUpdate()
+void Client::PlayerInfoUpdate()
 {
     amf3object obj = amf3object();
     obj["cmd"] = "server.PlayerInfoUpdate";

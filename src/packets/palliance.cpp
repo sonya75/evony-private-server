@@ -837,7 +837,7 @@ void palliance::process()
 
             if (!gserver.m_alliances->JoinAlliance(alliance->m_allianceid, client))
             {
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
                 city->ResourceUpdate();
 
                 gserver.SendObject(client, gserver.CreateError("alliance.createAlliance", -99, "Alliance created but cannot join. Please contact support."));
@@ -845,14 +845,14 @@ void palliance::process()
             }
             if (!gserver.m_alliances->SetRank(alliance->m_allianceid, client, DEF_ALLIANCEHOST))
             {
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
                 city->ResourceUpdate();
 
                 gserver.SendObject(client, gserver.CreateError("alliance.createAlliance", -99, "Alliance created but cannot set rank to host. Please contact support."));
                 return;
             }
 
-            client->PlayerUpdate();
+            client->PlayerInfoUpdate();
             city->ResourceUpdate();
 
             gserver.SendObject(client, obj2);
@@ -952,8 +952,8 @@ void palliance::process()
             //everything checks out. target is vice host and you are host
             tclient->alliancerank = DEF_ALLIANCEHOST;
             client->alliancerank = DEF_ALLIANCEVICEHOST;
-            client->PlayerUpdate();
-            tclient->PlayerUpdate();
+            client->PlayerInfoUpdate();
+            tclient->PlayerInfoUpdate();
             alliance->m_ownerid = tclient->accountid;
             alliance->m_owner = tclient->playername;
 
@@ -1016,7 +1016,7 @@ void palliance::process()
         
         gserver.SendObject(client, obj2);
 
-        client->PlayerUpdate();
+        client->PlayerInfoUpdate();
 
         alliance->SaveToDB();
         client->SaveToDB();

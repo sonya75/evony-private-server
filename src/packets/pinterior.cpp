@@ -104,7 +104,7 @@ void pinterior::process()
                 if (city->m_grievance < 0)
                     city->m_grievance = 0;
                 city->ResourceUpdate();
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
                 break;
             case 2://Praying 100% pop limit in food for cost, increases loyalty by 25 reduces grievance by 5
                 if (city->m_resources.food < city->m_maxpopulation)
@@ -120,7 +120,7 @@ void pinterior::process()
                 if (city->m_grievance < 0)
                     city->m_grievance = 0;
                 city->ResourceUpdate();
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
                 break;
             case 3://Blessing 10% pop limit in gold for cost, increases food by 100% pop limit - chance for escaping disaster?
                 if (city->m_resources.gold < (city->m_maxpopulation / 10))
@@ -136,7 +136,7 @@ void pinterior::process()
                     gserver.SendObject(client, gserver.CreateError("interior.pacifyPeople", -99, "Free blessing!"));
 
                     city->ResourceUpdate();
-                    client->PlayerUpdate();
+                    client->PlayerInfoUpdate();
 
                     client->SaveToDB();
                     city->SaveToDB();
@@ -144,7 +144,7 @@ void pinterior::process()
                     return;
                 }
                 city->ResourceUpdate();
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
                 break;
             case 4://Population Raising 500% pop limit in food for cost, increases population by 5%
                 if (city->m_resources.food < (city->m_maxpopulation * 5))
@@ -157,7 +157,7 @@ void pinterior::process()
                 if (city->m_population >= city->m_maxpopulation)
                     city->m_population = city->m_maxpopulation;
                 city->ResourceUpdate();
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
                 break;
         }
 
@@ -228,7 +228,7 @@ void pinterior::process()
                 break;
         }
         city->ResourceUpdate();
-        client->PlayerUpdate();
+        client->PlayerInfoUpdate();
 
         // TODO finish - interior.taxation
         obj2["cmd"] = "interior.taxation";

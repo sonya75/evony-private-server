@@ -33,7 +33,8 @@ Alliance::Alliance(std::string name, std::string founder)
     m_membersrank = 0;
     m_founder = founder;
     m_owner = "";
-    m_citycount = 0;
+    //m_citycount = 0;
+    m_allicitycount = 0;
 }
 
 Alliance::~Alliance()

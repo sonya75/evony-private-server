@@ -51,7 +51,7 @@ void pshop::process()
 
                 client->AddItem(itemid, amount);
 
-                client->PlayerUpdate();
+                client->PlayerInfoUpdate();
 
                 obj2["cmd"] = "shop.buy";
                 data2["packageId"] = 0.0;
@@ -121,7 +121,7 @@ void pshop::process()
         data2["packageId"] = 0.0;
         data2["ok"] = 1;
 
-        client->PlayerUpdate();
+        client->PlayerInfoUpdate();
         city->ResourceUpdate();
 
         gserver.SendObject(client, obj2);
